@@ -81,6 +81,8 @@ The client never automatically retries a request.
 If `outcomeUnknown` is true, a dispatched write may already have completed. Inspect
 the original operation and its idempotency key before repeating it. A missing
 response, timeout, malformed response or HTTP 5xx is not proof that a write failed.
+Tool/domain failures and internal JSON-RPC failures also retain an unknown outcome;
+the client cannot infer rollback from an extension's error text.
 The flag is conservative for POST calls, including read-only MCP tools.
 
 ## Contracts, provenance and tests

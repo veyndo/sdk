@@ -48,13 +48,15 @@ test('domain, protocol and HTTP errors stay distinguishable', async t => {
   const baseUrl = await fixture(t, (req, res, body) => {
     if (req.url === '/denied') return reply(res, {}, 403);
     if (body.params.name === 'protocol') return reply(res, { jsonrpc: '2.0', id: body.id, error: { code: -32602, message: 'Invalid arguments' } });
+    if (body.params.name === 'internal') return reply(res, { jsonrpc: '2.0', id: body.id, error: { code: -32603, message: 'Internal failure after dispatch' } });
     reply(res, { jsonrpc: '2.0', id: body.id, result: { isError: true,
       content: [{ type: 'text', text: 'Revision changed; reload before applying' }] } });
   });
   const client = createClient({ baseUrl });
   await assert.rejects(client.request('/denied'), e => e instanceof VeyndoError && e.kind === 'http' && e.status === 403);
-  await assert.rejects(client.tool('protocol'), e => e.kind === 'rpc' && e.code === -32602);
-  await assert.rejects(client.tool('domain'), e => e.kind === 'tool' && e.message.includes('Revision changed'));
+  await assert.rejects(client.tool('protocol'), e => e.kind === 'rpc' && e.code === -32602 && !e.outcomeUnknown);
+  await assert.rejects(client.tool('internal'), e => e.kind === 'rpc' && e.outcomeUnknown);
+  await assert.rejects(client.tool('domain'), e => e.kind === 'tool' && e.outcomeUnknown && e.message.includes('Revision changed'));
 });
 
 test('rejects foreign URLs, credentials, redirects and authority overrides', async t => {

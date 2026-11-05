@@ -14,7 +14,8 @@ export function createClient(options) {
         (Object.hasOwn(value, 'result') === Object.hasOwn(value, 'error')))
       throw new VeyndoError('Invalid or mismatched MCP response', { kind: 'protocol', outcomeUnknown: method === 'tools/call' });
     if (value.error) throw new VeyndoError(String(value.error.message ?? 'MCP request failed'), {
-      kind: 'rpc', code: value.error.code });
+      kind: 'rpc', code: value.error.code,
+      outcomeUnknown: method === 'tools/call' && ![-32700, -32600, -32601, -32602].includes(value.error.code) });
     return value.result;
   }
   return Object.freeze({
@@ -22,7 +23,7 @@ export function createClient(options) {
     async initialize(callOptions) {
       const requested = options.protocolVersion ?? '2025-11-25';
       const result = await rpc('initialize', { protocolVersion: requested, capabilities: {},
-        clientInfo: { name: '@veyndo/sdk', version: '0.1.0' } }, callOptions);
+        clientInfo: { name: '@veyndo/sdk', version: '0.1.1' } }, callOptions);
       if (!result || result.protocolVersion !== requested)
         throw new VeyndoError('Unsupported MCP protocol version returned by service', { kind: 'protocol' });
       protocolVersion = result.protocolVersion; return result;
@@ -36,7 +37,8 @@ export function createClient(options) {
         throw new VeyndoError('Invalid MCP tool result', { kind: 'protocol', outcomeUnknown: true });
       if (result.isError) {
         const message = result.content?.find(item => item.type === 'text')?.text ?? 'Operation rejected';
-        throw new VeyndoError(message, { kind: 'tool' });
+        // An extension may fail after an external effect; error prose cannot prove rollback.
+        throw new VeyndoError(message, { kind: 'tool', outcomeUnknown: true });
       }
       if (Object.hasOwn(result, 'structuredContent')) return result.structuredContent;
       const text = result.content?.find(item => item.type === 'text')?.text;
