@@ -117,3 +117,30 @@ vorhandene MCP Schnittstelle. Der Server prüft Rechte und Shopzugehörigkeit.
 Beispiele stehen unter `examples/`; Fortschritt und Gesamtabnahme stehen in der
 zentralen Komponentenliste. Die übrigen Komponenten sind noch nicht vollständig
 herausgelöst.
+
+## Independent host exchange
+
+`@veyndo/sdk/host` exposes the versioned callback contract for server components:
+private record actions, channel/product projections, reviewed paid-order intake
+and durable job enqueue/claim/progress. Input DTOs and allowed operation names
+are generated from the same contract consumed by Veyndo. `HOST-PROVENANCE.json`
+records its exact source. Responses remain host-owned JSON.
+
+```js
+import { createHostClient } from '@veyndo/sdk/host';
+const host = createHostClient({
+  baseUrl: 'https://commerce.example', appId: 'marketplaces',
+  shop: 'your-shop', token: process.env.HOST_CALLBACK_TOKEN,
+  hostPath: '/commerce/v1/', // Omit for the existing Veyndo callback path.
+});
+await host.call('job_enqueue', {
+  action: 'sync', input: { connectionId: 'ebay-de', kind: 'orders' },
+  requestKey: 'explicit-stable-request-key',
+});
+```
+
+The host must authenticate current tenant/actor, installed package, callback
+capabilities and compound action rights. It owns atomic orders/stock, job leases,
+CAS and idempotency. The client performs no automatic retries; a lost write
+response remains uncertain. This interface runs only on trusted servers, with
+callback tokens held privately. The host adapter does not create another queue.

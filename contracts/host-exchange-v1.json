@@ -1,0 +1,435 @@
+{
+  "id": "veyndo.host-exchange",
+  "version": 1,
+  "transport": "HTTP POST JSON",
+  "versionHeader": "x-veyndo-host-version",
+  "defaultPath": "/api/apps/{app}/core/{operation}",
+  "authority": "Host authenticates tenant, current creator rights, exact installed package and callback capability on every operation. Client tenant fields never authorize a request.",
+  "operations": {
+    "record_action": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "input": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "input"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "channel": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3
+          }
+        },
+        "required": [
+          "channelId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "channel_product": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3
+          }
+        },
+        "required": [
+          "channelId",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "order_import": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "salesChannelId": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "externalId": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3
+          },
+          "locale": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "billingAddress": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "firstName": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "lastName": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "salutationId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "company": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "department": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "vatId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "street": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "postalCode": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "city": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "country": {
+                "type": "string",
+                "maxLength": 2
+              },
+              "countryStateId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "additionalAddressLine1": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "additionalAddressLine2": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "phoneNumber": {
+                "type": "string",
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "street",
+              "postalCode",
+              "city"
+            ],
+            "additionalProperties": false
+          },
+          "shippingAddress": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "firstName": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "lastName": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "salutationId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "company": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "department": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "vatId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "street": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "postalCode": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "city": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "country": {
+                "type": "string",
+                "maxLength": 2
+              },
+              "countryStateId": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "additionalAddressLine1": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "additionalAddressLine2": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "phoneNumber": {
+                "type": "string",
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "street",
+              "postalCode",
+              "city"
+            ],
+            "additionalProperties": false
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "amount": {
+                  "type": "object",
+                  "properties": {
+                    "grossMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000000000000
+                    },
+                    "taxMinor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000000000000
+                    },
+                    "taxRateBasisPoints": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000
+                    }
+                  },
+                  "required": [
+                    "grossMinor",
+                    "taxMinor",
+                    "taxRateBasisPoints"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "productId",
+                "quantity",
+                "amount"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 24
+          },
+          "shipping": {
+            "type": "object",
+            "properties": {
+              "grossMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000000000
+              },
+              "taxMinor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000000000
+              },
+              "taxRateBasisPoints": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000
+              }
+            },
+            "required": [
+              "grossMinor",
+              "taxMinor",
+              "taxRateBasisPoints"
+            ],
+            "additionalProperties": false
+          },
+          "totalMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          },
+          "paid": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "salesChannelId",
+          "externalId",
+          "currency",
+          "locale",
+          "email",
+          "billingAddress",
+          "shippingAddress",
+          "lines",
+          "shipping",
+          "totalMinor",
+          "paid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "job_enqueue": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "input": {
+            "type": "object"
+          },
+          "requestKey": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "action",
+          "input",
+          "requestKey"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "job_claim": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "job_progress": {
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lease": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "message": {
+            "type": "object"
+          },
+          "result": {
+            "type": "object"
+          },
+          "checkpoint": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "lease"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

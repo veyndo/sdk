@@ -33,4 +33,15 @@ jobs:
             extensions/sdk
             frontend/src/shared/operations
       - run: python3 scripts/sync-native-contracts.py --source .native-source --check
+      - name: Read independent host contract source pin
+        id: host
+        run: |
+          node -e "console.log('sha=' + require('./HOST-PROVENANCE.json').commit)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: veyndo/veyndo
+          ref: '${{ steps.host.outputs.sha }}'
+          path: .host-source
+          sparse-checkout: extensions/sdk/host-exchange-v1.json
+      - run: python3 scripts/sync-host-contracts.py --source .host-source --check
       - run: npm pack --dry-run
