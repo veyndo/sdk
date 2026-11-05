@@ -1,6 +1,6 @@
 {
   "name": "@veyndo/sdk",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "JavaScript and TypeScript client for Veyndo Commerce component HTTP and MCP APIs",
   "type": "module",
   "engines": {
@@ -11,7 +11,8 @@
     "contracts",
     "README.md",
     "LICENSE",
-    "PROVENANCE.json"
+    "PROVENANCE.json",
+    "HOST-PROVENANCE.json"
   ],
   "exports": {
     ".": {
@@ -19,11 +20,16 @@
       "import": "./src/index.js"
     },
     "./guest": "./src/guest.js",
-    "./contracts": "./contracts/operations.json"
+    "./contracts": "./contracts/operations.json",
+    "./host": {
+      "types": "./src/host.d.ts",
+      "import": "./src/host.js"
+    },
+    "./host-contract": "./contracts/host-exchange-v1.json"
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js",
+    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js && node --check src/host.js && python3 scripts/sync-host-contracts.py --check",
     "test:types": "tsc --noEmit -p test/tsconfig.json"
   },
   "repository": {

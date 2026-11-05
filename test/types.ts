@@ -16,3 +16,13 @@ const external = createClient<{ 'external.search': { term: string } }>({ baseUrl
 void external.tool('external.search', { term: 'chair' });
 // @ts-expect-error An external component retains its own input contract.
 void external.tool('external.search', { term: 123 });
+import { createHostClient } from '../src/host.js';
+const host = createHostClient({ baseUrl: 'https://host.example', appId:'marketplaces' });
+void host.call('job_enqueue', { action:'sync', input:{ connectionId:'one', kind:'orders' }, requestKey:'request-1' });
+void host.call('channel_product', { channelId:'one', id:'product', currency:'EUR' });
+// @ts-expect-error A durable job requires an explicit stable request key.
+void host.call('job_enqueue', { action:'sync', input:{} });
+// @ts-expect-error Host operations are closed by the shared native contract.
+void host.call('arbitrary_sql', { query:'select * from tenants' });
+// @ts-expect-error Money uses exact integer minor units, not decimal strings.
+void host.call('order_import', { totalMinor:'12.99' });
