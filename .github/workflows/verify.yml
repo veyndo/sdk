@@ -22,7 +22,8 @@ jobs:
       - run: npm run check && npm test && npm run test:types
       - name: Read canonical contract source pin
         id: source
-        run: echo "sha=$(node -p \"require('./PROVENANCE.json').sourceCommit\")" >> "$GITHUB_OUTPUT"
+        run: |
+          node -e "console.log('sha=' + require('./PROVENANCE.json').sourceCommit)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
           repository: veyndo/veyndo
