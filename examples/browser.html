@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Veyndo public catalogue example</title>
+<h1>Search the catalogue</h1>
+<form><label>Search <input name="query" required></label><button>Search</button></form>
+<pre id="result" aria-live="polite"></pre>
+<script type="module">
+  // Serve this example on the configured shop origin. The server enforces origin and public access.
+  // Use @veyndo/sdk/guest for sandboxed app iframes; never put merchant keys in this page.
+  import { createClient } from '../src/index.js';
+  const client = createClient({ baseUrl: location.origin });
+  document.querySelector('form').addEventListener('submit', async event => {
+    event.preventDefault(); const output = document.querySelector('#result');
+    try { output.textContent = JSON.stringify(await client.tool('catalog.search', {
+      query: new FormData(event.target).get('query'),
+    }), null, 2); } catch (error) { output.textContent = error.message; }
+  });
+</script></html>

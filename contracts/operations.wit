@@ -1,0 +1,1811 @@
+// Generated typed input ABI. Undeclared JSON fields and results are canonical JSON strings.
+package veyndo:operations@1.0.0;
+interface inputs {
+  record currency-select-input {
+    %currency: string,
+    %revision: s64,
+  }
+  record merchant-currencies-refresh-input {
+    %revision: s64,
+  }
+  record merchant-currencies-generate-input {
+    %currency: string,
+    %overwrite: option<bool>,
+    %revision: s64,
+  }
+  record merchant-currencies-job-input {
+    %id: string,
+  }
+  record privacy-consent-input {
+    %choices: string,
+    %policy-version: string,
+  }
+  record legal-accept-input {
+    %digital-immediate: bool,
+    %policy-version: string,
+    %terms: bool,
+  }
+  record legal-request-input {
+    %email: string,
+    %kind: string,
+    %message: string,
+    %name: string,
+    %reference: string,
+    %request-key: string,
+  }
+  record merchant-legal-review-input {
+    %id: string,
+    %note: string,
+    %revision: s64,
+    %state: string,
+  }
+  record merchant-history-input {
+    %before: option<s64>,
+    %entity: string,
+    %id: string,
+  }
+  record merchant-history-version-input {
+    %entity: string,
+    %id: string,
+    %version: s64,
+  }
+  record merchant-history-restore-input {
+    %approve: bool,
+    %entity: string,
+    %id: string,
+    %revision: s64,
+    %side: string,
+    %version: s64,
+  }
+  record merchant-media-list-input {
+    %product-id: string,
+  }
+  record merchant-commerce-dependencies-input {
+    %area: string,
+    %method-id: string,
+  }
+  record merchant-media-create-input {
+    %mode: string,
+    %product-id: string,
+    %prompt: string,
+    %revision: s64,
+    %source-id: option<option<string>>,
+  }
+  record merchant-media-detail-input {
+    %id: string,
+  }
+  record merchant-media-apply-input {
+    %id: string,
+    %revision: s64,
+  }
+  record merchant-company-input {
+    %channel-id: option<string>,
+  }
+  record merchant-company-save-input {
+    %base-revision: option<s64>,
+    %channel-id: option<string>,
+    %data: string,
+    %revision: s64,
+  }
+  record merchant-commerce-read-input {
+    %after-product-id: option<string>,
+    %area: option<string>,
+    %channel-id: option<string>,
+  }
+  record merchant-commerce-save-input {
+    %base-revision: option<s64>,
+    %channel-id: option<string>,
+    %data: string,
+    %revision: s64,
+  }
+  record merchant-translations-create-input-inference {
+    %model: option<option<string>>,
+    %provider: option<string>,
+  }
+  record merchant-translations-create-input {
+    %inference: option<merchant-translations-create-input-inference>,
+    %overwrite: option<bool>,
+    %product-ids: option<list<string>>,
+    %target-locale: string,
+  }
+  record merchant-translations-detail-input {
+    %cursor: option<string>,
+    %id: string,
+  }
+  record merchant-translations-control-input {
+    %action: string,
+    %id: string,
+  }
+  record merchant-translations-apply-input {
+    %id: string,
+    %product-id: option<string>,
+  }
+  record merchant-products-input {
+    %active: option<bool>,
+    %after: option<string>,
+    %app-filter: option<string>,
+    %category-id: option<string>,
+    %direction: option<string>,
+    %limit: option<s64>,
+    %low-stock: option<bool>,
+    %parent-id: option<string>,
+    %preparation: option<bool>,
+    %search: option<string>,
+    %sort: option<string>,
+  }
+  record merchant-product-create-input {
+    %product: string,
+  }
+  record merchant-category-create-input-category-data {
+    %active: bool,
+    %translations: string,
+    %type: string,
+    %visible: bool,
+  }
+  record merchant-category-create-input-category {
+    %data: merchant-category-create-input-category-data,
+    %id: option<string>,
+    %parent-id: option<option<string>>,
+    %position: s64,
+    %revision: option<s64>,
+  }
+  record merchant-category-create-input {
+    %category: merchant-category-create-input-category,
+  }
+  record merchant-category-save-input-category-data {
+    %active: bool,
+    %translations: string,
+    %type: string,
+    %visible: bool,
+  }
+  record merchant-category-save-input-category {
+    %data: merchant-category-save-input-category-data,
+    %parent-id: option<option<string>>,
+    %position: s64,
+    %revision: s64,
+  }
+  record merchant-category-save-input {
+    %category: merchant-category-save-input-category,
+    %id: string,
+  }
+  record automation-save-input {
+    %data: string,
+    %id: string,
+    %kind: string,
+    %revision: s64,
+  }
+  record automation-dependencies-input {
+    %id: string,
+    %kind: string,
+  }
+  record automation-delete-input {
+    %id: string,
+    %kind: string,
+    %revision: s64,
+  }
+  record automation-preview-input {
+    %condition: string,
+  }
+  record automation-import-input {
+    %condition: string,
+  }
+  record merchant-workflow-save-input {
+    %data: string,
+    %revision: s64,
+  }
+  record merchant-product-content-input {
+    %id: string,
+  }
+  record merchant-product-save-input {
+    %id: string,
+    %product: string,
+  }
+  record merchant-product-assets-input {
+    %id: string,
+  }
+  record merchant-asset-publish-input {
+    %digest: string,
+    %id: string,
+    %public: bool,
+  }
+  record merchant-customer-addresses-input {
+    %id: string,
+  }
+  record merchant-customer-address-save-input {
+    %address: string,
+    %address-id: option<string>,
+    %default-billing: option<bool>,
+    %default-shipping: option<bool>,
+    %id: string,
+    %revision: option<s64>,
+  }
+  record merchant-customer-address-delete-input {
+    %address-id: string,
+    %id: string,
+    %revision: s64,
+  }
+  record merchant-customers-input {
+    %active: option<bool>,
+    %after: option<string>,
+    %app-filter: option<string>,
+    %direction: option<string>,
+    %group: option<string>,
+    %guest: option<bool>,
+    %limit: option<s64>,
+    %query: option<string>,
+    %sort: option<string>,
+  }
+  record merchant-customer-input {
+    %id: string,
+  }
+  record merchant-customer-save-input {
+    %customer: string,
+    %id: string,
+  }
+  record merchant-order-input {
+    %id: string,
+  }
+  record merchant-order-transition-input {
+    %action: option<string>,
+    %delivery-index: option<s64>,
+    %id: string,
+    %kind: string,
+    %request-key: option<string>,
+    %revision: s64,
+    %state: string,
+    %tracking-code: option<string>,
+    %tracking-url: option<string>,
+  }
+  record merchant-order-note-input {
+    %id: string,
+    %revision: s64,
+    %text: string,
+  }
+  record merchant-delivery-split-input-positions-item {
+    %id: string,
+    %quantity: s64,
+  }
+  record merchant-delivery-split-input {
+    %delivery-index: s64,
+    %id: string,
+    %positions: list<merchant-delivery-split-input-positions-item>,
+    %request-key: string,
+    %revision: s64,
+  }
+  record merchant-receipts-input {
+    %id: string,
+  }
+  record merchant-receipt-create-input {
+    %delivery-index: option<s64>,
+    %id: string,
+    %kind: string,
+    %locale: string,
+    %reference-id: option<string>,
+    %request-key: string,
+    %revision: s64,
+  }
+  record developer-archive-input {
+    %app: string,
+    %approve: bool,
+    %archived: bool,
+  }
+  record developer-import-input {
+    %environment: string,
+    %manifest: string,
+    %prompt: string,
+    %summary: string,
+  }
+  record developer-stage-input {
+    %approve: bool,
+    %build-id: string,
+    %digest: string,
+  }
+  record developer-task-input-context {
+    %channel: string,
+    %language: string,
+    %selected: string,
+    %view: string,
+  }
+  record developer-task-input-references {
+    %images: option<list<string>>,
+    %urls: option<list<string>>,
+  }
+  record developer-task-input {
+    %agent: string,
+    %context: option<developer-task-input-context>,
+    %environment: string,
+    %manifest: option<string>,
+    %prompt: string,
+    %references: option<developer-task-input-references>,
+  }
+  record catalog-search-input {
+    %after: option<string>,
+    %category: option<string>,
+    %category-id: option<string>,
+    %ids: option<list<string>>,
+    %limit: option<s64>,
+    %query: option<string>,
+    %search: option<string>,
+  }
+  record catalog-detail-input {
+    %after: option<string>,
+    %limit: option<s64>,
+    %product-id: string,
+  }
+  record checkout-select-input-checkout {
+    %address: option<option<string>>,
+    %billing-address: option<option<string>>,
+    %billing-address-id: option<option<string>>,
+    %country: option<string>,
+    %customer-email: option<option<string>>,
+    %payment-method-id: option<string>,
+    %shipping-address-id: option<option<string>>,
+    %shipping-method-id: option<string>,
+  }
+  record checkout-select-input {
+    %checkout: checkout-select-input-checkout,
+    %revision: s64,
+  }
+  record knowledge-search-input {
+    %query: option<string>,
+  }
+  record knowledge-external-input {
+    %query: option<string>,
+  }
+  record knowledge-product-input {
+    %id: option<string>,
+  }
+  record knowledge-workspace-input {
+    %after: option<string>,
+    %archived: option<bool>,
+    %kind: option<string>,
+    %query: option<string>,
+  }
+  record knowledge-preview-input {
+    %audience: option<string>,
+    %product-id: option<string>,
+    %query: option<string>,
+  }
+  record knowledge-source-detail-input {
+    %id: option<string>,
+  }
+  record knowledge-source-create-input {
+    %content: option<string>,
+    %id: option<string>,
+    %kind: option<string>,
+    %locale: option<string>,
+    %product-id: option<option<string>>,
+    %revision: option<s64>,
+    %title: option<string>,
+    %translations: option<string>,
+  }
+  record knowledge-source-edit-input {
+    %content: option<string>,
+    %id: option<string>,
+    %kind: option<string>,
+    %locale: option<string>,
+    %product-id: option<option<string>>,
+    %revision: option<s64>,
+    %title: option<string>,
+    %translations: option<string>,
+  }
+  record knowledge-source-visibility-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+    %visibility: option<string>,
+  }
+  record knowledge-source-archive-input {
+    %approve: option<bool>,
+    %archived: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record cart-create-input {
+    %session: option<string>,
+  }
+  record cart-replace-input-items-item {
+    %id: string,
+    %quantity: s64,
+  }
+  record cart-replace-input {
+    %items: list<cart-replace-input-items-item>,
+    %revision: s64,
+  }
+  record checkout-complete-input {
+    %idempotency-key: string,
+  }
+  record merchant-plan-input {
+    %instruction: string,
+  }
+  record merchant-apply-input {
+    %approve: bool,
+    %task-id: string,
+  }
+  record merchant-orders-input {
+    %after: option<string>,
+    %app-filter: option<string>,
+    %channel-id: option<string>,
+    %customer: option<string>,
+    %delivery-state: option<string>,
+    %direction: option<string>,
+    %from: option<string>,
+    %limit: option<s64>,
+    %payment-state: option<string>,
+    %query: option<string>,
+    %sort: option<string>,
+    %state: option<string>,
+    %to: option<string>,
+  }
+  record merchant-media-caption-input {
+    %alt: option<string>,
+    %caption: option<string>,
+    %context: string,
+    %image-url: option<string>,
+    %locale: string,
+  }
+  record merchant-run-create-input-inference {
+    %model: option<option<string>>,
+    %provider: string,
+  }
+  record merchant-run-create-input-workspace-context-selected {
+    %id: string,
+    %kind: string,
+  }
+  record merchant-run-create-input-workspace-context {
+    %selected: option<merchant-run-create-input-workspace-context-selected>,
+    %view: string,
+  }
+  record merchant-run-create-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %inference: option<merchant-run-create-input-inference>,
+    %instruction: string,
+    %request-id: option<string>,
+    %revision: option<s64>,
+    %workspace-context: option<merchant-run-create-input-workspace-context>,
+  }
+  record merchant-run-status-input-inference {
+    %model: option<option<string>>,
+    %provider: string,
+  }
+  record merchant-run-status-input-workspace-context-selected {
+    %id: string,
+    %kind: string,
+  }
+  record merchant-run-status-input-workspace-context {
+    %selected: option<merchant-run-status-input-workspace-context-selected>,
+    %view: string,
+  }
+  record merchant-run-status-input {
+    %approve: option<bool>,
+    %id: string,
+    %inference: option<merchant-run-status-input-inference>,
+    %instruction: option<string>,
+    %request-id: option<string>,
+    %revision: option<s64>,
+    %workspace-context: option<merchant-run-status-input-workspace-context>,
+  }
+  record merchant-run-cancel-input-inference {
+    %model: option<option<string>>,
+    %provider: string,
+  }
+  record merchant-run-cancel-input-workspace-context-selected {
+    %id: string,
+    %kind: string,
+  }
+  record merchant-run-cancel-input-workspace-context {
+    %selected: option<merchant-run-cancel-input-workspace-context-selected>,
+    %view: string,
+  }
+  record merchant-run-cancel-input {
+    %approve: bool,
+    %id: string,
+    %inference: option<merchant-run-cancel-input-inference>,
+    %instruction: option<string>,
+    %request-id: option<string>,
+    %revision: s64,
+    %workspace-context: option<merchant-run-cancel-input-workspace-context>,
+  }
+  record merchant-run-resume-input-inference {
+    %model: option<option<string>>,
+    %provider: string,
+  }
+  record merchant-run-resume-input-workspace-context-selected {
+    %id: string,
+    %kind: string,
+  }
+  record merchant-run-resume-input-workspace-context {
+    %selected: option<merchant-run-resume-input-workspace-context-selected>,
+    %view: string,
+  }
+  record merchant-run-resume-input {
+    %approve: bool,
+    %id: string,
+    %inference: option<merchant-run-resume-input-inference>,
+    %instruction: option<string>,
+    %request-id: option<string>,
+    %revision: s64,
+    %workspace-context: option<merchant-run-resume-input-workspace-context>,
+  }
+  record merchant-scenario-create-input-inference {
+    %model: option<option<string>>,
+    %provider: string,
+  }
+  record merchant-scenario-create-input-profiles-item {
+    %budget-minor: s64,
+    %country: string,
+    %goal: string,
+    %id: string,
+    %locale: string,
+    %name: string,
+  }
+  record merchant-scenario-create-input {
+    %inference: option<merchant-scenario-create-input-inference>,
+    %instruction: string,
+    %profiles: list<merchant-scenario-create-input-profiles-item>,
+    %request-id: string,
+    %source-task-id: option<string>,
+    %title: string,
+  }
+  record merchant-scenario-status-input {
+    %id: string,
+  }
+  record merchant-apps-search-input {
+    %after: option<string>,
+    %limit: option<s64>,
+    %query: option<string>,
+  }
+  record merchant-apps-read-input {
+    %action: string,
+    %app: string,
+    %arguments: string,
+  }
+  record merchant-agents-control-input {
+    %approve: bool,
+    %revision: s64,
+    %stopped: bool,
+  }
+  record merchant-grid-plan-input {
+    %entity: string,
+    %instruction: string,
+    %locale: string,
+  }
+  record merchant-customer-lookup-input {
+    %after: option<string>,
+    %limit: option<s64>,
+    %query: option<string>,
+  }
+  record team-roles-input-data {
+    %active: bool,
+    %name: string,
+    %permissions: list<string>,
+  }
+  record team-roles-input {
+    %approve: option<bool>,
+    %data: option<team-roles-input-data>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record team-role-save-input-data {
+    %active: bool,
+    %name: string,
+    %permissions: list<string>,
+  }
+  record team-role-save-input {
+    %approve: option<bool>,
+    %data: option<team-role-save-input-data>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record team-role-dependencies-input-data {
+    %active: bool,
+    %name: string,
+    %permissions: list<string>,
+  }
+  record team-role-dependencies-input {
+    %approve: option<bool>,
+    %data: option<team-role-dependencies-input-data>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record team-role-delete-input-data {
+    %active: bool,
+    %name: string,
+    %permissions: list<string>,
+  }
+  record team-role-delete-input {
+    %approve: option<bool>,
+    %data: option<team-role-delete-input-data>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record knowledge-behavior-input {
+    %days: option<s64>,
+    %sales-channel-id: option<string>,
+  }
+  record knowledge-behavior-journey-input {
+    %session: option<string>,
+  }
+  record knowledge-experiment-create-input {
+    %approve: option<bool>,
+    %design: option<string>,
+  }
+  record knowledge-experiment-start-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record knowledge-experiment-stop-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record knowledge-experiment-finish-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+  }
+  record knowledge-experiment-report-input {
+    %id: option<string>,
+  }
+  record catalog-facts-input {
+    %product-id: option<string>,
+  }
+  record knowledge-autonomy-apply-input {
+    %task-id: option<string>,
+  }
+  record knowledge-claims-input {
+    %product-id: option<string>,
+  }
+  record knowledge-claim-propose-input {
+    %confidence: option<float64>,
+    %content-hash: option<string>,
+    %locale: option<string>,
+    %node-type: option<string>,
+    %product-id: option<string>,
+    %quote: option<string>,
+    %source-id: option<string>,
+    %text: option<string>,
+  }
+  record knowledge-claim-review-input {
+    %approve: option<bool>,
+    %id: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+  }
+  record knowledge-extract-input {
+    %inference: option<string>,
+    %locale: option<string>,
+    %product-id: option<string>,
+    %source-id: option<string>,
+  }
+  record knowledge-compile-input-claims-item {
+    %id: string,
+    %text: string,
+  }
+  record knowledge-compile-input {
+    %claims: option<list<knowledge-compile-input-claims-item>>,
+    %product-id: option<string>,
+  }
+  record checkout-payment-method-revoke-input {
+    %approve: bool,
+    %id: string,
+    %request-key: string,
+  }
+  record checkout-payment-instructions-input {
+    %id: string,
+  }
+  record merchant-payment-instructions-input {
+    %id: string,
+  }
+  record merchant-payment-input {
+    %amount-minor: option<s64>,
+    %approve: bool,
+    %capture-id: option<string>,
+    %final-capture: option<bool>,
+    %id: string,
+    %operation: string,
+    %request-key: string,
+  }
+  record merchant-payment-details-input {
+    %id: string,
+  }
+  record merchant-payment-onboarding-input {
+    %approve: option<bool>,
+    %channel: option<string>,
+    %country: option<string>,
+    %environment: option<string>,
+    %id: option<string>,
+    %operation: option<string>,
+    %request-key: option<string>,
+  }
+  record merchant-app-history-input {
+    %app: string,
+    %approve: option<bool>,
+    %entity: string,
+    %id: string,
+    %revision: option<s64>,
+    %version: option<s64>,
+  }
+  record merchant-app-restore-input {
+    %app: string,
+    %approve: bool,
+    %entity: string,
+    %id: string,
+    %revision: s64,
+    %version: s64,
+  }
+  record merchant-site-task-input {
+    %agent: option<string>,
+    %id: string,
+    %instruction: string,
+    %revision: s64,
+    %selected: option<string>,
+  }
+  record merchant-site-propose-input {
+    %fields: string,
+    %id: string,
+    %instruction: string,
+    %revision: s64,
+    %selected: option<string>,
+    %summary: option<string>,
+  }
+  record merchant-site-plan-input {
+    %content: option<bool>,
+    %id: string,
+    %images: option<list<string>>,
+    %instruction: string,
+    %revision: s64,
+    %selected: option<string>,
+    %structure: option<bool>,
+    %style: option<bool>,
+    %urls: option<list<string>>,
+  }
+  record merchant-site-apply-input {
+    %approve: bool,
+    %task-id: string,
+  }
+  record merchant-reports-read-input {
+    %channel: option<option<string>>,
+    %channel-type: option<string>,
+    %compare: option<bool>,
+    %currency: option<option<string>>,
+    %from: option<option<string>>,
+    %interval: option<string>,
+    %period: option<string>,
+    %timezone: option<string>,
+    %to: option<option<string>>,
+  }
+  record studio-workspace-save-input {
+    %data: string,
+    %revision: s64,
+  }
+  record merchant-import-inspect-input-options {
+    %acknowledged-warnings: option<list<string>>,
+    %channel-id: option<string>,
+    %customer-group: option<string>,
+    %destination-digest: option<string>,
+    %locale: option<string>,
+    %source-price-basis: option<string>,
+    %tax-rate: option<float64>,
+  }
+  record merchant-import-inspect-input-record {
+    %data: string,
+    %kind: string,
+    %source: string,
+    %source-id: string,
+    %source-shop: string,
+    %version: s64,
+    %warnings: list<string>,
+  }
+  record merchant-import-inspect-input {
+    %details: option<bool>,
+    %options: merchant-import-inspect-input-options,
+    %record: merchant-import-inspect-input-record,
+  }
+  record merchant-import-record-input-options {
+    %acknowledged-warnings: option<list<string>>,
+    %channel-id: option<string>,
+    %customer-group: option<string>,
+    %destination-digest: option<string>,
+    %locale: option<string>,
+    %source-price-basis: option<string>,
+    %tax-rate: option<float64>,
+  }
+  record merchant-import-record-input-record {
+    %data: string,
+    %kind: string,
+    %source: string,
+    %source-id: string,
+    %source-shop: string,
+    %version: s64,
+    %warnings: list<string>,
+  }
+  record merchant-import-record-input {
+    %approve: bool,
+    %asset-chunks: option<list<string>>,
+    %options: merchant-import-record-input-options,
+    %record: merchant-import-record-input-record,
+  }
+  record merchant-customer-create-input {
+    %additional-addresses: option<list<string>>,
+    %billing-address: string,
+    %customer-group: string,
+    %email: string,
+    %profile: string,
+    %request-key: string,
+    %shipping-address: option<option<string>>,
+  }
+  record merchant-order-context-input {
+    %channel-id: string,
+    %locale: option<string>,
+  }
+  record merchant-order-review-input-items-item {
+    %id: string,
+    %quantity: s64,
+  }
+  record merchant-order-review-input {
+    %channel-id: string,
+    %checkout: string,
+    %codes: option<list<string>>,
+    %currency: string,
+    %customer-id: string,
+    %items: list<merchant-order-review-input-items-item>,
+    %locale: string,
+  }
+  record merchant-order-complete-input {
+    %approve: bool,
+    %cart-token: string,
+    %channel-id: string,
+    %customer-acknowledgement: bool,
+    %digital-immediate: bool,
+    %locale: string,
+    %policy-version: string,
+    %request-key: string,
+    %revision: s64,
+    %terms: bool,
+    %total-minor: string,
+  }
+  record merchant-catalog-prepare-input-inference {
+    %model: option<option<string>>,
+    %provider: option<string>,
+  }
+  record merchant-catalog-prepare-input {
+    %count: s64,
+    %inference: option<option<merchant-catalog-prepare-input-inference>>,
+    %mode: string,
+    %shop-domain: option<string>,
+    %source: string,
+  }
+  record merchant-catalog-save-input-draft-source {
+    %external-id: string,
+    %provider: string,
+    %url: option<string>,
+  }
+  record merchant-catalog-save-input-draft {
+    %description: string,
+    %image-url: option<string>,
+    %name: string,
+    %price: float64,
+    %product-number: option<string>,
+    %source: option<merchant-catalog-save-input-draft-source>,
+  }
+  record merchant-catalog-save-input {
+    %approve: bool,
+    %currency: string,
+    %demo: bool,
+    %draft: merchant-catalog-save-input-draft,
+    %id: string,
+    %main-locale: string,
+    %settings-revision: s64,
+    %tax-rate: float64,
+  }
+  record pos-customers-input {
+    %barcode: option<string>,
+    %channel-id: string,
+    %query: option<string>,
+  }
+  record pos-customer-input {
+    %cart-token: string,
+    %channel-id: string,
+    %customer-id: option<string>,
+    %revision: s64,
+  }
+  record pos-discount-input {
+    %cart-token: string,
+    %channel-id: string,
+    %discount: string,
+    %revision: s64,
+  }
+  record pos-receipt-input {
+    %channel-id: string,
+    %order-id: string,
+    %receipt-id: string,
+  }
+  record pos-payment-input {
+    %cart-token: string,
+    %channel-id: string,
+  }
+  record pos-reconcile-input {
+    %cart-token: string,
+    %channel-id: string,
+    %request-key: string,
+  }
+  record pos-catalog-input {
+    %after: option<string>,
+    %barcode: option<string>,
+    %cart-token: option<string>,
+    %channel-id: string,
+    %query: option<string>,
+  }
+  record pos-context-input {
+    %channel-id: string,
+  }
+  record pos-detail-input {
+    %after: option<string>,
+    %cart-token: option<string>,
+    %channel-id: string,
+    %product-id: string,
+  }
+  record pos-currency-input {
+    %cart-token: string,
+    %channel-id: string,
+    %currency: string,
+    %revision: s64,
+  }
+  record pos-coupons-input {
+    %cart-token: string,
+    %channel-id: string,
+    %codes: list<string>,
+    %revision: s64,
+  }
+  record pos-create-input {
+    %channel-id: string,
+  }
+  record pos-cart-input {
+    %cart-token: string,
+    %channel-id: string,
+  }
+  record pos-replace-input-items-item {
+    %id: string,
+    %quantity: s64,
+  }
+  record pos-replace-input {
+    %cart-token: string,
+    %channel-id: string,
+    %items: list<pos-replace-input-items-item>,
+    %revision: s64,
+  }
+  record pos-select-input {
+    %cart-token: string,
+    %channel-id: string,
+    %checkout: string,
+    %revision: s64,
+  }
+  record pos-accept-input {
+    %cart-token: string,
+    %channel-id: string,
+    %digital-immediate: bool,
+    %policy-version: string,
+    %terms: bool,
+  }
+  record pos-complete-input {
+    %cart-token: string,
+    %channel-id: string,
+    %request-key: string,
+    %revision: s64,
+    %tender-minor: option<string>,
+    %total-minor: string,
+  }
+  record pos-held-input {
+    %channel-id: string,
+  }
+  record pos-sales-input {
+    %channel-id: string,
+  }
+  record b2b-company-create-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-company-create-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-company-create-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-settings-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-settings-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-settings-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-configuration-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-configuration-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-configuration-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-requisition-import-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-requisition-import-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-requisition-import-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-unit-orders-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-unit-orders-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-unit-orders-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-catalog-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-catalog-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-catalog-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quotes-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quotes-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quotes-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-get-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-get-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-get-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-current-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-current-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-current-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quotes-merchant-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quotes-merchant-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quotes-merchant-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-request-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-request-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-request-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-offer-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-offer-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-offer-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-transition-input {
+    %action: string,
+    %id: string,
+    %message: option<string>,
+    %revision: s64,
+  }
+  record b2b-quote-message-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-message-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-message-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-reject-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-reject-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-reject-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-accept-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-accept-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-accept-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quote-release-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quote-release-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quote-release-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-lists-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-lists-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-lists-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-list-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-list-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-list-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-list-delete-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-list-delete-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-list-delete-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-list-apply-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-list-apply-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-list-apply-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-quick-order-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-quick-order-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-quick-order-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-companies-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-companies-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-companies-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-company-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-company-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-company-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-company-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-company-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-company-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-unit-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-unit-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-unit-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-member-save-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-member-save-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-member-save-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-contexts-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-contexts-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-contexts-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-select-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-select-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-select-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-approval-request-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-approval-request-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-approval-request-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-approvals-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-approvals-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-approvals-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record b2b-approval-decide-input-lines-item {
+    %quantity: s64,
+    %sku: string,
+  }
+  record b2b-approval-decide-input {
+    %cart-revision: option<s64>,
+    %company-id: option<string>,
+    %customer-id: option<string>,
+    %data: option<string>,
+    %id: option<string>,
+    %lines: option<list<b2b-approval-decide-input-lines-item>>,
+    %message: option<string>,
+    %parent-id: option<option<string>>,
+    %product-ids: option<list<string>>,
+    %purchase-order: option<string>,
+    %revision: option<s64>,
+    %state: option<string>,
+    %unit-id: option<string>,
+  }
+  record automation-compare-history-input {
+    %condition: string,
+    %flow-id: string,
+    %limit: s64,
+    %revision: s64,
+    %rule-id: string,
+  }
+  currency-list: func(input: string) -> result<string, string>;
+  currency-select: func(input: currency-select-input) -> result<string, string>;
+  merchant-currencies-refresh: func(input: merchant-currencies-refresh-input) -> result<string, string>;
+  merchant-currencies-generate: func(input: merchant-currencies-generate-input) -> result<string, string>;
+  merchant-currencies-jobs: func(input: string) -> result<string, string>;
+  merchant-currencies-job: func(input: merchant-currencies-job-input) -> result<string, string>;
+  privacy-policy: func(input: string) -> result<string, string>;
+  privacy-consent: func(input: privacy-consent-input) -> result<string, string>;
+  legal-accept: func(input: legal-accept-input) -> result<string, string>;
+  legal-request: func(input: legal-request-input) -> result<string, string>;
+  merchant-legal-requests: func(input: string) -> result<string, string>;
+  merchant-legal-review: func(input: merchant-legal-review-input) -> result<string, string>;
+  merchant-history: func(input: merchant-history-input) -> result<string, string>;
+  merchant-history-version: func(input: merchant-history-version-input) -> result<string, string>;
+  merchant-history-restore: func(input: merchant-history-restore-input) -> result<string, string>;
+  merchant-customer-groups: func(input: string) -> result<string, string>;
+  merchant-media-list: func(input: merchant-media-list-input) -> result<string, string>;
+  merchant-commerce-dependencies: func(input: merchant-commerce-dependencies-input) -> result<string, string>;
+  merchant-media-provider: func(input: string) -> result<string, string>;
+  merchant-media-create: func(input: merchant-media-create-input) -> result<string, string>;
+  merchant-media-detail: func(input: merchant-media-detail-input) -> result<string, string>;
+  merchant-media-apply: func(input: merchant-media-apply-input) -> result<string, string>;
+  merchant-company: func(input: merchant-company-input) -> result<string, string>;
+  merchant-company-save: func(input: merchant-company-save-input) -> result<string, string>;
+  merchant-commerce-read: func(input: merchant-commerce-read-input) -> result<string, string>;
+  merchant-commerce-save: func(input: merchant-commerce-save-input) -> result<string, string>;
+  merchant-translations-list: func(input: string) -> result<string, string>;
+  merchant-translations-create: func(input: merchant-translations-create-input) -> result<string, string>;
+  merchant-translations-detail: func(input: merchant-translations-detail-input) -> result<string, string>;
+  merchant-translations-control: func(input: merchant-translations-control-input) -> result<string, string>;
+  merchant-translations-apply: func(input: merchant-translations-apply-input) -> result<string, string>;
+  merchant-products: func(input: merchant-products-input) -> result<string, string>;
+  merchant-product-create: func(input: merchant-product-create-input) -> result<string, string>;
+  merchant-categories: func(input: string) -> result<string, string>;
+  merchant-category-create: func(input: merchant-category-create-input) -> result<string, string>;
+  merchant-category-save: func(input: merchant-category-save-input) -> result<string, string>;
+  automation-catalog: func(input: string) -> result<string, string>;
+  automation-list: func(input: string) -> result<string, string>;
+  automation-save: func(input: automation-save-input) -> result<string, string>;
+  automation-dependencies: func(input: automation-dependencies-input) -> result<string, string>;
+  automation-delete: func(input: automation-delete-input) -> result<string, string>;
+  automation-preview: func(input: automation-preview-input) -> result<string, string>;
+  automation-import: func(input: automation-import-input) -> result<string, string>;
+  merchant-workflow: func(input: string) -> result<string, string>;
+  merchant-workflow-save: func(input: merchant-workflow-save-input) -> result<string, string>;
+  merchant-product-content: func(input: merchant-product-content-input) -> result<string, string>;
+  merchant-product-save: func(input: merchant-product-save-input) -> result<string, string>;
+  merchant-product-assets: func(input: merchant-product-assets-input) -> result<string, string>;
+  merchant-asset-publish: func(input: merchant-asset-publish-input) -> result<string, string>;
+  merchant-customer-addresses: func(input: merchant-customer-addresses-input) -> result<string, string>;
+  merchant-customer-address-save: func(input: merchant-customer-address-save-input) -> result<string, string>;
+  merchant-customer-address-delete: func(input: merchant-customer-address-delete-input) -> result<string, string>;
+  merchant-customers: func(input: merchant-customers-input) -> result<string, string>;
+  merchant-customer: func(input: merchant-customer-input) -> result<string, string>;
+  merchant-customer-save: func(input: merchant-customer-save-input) -> result<string, string>;
+  merchant-order: func(input: merchant-order-input) -> result<string, string>;
+  merchant-order-transition: func(input: merchant-order-transition-input) -> result<string, string>;
+  merchant-order-note: func(input: merchant-order-note-input) -> result<string, string>;
+  merchant-delivery-split: func(input: merchant-delivery-split-input) -> result<string, string>;
+  merchant-receipts: func(input: merchant-receipts-input) -> result<string, string>;
+  merchant-receipt-create: func(input: merchant-receipt-create-input) -> result<string, string>;
+  developer-archive: func(input: developer-archive-input) -> result<string, string>;
+  developer-builds: func(input: string) -> result<string, string>;
+  developer-import: func(input: developer-import-input) -> result<string, string>;
+  developer-stage: func(input: developer-stage-input) -> result<string, string>;
+  developer-task: func(input: developer-task-input) -> result<string, string>;
+  catalog-search: func(input: catalog-search-input) -> result<string, string>;
+  catalog-detail: func(input: catalog-detail-input) -> result<string, string>;
+  checkout-options: func(input: string) -> result<string, string>;
+  checkout-select: func(input: checkout-select-input) -> result<string, string>;
+  knowledge-graph: func(input: string) -> result<string, string>;
+  knowledge-search: func(input: knowledge-search-input) -> result<string, string>;
+  knowledge-external: func(input: knowledge-external-input) -> result<string, string>;
+  knowledge-product: func(input: knowledge-product-input) -> result<string, string>;
+  knowledge-workspace: func(input: knowledge-workspace-input) -> result<string, string>;
+  knowledge-preview: func(input: knowledge-preview-input) -> result<string, string>;
+  knowledge-source-detail: func(input: knowledge-source-detail-input) -> result<string, string>;
+  knowledge-source-create: func(input: knowledge-source-create-input) -> result<string, string>;
+  knowledge-source-edit: func(input: knowledge-source-edit-input) -> result<string, string>;
+  knowledge-source-visibility: func(input: knowledge-source-visibility-input) -> result<string, string>;
+  knowledge-source-archive: func(input: knowledge-source-archive-input) -> result<string, string>;
+  cart-create: func(input: cart-create-input) -> result<string, string>;
+  cart-replace: func(input: cart-replace-input) -> result<string, string>;
+  cart-quote: func(input: string) -> result<string, string>;
+  checkout-complete: func(input: checkout-complete-input) -> result<string, string>;
+  merchant-plan: func(input: merchant-plan-input) -> result<string, string>;
+  merchant-apply: func(input: merchant-apply-input) -> result<string, string>;
+  merchant-orders: func(input: merchant-orders-input) -> result<string, string>;
+  merchant-media-caption: func(input: merchant-media-caption-input) -> result<string, string>;
+  merchant-run-create: func(input: merchant-run-create-input) -> result<string, string>;
+  merchant-run-status: func(input: merchant-run-status-input) -> result<string, string>;
+  merchant-run-cancel: func(input: merchant-run-cancel-input) -> result<string, string>;
+  merchant-run-resume: func(input: merchant-run-resume-input) -> result<string, string>;
+  merchant-scenario-create: func(input: merchant-scenario-create-input) -> result<string, string>;
+  merchant-scenario-status: func(input: merchant-scenario-status-input) -> result<string, string>;
+  merchant-scenario-list: func(input: string) -> result<string, string>;
+  merchant-apps-search: func(input: merchant-apps-search-input) -> result<string, string>;
+  merchant-apps-read: func(input: merchant-apps-read-input) -> result<string, string>;
+  merchant-agents-status: func(input: string) -> result<string, string>;
+  merchant-agents-control: func(input: merchant-agents-control-input) -> result<string, string>;
+  merchant-grid-plan: func(input: merchant-grid-plan-input) -> result<string, string>;
+  merchant-customer-lookup: func(input: merchant-customer-lookup-input) -> result<string, string>;
+  team-roles: func(input: team-roles-input) -> result<string, string>;
+  team-role-save: func(input: team-role-save-input) -> result<string, string>;
+  team-role-dependencies: func(input: team-role-dependencies-input) -> result<string, string>;
+  team-role-delete: func(input: team-role-delete-input) -> result<string, string>;
+  knowledge-behavior: func(input: knowledge-behavior-input) -> result<string, string>;
+  knowledge-behavior-journey: func(input: knowledge-behavior-journey-input) -> result<string, string>;
+  knowledge-experiments: func(input: string) -> result<string, string>;
+  knowledge-experiment-create: func(input: knowledge-experiment-create-input) -> result<string, string>;
+  knowledge-experiment-start: func(input: knowledge-experiment-start-input) -> result<string, string>;
+  knowledge-experiment-stop: func(input: knowledge-experiment-stop-input) -> result<string, string>;
+  knowledge-experiment-finish: func(input: knowledge-experiment-finish-input) -> result<string, string>;
+  knowledge-experiment-report: func(input: knowledge-experiment-report-input) -> result<string, string>;
+  catalog-facts: func(input: catalog-facts-input) -> result<string, string>;
+  knowledge-autonomy-apply: func(input: knowledge-autonomy-apply-input) -> result<string, string>;
+  knowledge-claims: func(input: knowledge-claims-input) -> result<string, string>;
+  knowledge-claim-propose: func(input: knowledge-claim-propose-input) -> result<string, string>;
+  knowledge-claim-review: func(input: knowledge-claim-review-input) -> result<string, string>;
+  knowledge-extract: func(input: knowledge-extract-input) -> result<string, string>;
+  knowledge-compile: func(input: knowledge-compile-input) -> result<string, string>;
+  checkout-payment-methods: func(input: string) -> result<string, string>;
+  checkout-payment-method-revoke: func(input: checkout-payment-method-revoke-input) -> result<string, string>;
+  checkout-payment-instructions: func(input: checkout-payment-instructions-input) -> result<string, string>;
+  merchant-payment-instructions: func(input: merchant-payment-instructions-input) -> result<string, string>;
+  merchant-payment: func(input: merchant-payment-input) -> result<string, string>;
+  merchant-payment-details: func(input: merchant-payment-details-input) -> result<string, string>;
+  merchant-payment-providers: func(input: string) -> result<string, string>;
+  merchant-payment-onboarding: func(input: merchant-payment-onboarding-input) -> result<string, string>;
+  merchant-app-history: func(input: merchant-app-history-input) -> result<string, string>;
+  merchant-app-restore: func(input: merchant-app-restore-input) -> result<string, string>;
+  merchant-site-task: func(input: merchant-site-task-input) -> result<string, string>;
+  merchant-site-propose: func(input: merchant-site-propose-input) -> result<string, string>;
+  merchant-site-plan: func(input: merchant-site-plan-input) -> result<string, string>;
+  merchant-site-apply: func(input: merchant-site-apply-input) -> result<string, string>;
+  merchant-reports-read: func(input: merchant-reports-read-input) -> result<string, string>;
+  studio-workspace-work-read: func(input: string) -> result<string, string>;
+  studio-workspace-read: func(input: string) -> result<string, string>;
+  studio-workspace-save: func(input: studio-workspace-save-input) -> result<string, string>;
+  merchant-import-inspect: func(input: merchant-import-inspect-input) -> result<string, string>;
+  merchant-import-record: func(input: merchant-import-record-input) -> result<string, string>;
+  merchant-customer-creation: func(input: string) -> result<string, string>;
+  merchant-customer-create: func(input: merchant-customer-create-input) -> result<string, string>;
+  merchant-order-context: func(input: merchant-order-context-input) -> result<string, string>;
+  merchant-order-review: func(input: merchant-order-review-input) -> result<string, string>;
+  merchant-order-complete: func(input: merchant-order-complete-input) -> result<string, string>;
+  merchant-catalog-context: func(input: string) -> result<string, string>;
+  merchant-catalog-prepare: func(input: merchant-catalog-prepare-input) -> result<string, string>;
+  merchant-catalog-save: func(input: merchant-catalog-save-input) -> result<string, string>;
+  pos-customers: func(input: pos-customers-input) -> result<string, string>;
+  pos-customer: func(input: pos-customer-input) -> result<string, string>;
+  pos-discount: func(input: pos-discount-input) -> result<string, string>;
+  pos-receipt: func(input: pos-receipt-input) -> result<string, string>;
+  pos-channels: func(input: string) -> result<string, string>;
+  pos-payment: func(input: pos-payment-input) -> result<string, string>;
+  pos-reconcile: func(input: pos-reconcile-input) -> result<string, string>;
+  pos-catalog: func(input: pos-catalog-input) -> result<string, string>;
+  pos-context: func(input: pos-context-input) -> result<string, string>;
+  pos-detail: func(input: pos-detail-input) -> result<string, string>;
+  pos-currency: func(input: pos-currency-input) -> result<string, string>;
+  pos-coupons: func(input: pos-coupons-input) -> result<string, string>;
+  pos-create: func(input: pos-create-input) -> result<string, string>;
+  pos-cart: func(input: pos-cart-input) -> result<string, string>;
+  pos-replace: func(input: pos-replace-input) -> result<string, string>;
+  pos-select: func(input: pos-select-input) -> result<string, string>;
+  pos-accept: func(input: pos-accept-input) -> result<string, string>;
+  pos-complete: func(input: pos-complete-input) -> result<string, string>;
+  pos-held: func(input: pos-held-input) -> result<string, string>;
+  pos-sales: func(input: pos-sales-input) -> result<string, string>;
+  b2b-company-create: func(input: b2b-company-create-input) -> result<string, string>;
+  b2b-settings-save: func(input: b2b-settings-save-input) -> result<string, string>;
+  b2b-configuration: func(input: b2b-configuration-input) -> result<string, string>;
+  b2b-requisition-import: func(input: b2b-requisition-import-input) -> result<string, string>;
+  b2b-unit-orders: func(input: b2b-unit-orders-input) -> result<string, string>;
+  b2b-catalog-save: func(input: b2b-catalog-save-input) -> result<string, string>;
+  b2b-quotes: func(input: b2b-quotes-input) -> result<string, string>;
+  b2b-quote-get: func(input: b2b-quote-get-input) -> result<string, string>;
+  b2b-quote-current: func(input: b2b-quote-current-input) -> result<string, string>;
+  b2b-quotes-merchant: func(input: b2b-quotes-merchant-input) -> result<string, string>;
+  b2b-quote-request: func(input: b2b-quote-request-input) -> result<string, string>;
+  b2b-quote-offer: func(input: b2b-quote-offer-input) -> result<string, string>;
+  b2b-quote-transition: func(input: b2b-quote-transition-input) -> result<string, string>;
+  b2b-quote-message: func(input: b2b-quote-message-input) -> result<string, string>;
+  b2b-quote-reject: func(input: b2b-quote-reject-input) -> result<string, string>;
+  b2b-quote-accept: func(input: b2b-quote-accept-input) -> result<string, string>;
+  b2b-quote-release: func(input: b2b-quote-release-input) -> result<string, string>;
+  b2b-lists: func(input: b2b-lists-input) -> result<string, string>;
+  b2b-list-save: func(input: b2b-list-save-input) -> result<string, string>;
+  b2b-list-delete: func(input: b2b-list-delete-input) -> result<string, string>;
+  b2b-list-apply: func(input: b2b-list-apply-input) -> result<string, string>;
+  b2b-quick-order: func(input: b2b-quick-order-input) -> result<string, string>;
+  b2b-companies: func(input: b2b-companies-input) -> result<string, string>;
+  b2b-company: func(input: b2b-company-input) -> result<string, string>;
+  b2b-company-save: func(input: b2b-company-save-input) -> result<string, string>;
+  b2b-unit-save: func(input: b2b-unit-save-input) -> result<string, string>;
+  b2b-member-save: func(input: b2b-member-save-input) -> result<string, string>;
+  b2b-contexts: func(input: b2b-contexts-input) -> result<string, string>;
+  b2b-select: func(input: b2b-select-input) -> result<string, string>;
+  b2b-approval-request: func(input: b2b-approval-request-input) -> result<string, string>;
+  b2b-approvals: func(input: b2b-approvals-input) -> result<string, string>;
+  b2b-approval-decide: func(input: b2b-approval-decide-input) -> result<string, string>;
+  automation-compare-history: func(input: automation-compare-history-input) -> result<string, string>;
+}

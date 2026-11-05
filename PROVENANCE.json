@@ -1,0 +1,146 @@
+{
+  "sourceRepository": "https://github.com/veyndo/veyndo",
+  "sourceCommit": "0843dc9570974a0b48b2ca6e3226a9c0d709cf72",
+  "contractScope": "Native input contracts; domain outputs are JSON until declared by their owner",
+  "files": {
+    "src/generated/index.d.ts": {
+      "source": "frontend/src/shared/operations/index.ts",
+      "sha256": "7984a9ac2fb451985d19baa6832f87b06861d58b43220a53f7006aac232b327a",
+      "sourceSha256": "6fad9473b2598ed8c62a16625cb2ca696b7314c4d31025c1570d984338db6353",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-0.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-0.ts",
+      "sha256": "274ba61be3d724795b1033029a68081333afffd3156a9d0e5f4623a9ad3e9df9",
+      "sourceSha256": "fc0a53fb3616bc164c99708b8bbd44cdcc1daad5b92b05d6f264b14f601cc007",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-1.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-1.ts",
+      "sha256": "e4686c63ca6b0ae6dc0558f890110766669271b362e5cecedb6f98d8880de821",
+      "sourceSha256": "7460492a901b4f108adee57a9853e9e789c74221b9818f21fc84b1f118e2c7c9",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-10.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-10.ts",
+      "sha256": "4cbcfc8e55428f98e3331f2e1f7a9696340aafac8d260dffd38da02088b891ad",
+      "sourceSha256": "55f11bd25c230255833fd827e2753880914b88293c137126410cf71cc4a328e1",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-11.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-11.ts",
+      "sha256": "dd65013616f69b4b5aae92d5e1211d2d9c7e6c207a3eadd56210def4684115e2",
+      "sourceSha256": "cd7d3bc1fdf4c77696ce37ac1d942e332c132fcc788f1c927daf416d0300f86b",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-12.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-12.ts",
+      "sha256": "d0a23a48884540b649c26f08622c4b1c8e93549155aa5784ce88075c608f96ea",
+      "sourceSha256": "1208901110af0f572facf2fb55d6b8d993a1f2c780c198a4a7f4d5355144815a",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-13.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-13.ts",
+      "sha256": "2224739f81bd24c419e3e9bde0992bcb3029c8c0752c97a9ba36f7d4f2f4f2a6",
+      "sourceSha256": "57bbc169f40247f94e4ab9cf627e318272b29610781f14342210d8b301e1c7bc",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-14.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-14.ts",
+      "sha256": "9fef43dbc887c623a1975cb7a7bf6e829e32a5e0d2eeed62f52d47ebf48a34d9",
+      "sourceSha256": "0e522dfca31888b01645154b5647409415effa18aff868473d85b477e58c51cd",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-15.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-15.ts",
+      "sha256": "c4780bbfd34ae7095862f7d2546281648763b5a1daf9d670a5e6fde2518b4af3",
+      "sourceSha256": "4b1d61882ce0ef5a4d1e6726084387249e5da6ea5ea960db7dea67b22d3ac095",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-16.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-16.ts",
+      "sha256": "76adb9fd4c203bf1105bb70e1988725de4b1cea15ba8d5ac0bc5c1e27a55d725",
+      "sourceSha256": "3cf4401312bbce61250c4235372c831f2d89a73399ce674a364e0a8084859145",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-2.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-2.ts",
+      "sha256": "2ec689bbedd67aa0ae8e39385d230f416acf794456f985480605efbbd5085be6",
+      "sourceSha256": "4c0d009999f1260f5399b6b41791de26f1e4d8d5674ba5a2a7a52d9e76eca7e5",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-3.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-3.ts",
+      "sha256": "b19757a43b8ec3fd1ade095720b13238500e38d73d1ed27ae876c3219a4631e3",
+      "sourceSha256": "4848b3d9e328f25d357e852f9e1f67fe45a4dda1bdfe078421864007d81d4d67",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-4.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-4.ts",
+      "sha256": "ee77744d923cf3aaad83546ebe6cfbbd93a4690e2083999c955d4cf0e358e33d",
+      "sourceSha256": "573c91732c2d67069e1b423c35bc9aba44b8893a002195e10c21e7aabe380fc9",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-5.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-5.ts",
+      "sha256": "617d321b037068e6b9edaf2c8b8589d34cf8db2a9dc22d377fe2e41777902f62",
+      "sourceSha256": "625e59f9a4301bac1af644d5b2a34d53ac5b76fe8d0245c3a7b558f070758c35",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-6.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-6.ts",
+      "sha256": "d1dfb6cc17d1b0dbf926906332e3ef8a35da01f55d9b6b61af84ca5accdbcb12",
+      "sourceSha256": "bf6fbc1ba7564db45446db5ece308e6774878f67465a79974d7a39a9661e0bc9",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-7.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-7.ts",
+      "sha256": "b49d3e0251ab107eb99ee6bbf8fc33ec8318e78fa2f37d43f888cf70dadddd8c",
+      "sourceSha256": "47ca78206e5d3a35685e238154054f87cc9b19bb50ca5893d0ded1def7f2877f",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-8.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-8.ts",
+      "sha256": "38675b28babccc10f635201f60960272f1e94e691c75f5723093b215a1855efd",
+      "sourceSha256": "8a65bd2b7276ea8b0f787f8f8808ef5e29f56e4e67babc7b33b867b7c29cc5be",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/inputs-9.d.ts": {
+      "source": "frontend/src/shared/operations/inputs-9.ts",
+      "sha256": "58bcd93e4e7111956120415f3fee12dfc831943b41517cc12b11e5b146c95b59",
+      "sourceSha256": "b006ab8d71fe2b808f5dd6d0ac3ee7bc93db2a387a1e08c16a002d68a047a2a4",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "src/generated/value.d.ts": {
+      "source": "frontend/src/shared/operations/value.ts",
+      "sha256": "a54a474c58c31c7cb82fe032ca6d32ca1f2e65680a462a8336c15eb418fafefc",
+      "sourceSha256": "a54a474c58c31c7cb82fe032ca6d32ca1f2e65680a462a8336c15eb418fafefc",
+      "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
+    },
+    "contracts/operations.json": {
+      "source": "extensions/sdk/generated/operations.json",
+      "sha256": "10cd2c694e3b7cd233ea4e035a46f8cb81ff0c96fe39639553a4b54106677f90",
+      "sourceSha256": "10cd2c694e3b7cd233ea4e035a46f8cb81ff0c96fe39639553a4b54106677f90"
+    },
+    "contracts/openapi.json": {
+      "source": "extensions/sdk/generated/openapi.json",
+      "sha256": "d86e0045f6da30a722b77f7ea364825a7a31fae22b54ff714fdc3193b8d79dd4",
+      "sourceSha256": "d86e0045f6da30a722b77f7ea364825a7a31fae22b54ff714fdc3193b8d79dd4"
+    },
+    "contracts/operations.wit": {
+      "source": "extensions/sdk/generated/operations.wit",
+      "sha256": "2f227088e8cc1b4d2f8ff0c7289a587f29632a784bd9a0c7a13d2a508cf1e9d8",
+      "sourceSha256": "2f227088e8cc1b4d2f8ff0c7289a587f29632a784bd9a0c7a13d2a508cf1e9d8"
+    },
+    "src/guest.js": {
+      "source": "extensions/sdk/browser.js",
+      "sha256": "22cac3001a60912e0e3e09e932a1064757189d346b3d615336af5ad87791562e",
+      "sourceSha256": "22cac3001a60912e0e3e09e932a1064757189d346b3d615336af5ad87791562e"
+    },
+    "LICENSE": {
+      "source": "LICENSE",
+      "sha256": "0d23edbf3c7fa0daf472c04bc952f4d62216c5d49f08be1b3c69a86689eb46df",
+      "sourceSha256": "0d23edbf3c7fa0daf472c04bc952f4d62216c5d49f08be1b3c69a86689eb46df"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+name: SDK verification
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '43 2 * * *'
+permissions:
+  contents: read
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '${{ matrix.node }}'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check && npm test && npm run test:types
+      - name: Read canonical contract source pin
+        id: source
+        run: echo "sha=$(node -p \"require('./PROVENANCE.json').sourceCommit\")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: veyndo/veyndo
+          ref: '${{ steps.source.outputs.sha }}'
+          path: .native-source
+          sparse-checkout: |
+            extensions/sdk
+            frontend/src/shared/operations
+      - run: python3 scripts/sync-native-contracts.py --source .native-source --check
+      - run: npm pack --dry-run

@@ -1,0 +1,37 @@
+{
+  "name": "@veyndo/sdk",
+  "version": "0.1.0",
+  "description": "JavaScript and TypeScript client for Veyndo Commerce component HTTP and MCP APIs",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "src",
+    "contracts",
+    "README.md",
+    "LICENSE",
+    "PROVENANCE.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./guest": "./src/guest.js",
+    "./contracts": "./contracts/operations.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js",
+    "test:types": "tsc --noEmit -p test/tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/veyndo/sdk.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
