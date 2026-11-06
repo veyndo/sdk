@@ -26,3 +26,10 @@ void host.call('job_enqueue', { action:'sync', input:{} });
 void host.call('arbitrary_sql', { query:'select * from tenants' });
 // @ts-expect-error Money uses exact integer minor units, not decimal strings.
 void host.call('order_import', { totalMinor:'12.99' });
+
+import { createComposition, createLayoutRegistry } from '../src/composition.js';
+const composed = createComposition({ services: [{ id: 'core', client: createClient({ baseUrl: 'https://example.com' }) }], context: { shop: 'demo' }, views: [
+  { id: 'products', title: 'Products', version: 1, service: 'core', operation: 'catalog.search', effect: 'read', arguments: () => ({}) },
+] });
+composed.discover(); composed.read({ version: 1, panels: [] }, 'x');
+createLayoutRegistry([{ id: 'a', title: 'A', version: 1 }]);
