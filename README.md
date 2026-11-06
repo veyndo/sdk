@@ -144,3 +144,11 @@ capabilities and compound action rights. It owns atomic orders/stock, job leases
 CAS and idempotency. The client performs no automatic retries; a lost write
 response remains uncertain. This interface runs only on trusted servers, with
 callback tokens held privately. The host adapter does not create another queue.
+
+## Compose service workspaces
+
+`@veyndo/sdk/composition` connects separately authenticated services, discovers
+currently available read operations and admits agent-proposed layouts against
+trusted registered views. Context changes cancel running reads and discard late
+results. The same framework-independent layout registry is used by the native
+workspace renderer. [Contract, example and acceptance](docs/composition.md).
