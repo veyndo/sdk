@@ -26,16 +26,18 @@ catalog in a running Veyndo instance. Its purchase path ended at the cart.
    accepted sections with [OpenUI](https://github.com/thesysdev/openui) and binds
    them to actual catalog data. The storefront's own validation and component
    registry belong to this experiment.
-3. Veyndo calculates the cart preview, including price and delivery. Only an
-   explicit shopper action sends the checked cart change to Veyndo with the
-   reviewed totals and revision. The model has no cart token or write access.
+3. Veyndo calculates the cart preview, including price and delivery. The
+   current commerce API binds confirmation to the reviewed quote and cart
+   revision. The storefront only submits it after an explicit shopper action.
+   The model has no cart token or write access.
 
 ## Run the SDK excerpt
 
 From the SDK checkout, use Node 22 or later and a local Veyndo instance seeded
 with the Nord Atelier catalog. Set `VEYNDO_URL` if your server uses a different
-address. The example opens an anonymous test cart, previews one tote and checks
-that the saved cart is still empty. It needs no model key.
+address, or `VEYNDO_SHOP` for a demo shop with the same tote. The example opens
+an anonymous test cart, previews one tote and checks that the saved cart is
+still empty. It needs no model key.
 
 ```sh
 node --input-type=module <<'JS'
@@ -44,7 +46,7 @@ import { createClient } from './src/index.js';
 
 const client = createClient({
   baseUrl: process.env.VEYNDO_URL ?? 'http://127.0.0.1:8898',
-  shop: 'nord-atelier',
+  shop: process.env.VEYNDO_SHOP ?? 'nord-atelier',
 });
 const locale = { 'x-commerce-locale': 'en-GB' };
 const catalog = await client.request('/store-api/product', {
@@ -68,11 +70,10 @@ const preview = await client.request(`${cartPath}/preview`, {
   body: {
     revision: cart.revision,
     items: [{ id: tote.id, quantity: tote.min_purchase ?? 1 }],
-    shippingMethodId: 'standard',
   },
 });
-assert.equal(preview.selectionNeedsConfirmation, false);
-assert.ok(preview.deliveries.some(delivery => delivery.deliveryDate?.latest));
+assert.equal(preview.revision, cart.revision);
+assert.ok(preview.review && preview.delivery?.latest);
 console.log(tote.name, preview.price.totalMinor, preview.price.currency);
 
 const saved = await client.request(cartPath, { headers });
@@ -80,6 +81,8 @@ assert.equal(saved.lineItems.length, 0);
 JS
 ```
 
-The full prototype adds the streaming agent, the component renderer and the
-explicit cart confirmation. The SDK excerpt above covers the commerce calls
-before that confirmation.
+After the shopper confirms, send `PUT` to the same cart path with the same
+revision and items plus `preview.review` as `review`. If Veyndo returns HTTP
+409, fetch the cart and present a fresh preview before asking for confirmation
+again. The full prototype also explores streaming layouts and switching shipping
+methods. The SDK excerpt uses the cart's current delivery selection.
