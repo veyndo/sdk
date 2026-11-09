@@ -83,6 +83,10 @@ origin. The shop must permit that origin; the SDK does not bypass CORS or the MC
 origin check. Same-origin HttpOnly customer sessions can use
 `credentials: 'same-origin'`; credentials are omitted by default.
 
+[Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
+The example negotiates the extension, discovers the installed view and reads
+its HTML resource and full tool result.
+
 For sandboxed installed app iframes, use `@veyndo/sdk/guest` and its existing
 `connectCommerce()` host bridge. This is the original app guest adapter, exported
 with source provenance. Do not replace it with merchant tokens or direct privileged
