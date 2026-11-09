@@ -1026,7 +1026,7 @@
       "readOnly": true
     },
     {
-      "description": "Revision-bound automation write or read-only Flow draft validation",
+      "description": "Revision-bound rule, promotion, channel or Flow write",
       "inputSchema": {
         "additionalProperties": false,
         "properties": {
@@ -8494,6 +8494,32 @@
         "type": "object"
       },
       "name": "automation.compare_history",
+      "readOnly": true
+    },
+    {
+      "description": "Validate a Flow draft and expected revision without saving or queuing it",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "data"
+        ],
+        "type": "object"
+      },
+      "name": "automation.validate_flow",
       "readOnly": true
     }
   ],

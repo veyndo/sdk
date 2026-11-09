@@ -1607,6 +1607,11 @@ interface inputs {
     %revision: s64,
     %rule-id: string,
   }
+  record automation-validate-flow-input {
+    %data: string,
+    %id: string,
+    %revision: s64,
+  }
   currency-list: func(input: string) -> result<string, string>;
   currency-select: func(input: currency-select-input) -> result<string, string>;
   merchant-currencies-refresh: func(input: merchant-currencies-refresh-input) -> result<string, string>;
@@ -1809,4 +1814,5 @@ interface inputs {
   b2b-approvals: func(input: b2b-approvals-input) -> result<string, string>;
   b2b-approval-decide: func(input: b2b-approval-decide-input) -> result<string, string>;
   automation-compare-history: func(input: automation-compare-history-input) -> result<string, string>;
+  automation-validate-flow: func(input: automation-validate-flow-input) -> result<string, string>;
 }

@@ -144,4 +144,5 @@ export interface Inputs16 {
     revision: number;
     ruleId: string;
   };
+  "automation.validate_flow": { data: JsonValue; id: string; revision: number };
 }

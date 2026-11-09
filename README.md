@@ -71,7 +71,9 @@ node examples/check-flow-draft.mjs draft.json confirm_purchase 0
 
 Use revision 0 for a new Flow or pass the current revision of an existing one.
 Core checks the same definition and permissions as Studio and returns
-`{valid: true, saved: false, revision: 0}` for a valid new Flow.
+`{valid: true, saved: false, revision: 0}` for a valid new Flow. The example
+calls the dedicated `automation.validate_flow` tool. An older server without
+this tool returns an error.
 [Flow draft check and permissions](https://www.veyndo.ai/docs/automation-component.html#check-a-flow-draft-before-saving).
 
 ## Browser and app integration
