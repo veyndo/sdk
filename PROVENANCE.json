@@ -1,6 +1,6 @@
 {
   "sourceRepository": "https://github.com/veyndo/veyndo",
-  "sourceCommit": "0843dc9570974a0b48b2ca6e3226a9c0d709cf72",
+  "sourceCommit": "11f7360d4fe4f9d2e411dc9bb391ba8d165cd98d",
   "contractScope": "Native input contracts; domain outputs are JSON until declared by their owner",
   "files": {
     "src/generated/index.d.ts": {
@@ -71,8 +71,8 @@
     },
     "src/generated/inputs-3.d.ts": {
       "source": "frontend/src/shared/operations/inputs-3.ts",
-      "sha256": "b19757a43b8ec3fd1ade095720b13238500e38d73d1ed27ae876c3219a4631e3",
-      "sourceSha256": "4848b3d9e328f25d357e852f9e1f67fe45a4dda1bdfe078421864007d81d4d67",
+      "sha256": "ea3f540cb7372716fb2a6b722f6e13526422e4d3d4439d4f024fc4f565e209ed",
+      "sourceSha256": "47b8c414b1dc8bdcaa693f9ed064b176f8b762ebd27eb3d6a46bc84ddfe02874",
       "adaptation": "Declaration suffix and explicit .js import specifiers for Node ESM"
     },
     "src/generated/inputs-4.d.ts": {
@@ -119,18 +119,18 @@
     },
     "contracts/operations.json": {
       "source": "extensions/sdk/generated/operations.json",
-      "sha256": "10cd2c694e3b7cd233ea4e035a46f8cb81ff0c96fe39639553a4b54106677f90",
-      "sourceSha256": "10cd2c694e3b7cd233ea4e035a46f8cb81ff0c96fe39639553a4b54106677f90"
+      "sha256": "f8b05819caaccbc3963e9e86a8d58d25e49576af7d36c0198cddd5ae1d2e0ee3",
+      "sourceSha256": "f8b05819caaccbc3963e9e86a8d58d25e49576af7d36c0198cddd5ae1d2e0ee3"
     },
     "contracts/openapi.json": {
       "source": "extensions/sdk/generated/openapi.json",
-      "sha256": "d86e0045f6da30a722b77f7ea364825a7a31fae22b54ff714fdc3193b8d79dd4",
-      "sourceSha256": "d86e0045f6da30a722b77f7ea364825a7a31fae22b54ff714fdc3193b8d79dd4"
+      "sha256": "d780c13c6189ef6e7f113eea7f1cbe64fbe991c17ba8d315159778d6099c1814",
+      "sourceSha256": "d780c13c6189ef6e7f113eea7f1cbe64fbe991c17ba8d315159778d6099c1814"
     },
     "contracts/operations.wit": {
       "source": "extensions/sdk/generated/operations.wit",
-      "sha256": "2f227088e8cc1b4d2f8ff0c7289a587f29632a784bd9a0c7a13d2a508cf1e9d8",
-      "sourceSha256": "2f227088e8cc1b4d2f8ff0c7289a587f29632a784bd9a0c7a13d2a508cf1e9d8"
+      "sha256": "d928be71442084a8cad81c978791062dd408f455a5e76d5000a2b8f43897f203",
+      "sourceSha256": "d928be71442084a8cad81c978791062dd408f455a5e76d5000a2b8f43897f203"
     },
     "src/guest.js": {
       "source": "extensions/sdk/browser.js",

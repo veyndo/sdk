@@ -2315,6 +2315,9 @@
                               "revision": {
                                 "minimum": 0,
                                 "type": "integer"
+                              },
+                              "validateOnly": {
+                                "type": "boolean"
                               }
                             },
                             "required": [
