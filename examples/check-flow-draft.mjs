@@ -11,11 +11,9 @@ if (!file || !id || !Number.isSafeInteger(revision) || revision < 0 || !baseUrl 
 
 const client = createClient({ baseUrl, shop, token });
 const data = JSON.parse(await readFile(file, 'utf8'));
-const result = await client.tool('automation.save', {
-  kind: 'flows',
+const result = await client.tool('automation.validate_flow', {
   id,
   revision,
-  validateOnly: true,
   data,
 });
 console.log(JSON.stringify(result, null, 2));

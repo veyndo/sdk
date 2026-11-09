@@ -14979,6 +14979,64 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "jsonrpc",
+                      "id",
+                      "method",
+                      "params"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "jsonrpc": {
+                        "const": "2.0"
+                      },
+                      "id": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "method": {
+                        "const": "tools/call"
+                      },
+                      "params": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "arguments"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": {
+                            "const": "automation.validate_flow"
+                          },
+                          "arguments": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "data": {
+                                "type": "object"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "revision": {
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "revision",
+                              "data"
+                            ],
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
                   }
                 ]
               }
