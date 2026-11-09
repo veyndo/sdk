@@ -169,3 +169,9 @@ currently available read operations and admits agent-proposed layouts against
 trusted registered views. Context changes cancel running reads and discard late
 results. The same framework-independent layout registry is used by the native
 workspace renderer. [Contract, example and acceptance](docs/composition.md).
+
+## Experiment: Nord Atelier
+
+See how a standalone fashion storefront uses the SDK for catalog and cart
+operations while OpenAI and OpenUI compose the shopping view in real time.
+[Architecture, observed behavior and runnable SDK excerpt](docs/nord-atelier.md).

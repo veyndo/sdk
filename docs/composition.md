@@ -76,3 +76,6 @@ arbitrary generated JavaScript or new data writer.
 The common protocol adapters, cross-service generated UI renderer and remaining
 service extractions stay tracked in Veyndo's component plan. This package supplies
 the working shared connection and layout boundary they can use.
+
+[Nord Atelier](nord-atelier.md) is a separate storefront experiment that uses
+the SDK's direct HTTP client and validates its streamed UI in the storefront host.
