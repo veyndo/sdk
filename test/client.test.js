@@ -44,6 +44,34 @@ test('MCP negotiation and tools use the same endpoint and correlation', async t 
   assert.deepEqual(methods, ['initialize', 'tools/list', 'tools/call']);
 });
 
+test('MCP Apps opt in, discover resources and preserve the full tool result', async t => {
+  const uri = 'ui://veyndo/app/example/guide';
+  const mime = 'text/html;profile=mcp-app';
+  const extension = { 'io.modelcontextprotocol/ui': { mimeTypes: [mime] } };
+  const result = { content: [{ type: 'text', text: 'Product guide' }], structuredContent: { elements: [] } };
+  const baseUrl = await fixture(t, (req, res, { id, method, params }) => {
+    let value;
+    if (method === 'initialize') {
+      assert.deepEqual(params.capabilities, { extensions: extension });
+      value = { protocolVersion: '2025-11-25', capabilities: { extensions: { 'io.modelcontextprotocol/ui': {} } } };
+    } else if (method === 'resources/read') {
+      assert.deepEqual(params, { uri });
+      value = { contents: [{ uri, mimeType: mime, text: '<main>Product guide</main>' }] };
+    } else {
+      assert.equal(method, 'tools/call');
+      assert.deepEqual(params, { name: 'app.example.list', arguments: { limit: 1 },
+        _meta: { 'ai.veyndo/resourceUri': uri } });
+      value = result;
+    }
+    reply(res, { jsonrpc: '2.0', id, result: value });
+  });
+  const client = createClient({ baseUrl, mcpApps: true });
+  assert.deepEqual((await client.initialize()).capabilities.extensions, { 'io.modelcontextprotocol/ui': {} });
+  assert.equal((await client.resource(uri)).contents[0].mimeType, mime);
+  assert.deepEqual(await client.toolResult('app.example.list', { limit: 1 }, { resourceUri: uri }), result);
+  await assert.rejects(client.toolResult('app.example.list', {}, { resourceUri: 'https://other.example' }), TypeError);
+});
+
 test('domain, protocol and HTTP errors stay distinguishable', async t => {
   const baseUrl = await fixture(t, (req, res, body) => {
     if (req.url === '/denied') return reply(res, {}, 403);
