@@ -1026,7 +1026,7 @@
       "readOnly": true
     },
     {
-      "description": "Revision-bound rule, promotion, channel or flow graph write",
+      "description": "Revision-bound automation write or read-only Flow draft validation",
       "inputSchema": {
         "additionalProperties": false,
         "properties": {
@@ -1048,6 +1048,9 @@
           "revision": {
             "minimum": 0,
             "type": "integer"
+          },
+          "validateOnly": {
+            "type": "boolean"
           }
         },
         "required": [

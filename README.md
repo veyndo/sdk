@@ -59,6 +59,21 @@ const result = await component.tool('external.search', { term: 'chair' });
 That example describes client configuration; it does not claim a released Knowledge
 service. Component extraction is tracked separately in the main repository.
 
+## Check a Flow draft
+
+Use an integration key with `automation.manage` and the rights for the actions
+in your draft. Set `VEYNDO_URL`, `VEYNDO_SHOP` and `VEYNDO_TOKEN` in the server
+environment. Then check your Flow JSON against that shop.
+
+```sh
+node examples/check-flow-draft.mjs draft.json confirm_purchase 0
+```
+
+Use revision 0 for a new Flow or pass the current revision of an existing one.
+Core checks the same definition and permissions as Studio and returns
+`{valid: true, saved: false, revision: 0}` for a valid new Flow.
+[Flow draft check and permissions](https://www.veyndo.ai/docs/automation-component.html#check-a-flow-draft-before-saving).
+
 ## Browser and app integration
 
 `examples/browser.html` demonstrates public catalog search on the configured shop

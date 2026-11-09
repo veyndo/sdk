@@ -173,6 +173,7 @@ interface inputs {
     %id: string,
     %kind: string,
     %revision: s64,
+    %validate-only: option<bool>,
   }
   record automation-dependencies-input {
     %id: string,

@@ -9,6 +9,7 @@ export interface Inputs3 {
     id: string;
     kind: "rules" | "flows" | "promotions" | "channels";
     revision: number;
+    validateOnly?: boolean;
   };
   "automation.dependencies": {
     id: string;
