@@ -27,3 +27,6 @@ Check it against the last successful read and let the user review it before
 including it in the next message. A host without the capability still shows the
 app results and filters.
 [MCP Apps lifecycle](https://apps.extensions.modelcontextprotocol.io/api/documents/Overview.html#lifecycle).
+
+The [Connected shop example](https://github.com/veyndo/sdk/tree/main/examples/connected-shop)
+runs a filterable guide and independent Checkout against the same test shop.
