@@ -31,7 +31,7 @@ def main():
         mappings['src/guest.js'] = {'source': 'extensions/sdk/browser.js'}
         mappings['LICENSE'] = {'source': 'LICENSE'}
         metadata = {'sourceRepository': 'https://github.com/veyndo/veyndo', 'sourceCommit': ref,
-                    'contractScope': 'Native input contracts; domain outputs are JSON until declared by their owner', 'files': mappings}
+                    'contractScope': 'Native operation inputs and declared results; undeclared results retain their JSON representation', 'files': mappings}
     for destination, entry in mappings.items():
         original = git('show', ref + ':' + entry['source'])
         content = original

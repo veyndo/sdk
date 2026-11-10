@@ -1,5 +1,5 @@
 /** Generated native operation input contracts; do not edit. */
-/** The registry determines operation names and request types; output schemas remain owned by domain DTOs. */
+/** The registry determines operation names, requests and declared results. */
 import type { Inputs0 } from "./inputs-0.js";
 import type { Inputs1 } from "./inputs-1.js";
 import type { Inputs2 } from "./inputs-2.js";
@@ -39,3 +39,6 @@ export type OperationCall<N extends OperationName> = {
   name: N;
   arguments: OperationInputs[N];
 };
+export interface OperationOutputs {
+  "automation.validate_flow": { revision: number; saved: false; valid: true };
+}

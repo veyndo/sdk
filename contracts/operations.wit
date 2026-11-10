@@ -660,7 +660,7 @@ interface inputs {
     %product-id: option<string>,
   }
   record knowledge-claim-propose-input {
-    %confidence: option<float64>,
+    %confidence: option<f64>,
     %content-hash: option<string>,
     %locale: option<string>,
     %node-type: option<string>,
@@ -789,7 +789,7 @@ interface inputs {
     %destination-digest: option<string>,
     %locale: option<string>,
     %source-price-basis: option<string>,
-    %tax-rate: option<float64>,
+    %tax-rate: option<f64>,
   }
   record merchant-import-inspect-input-record {
     %data: string,
@@ -812,7 +812,7 @@ interface inputs {
     %destination-digest: option<string>,
     %locale: option<string>,
     %source-price-basis: option<string>,
-    %tax-rate: option<float64>,
+    %tax-rate: option<f64>,
   }
   record merchant-import-record-input-record {
     %data: string,
@@ -888,7 +888,7 @@ interface inputs {
     %description: string,
     %image-url: option<string>,
     %name: string,
-    %price: float64,
+    %price: f64,
     %product-number: option<string>,
     %source: option<merchant-catalog-save-input-draft-source>,
   }
@@ -900,7 +900,7 @@ interface inputs {
     %id: string,
     %main-locale: string,
     %settings-revision: s64,
-    %tax-rate: float64,
+    %tax-rate: f64,
   }
   record pos-customers-input {
     %barcode: option<string>,
@@ -1815,4 +1815,14 @@ interface inputs {
   b2b-approval-decide: func(input: b2b-approval-decide-input) -> result<string, string>;
   automation-compare-history: func(input: automation-compare-history-input) -> result<string, string>;
   automation-validate-flow: func(input: automation-validate-flow-input) -> result<string, string>;
+}
+
+interface typed-results {
+  use inputs.{automation-validate-flow-input};
+  record automation-validate-flow-output {
+    %revision: s64,
+    %saved: bool,
+    %valid: bool,
+  }
+  automation-validate-flow: func(input: automation-validate-flow-input) -> result<automation-validate-flow-output, string>;
 }

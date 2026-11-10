@@ -3,6 +3,19 @@ import { createClient, VeyndoError } from '../src/index.js';
 const client = createClient({ baseUrl: 'https://component.example', shop: 'example' });
 void client.tool('knowledge.search', { query: 'Lampe' });
 void client.tool('app.care.read', { productId: 'lamp' });
+async function checkDraft() {
+  const result = await client.tool('automation.validate_flow', { id: 'draft', revision: 0, data: {} });
+  const saved: false = result.saved;
+  const revision: number = result.revision;
+  // @ts-expect-error A validation result is never a saved Flow.
+  const written: true = result.saved;
+  void [saved, revision, written];
+}
+void checkDraft;
+const typedExternal = createClient<{ 'external.lookup': { id: string } }, { 'external.lookup': { count: number } }>({
+  baseUrl: 'https://component.example',
+});
+void typedExternal.tool('external.lookup', { id: 'item' }).then(result => result.count.toFixed());
 // @ts-expect-error The registry requires a string query.
 void client.tool('knowledge.search', { query: 123 });
 // @ts-expect-error Native operation names are closed by the registry.
