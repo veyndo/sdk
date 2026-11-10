@@ -25,13 +25,14 @@ your private process environment as `VEYNDO_TOKEN`. No token is needed for opera
 your server deliberately exposes to public shoppers. The server always decides the
 current actor's permissions; the shop option only selects a namespace.
 
-The package can be installed from a reviewed Git commit or release once available:
+Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install github:veyndo/sdk#<reviewed-commit>
+npm install github:veyndo/sdk#v0.4.0
 ```
 
-There is no published npm release yet. Pin a commit instead of a moving branch.
+The GitHub prerelease includes MCP App resources, the Knowledge client and
+Flow draft validation. The package is distributed from GitHub.
 
 ```js
 import { createClient, VeyndoError } from '@veyndo/sdk';
