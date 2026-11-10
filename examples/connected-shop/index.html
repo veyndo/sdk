@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connected shop · Veyndo SDK example</title>
+  <link rel="stylesheet" href="/shop.css">
+  <script type="module" src="/browser.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Connected shop</h1>
+      <p>Explore one product, open its interactive guide and complete a simulated purchase.</p>
+    </header>
+    <div class="workspace">
+      <section aria-labelledby="product">
+        <h2 id="product">Loading product…</h2>
+        <p id="availability" role="status"></p>
+        <div class="checkout">
+          <h3>Checkout</h3>
+          <p id="checkout-state" role="status">Your cart is empty.</p>
+          <button id="review" disabled>Review purchase</button>
+          <button id="confirm" hidden>Confirm simulated purchase</button>
+          <button id="recover" hidden>Check order status</button>
+        </div>
+      </section>
+      <section class="conversation" aria-labelledby="conversation">
+        <h2 id="conversation">Product conversation</h2>
+        <button id="ask" type="button" disabled>What should I know about this product?</button>
+        <div id="turn" hidden>
+          <p class="question">What should I know about this product?</p>
+          <p id="answer" role="status"></p>
+          <div id="guide"></div>
+        </div>
+      </section>
+    </div>
+    <footer>
+      <span>Veyndo catalogue</span><span>MCP App product guide</span><span>Independent Checkout</span>
+    </footer>
+  </main>
+</body>
+</html>

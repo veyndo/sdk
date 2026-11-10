@@ -127,6 +127,7 @@ origin check. Same-origin HttpOnly customer sessions can use
 `credentials: 'same-origin'`; credentials are omitted by default.
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
+The [Connected shop example](examples/connected-shop/README.md) combines that card with catalog reads and an independent Checkout purchase.
 The example negotiates the extension, discovers the installed view and reads
 its HTML resource and full tool result.
 
