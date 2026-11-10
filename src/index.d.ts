@@ -1,7 +1,7 @@
-/** Operation names and inputs come from the native registry; domain response types remain explicit JSON. */
-import type { OperationInputs, OperationName } from './generated/index.js';
+/** Native operation names, inputs and declared outputs come from the Veyndo registry. */
+import type { OperationInputs, OperationName, OperationOutputs } from './generated/index.js';
 import type { JsonValue } from './generated/value.js';
-export type { OperationInputs, OperationName, JsonValue };
+export type { OperationInputs, OperationName, OperationOutputs, JsonValue };
 export interface ClientOptions {
   baseUrl: string;
   shop?: string;
@@ -35,7 +35,8 @@ export interface RequestOptions extends CallOptions {
   body?: JsonValue;
   headers?: HeadersInit;
 }
-export interface Client<Inputs extends object = OperationInputs> {
+type DefaultOutputs<Inputs> = Inputs extends OperationInputs ? OperationOutputs : Record<never, never>;
+export interface Client<Inputs extends object = OperationInputs, Outputs extends object = DefaultOutputs<Inputs>> {
   request(path: string, options?: RequestOptions): Promise<JsonValue>;
   initialize(options?: CallOptions): Promise<JsonValue>;
   tools(options?: CallOptions): Promise<{ tools: Array<{ name: string; [key: string]: unknown }> }>;
@@ -43,7 +44,8 @@ export interface Client<Inputs extends object = OperationInputs> {
   /** Keep the complete MCP result for a host rendering its linked app view. */
   toolResult<N extends keyof Inputs & string>(name: N, args: Inputs[N], options?: ToolResultOptions): Promise<McpToolResult>;
   toolResult(name: `app.${string}`, args?: Record<string, JsonValue>, options?: ToolResultOptions): Promise<McpToolResult>;
-  tool<N extends keyof Inputs & string>(name: N, args: Inputs[N], options?: CallOptions): Promise<JsonValue>;
+  tool<N extends keyof Inputs & string>(name: N, args: Inputs[N], options?: CallOptions):
+    Promise<N extends keyof Outputs ? Outputs[N] : JsonValue>;
   /** Third-party component operations still require server-side authorization and schema validation. */
   tool(name: `app.${string}`, args?: Record<string, JsonValue>, options?: CallOptions): Promise<JsonValue>;
 }
@@ -53,4 +55,6 @@ export class VeyndoError extends Error {
   code?: number | string;
   outcomeUnknown: boolean;
 }
-export function createClient<Inputs extends object = OperationInputs>(options: ClientOptions): Client<Inputs>;
+export function createClient<Inputs extends object = OperationInputs, Outputs extends object = DefaultOutputs<Inputs>>(
+  options: ClientOptions
+): Client<Inputs, Outputs>;

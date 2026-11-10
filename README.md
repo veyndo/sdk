@@ -4,11 +4,11 @@ Use Veyndo Commerce operations from JavaScript and TypeScript, or connect the sa
 client to an independently hosted component. The client has no runtime dependencies
 and does not import a commerce server, database driver or model provider.
 
-This first version supports Veyndo's stateless JSON MCP transport and direct JSON
-HTTP APIs. It is not a general SSE/session-based MCP client. The native input types
-and schemas come from the existing operation registry. Native domain response types are
-currently JSON; completing those contracts is tracked in the
-[component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
+The client uses Veyndo's stateless JSON MCP transport and direct JSON HTTP APIs.
+The native registry supplies input types and any declared result types.
+Flow draft validation returns a typed result with the revision and
+`saved: false`. Other results remain available as JSON until their owners
+declare a schema. [Component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
 
 ## Try it from Node
 
@@ -28,11 +28,11 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install github:veyndo/sdk#v0.4.0
+npm install github:veyndo/sdk#v0.4.1
 ```
 
 The GitHub prerelease includes MCP App resources, the Knowledge client and
-Flow draft validation. The package is distributed from GitHub.
+typed Flow draft validation. The package is distributed from GitHub.
 
 ```js
 import { createClient, VeyndoError } from '@veyndo/sdk';
@@ -48,13 +48,15 @@ const tools = await client.tools();
 const data = await client.request('/your/documented/api/path');
 ```
 
-An independent service can expose its own endpoint and input contracts:
+An independent service can expose its own endpoint, input contracts and result types.
 
 ```ts
 const component = createClient<{
   'external.search': { term: string };
+}, {
+  'external.search': { count: number };
 }>({ baseUrl: 'https://component.example', mcpPath: '/knowledge/mcp' });
-const result = await component.tool('external.search', { term: 'chair' });
+const { count } = await component.tool('external.search', { term: 'chair' });
 ```
 
 ## Use standalone Knowledge

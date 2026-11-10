@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+- Infer declared native result types from the Veyndo operation registry.
+  Flow draft validation returns the revision and a literal `saved: false`.
+- Allow a standalone component client to supply its own result types.
+  Undeclared results keep the existing JSON type.
+
 ## 0.4.0
 
 - Negotiate MCP Apps, discover and read linked resources, and retain the full

@@ -8520,6 +8520,33 @@
         "type": "object"
       },
       "name": "automation.validate_flow",
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "saved": {
+            "enum": [
+              false
+            ],
+            "type": "boolean"
+          },
+          "valid": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid",
+          "saved",
+          "revision"
+        ],
+        "type": "object"
+      },
       "readOnly": true
     }
   ],

@@ -15045,13 +15045,42 @@
         },
         "responses": {
           "200": {
-            "description": "MCP JSON-RPC result or operation error; domain output schemas are not yet generated."
+            "description": "MCP JSON-RPC result or operation error. Declared schemas describe structuredContent by tool name."
           },
           "401": {
             "description": "Missing or invalid identity"
           },
           "403": {
             "description": "Current access denied"
+          }
+        },
+        "x-veyndo-operation-outputs": {
+          "automation.validate_flow": {
+            "additionalProperties": false,
+            "properties": {
+              "revision": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "saved": {
+                "enum": [
+                  false
+                ],
+                "type": "boolean"
+              },
+              "valid": {
+                "enum": [
+                  true
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "valid",
+              "saved",
+              "revision"
+            ],
+            "type": "object"
           }
         }
       }
