@@ -33,3 +33,20 @@ const composed = createComposition({ services: [{ id: 'core', client: createClie
 ] });
 composed.discover(); composed.read({ version: 1, panels: [] }, 'x');
 createLayoutRegistry([{ id: 'a', title: 'A', version: 1 }]);
+
+import { createKnowledgeClient } from '@veyndo/sdk/knowledge';
+const knowledge = createKnowledgeClient({ baseUrl: 'https://knowledge.example', expectedTenant: 'shop-a', token: 'fixture' });
+async function inspectEvidence() {
+  const page = await knowledge.products.list({ limit: 1 });
+  if (page.nextCursor !== null) await knowledge.products.list({ after: page.nextCursor });
+  const result = await knowledge.products.search({ query: 'chair', locale: 'de-DE', mainLocale: 'en-GB' });
+  const productId: string = result.sources[0].productId;
+  await knowledge.products.current(result);
+  // @ts-expect-error Product evidence cannot be checked as a private document.
+  await knowledge.documents.current(result);
+  // @ts-expect-error Private documents cannot use an exact product filter.
+  await knowledge.documents.search({ query: 'chair', locale: 'de-DE', mainLocale: 'en-GB', productId });
+  // @ts-expect-error A write requires its expected revision.
+  await knowledge.documents.withdraw({ id: 'returns' });
+}
+void inspectEvidence;

@@ -6,7 +6,7 @@ and does not import a commerce server, database driver or model provider.
 
 This first version supports Veyndo's stateless JSON MCP transport and direct JSON
 HTTP APIs. It is not a general SSE/session-based MCP client. The native input types
-and schemas come from the existing operation registry. Domain response types are
+and schemas come from the existing operation registry. Native domain response types are
 currently JSON; completing those contracts is tracked in the
 [component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
 
@@ -56,8 +56,50 @@ const component = createClient<{
 const result = await component.tool('external.search', { term: 'chair' });
 ```
 
-That example describes client configuration; it does not claim a released Knowledge
-service. Component extraction is tracked separately in the main repository.
+## Use standalone Knowledge
+
+Connect your own catalog or documents to an independently hosted
+[Knowledge service](https://www.veyndo.ai/docs/knowledge-component.html). The typed HTTP client
+uses the service's own v1 API and works without Veyndo Core.
+
+```js
+import { createKnowledgeClient } from '@veyndo/sdk/knowledge';
+
+const knowledge = createKnowledgeClient({
+  baseUrl: process.env.KNOWLEDGE_URL,
+  expectedTenant: process.env.KNOWLEDGE_TENANT,
+  token: () => process.env.KNOWLEDGE_ACCESS_TOKEN,
+});
+
+const evidence = await knowledge.products.search({
+  query: 'linen shade', locale: 'en-GB', mainLocale: 'de-DE',
+});
+if (evidence.sources.length && (await knowledge.products.current(evidence)).current) {
+  console.log(evidence.sources.map(({ productId, text }) => ({ productId, text })));
+}
+```
+
+Use a backend and separate scoped tokens for reading and writing. Knowledge
+rejects a valid token for a different tenant. Both `products` and `documents`
+support reading, listing, saving, withdrawing, searching, checking evidence
+and reading graph relationships. TypeScript distinguishes the two kinds of
+evidence and the cursor on a list response.
+
+The [Node example](examples/knowledge.mjs) can import one JSON source at a
+time. A new source contains `id`, `revision: 0`, `locale`, `title` and
+`content`. Updates and withdrawal require the latest stored revision. Set
+the three environment variables from the example above, then run:
+
+```sh
+node examples/knowledge.mjs products put product.json
+node examples/knowledge.mjs documents put returns-policy.json
+node examples/knowledge.mjs documents search "return policy" en-GB de-DE
+node examples/knowledge.mjs products list 25
+```
+
+Use write scope for the first two commands and the matching read scope for
+the last two. The example rechecks evidence before returning passages. Keep
+the service's MCP endpoint for tool discovery and agent hosts.
 
 ## Check a Flow draft
 
