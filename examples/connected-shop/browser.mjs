@@ -8,7 +8,9 @@ const recover = element('recover');
 const ask = element('ask');
 const checkoutState = element('checkout-state');
 const answer = element('answer');
-let stocked = false;
+const item = element('item');
+let state = { kind: 'empty' };
+let busy = false;
 
 async function api(path, data) {
   const response = await fetch(path, data === undefined ? {} : {
@@ -19,36 +21,50 @@ async function api(path, data) {
   return payload;
 }
 
-function show(state) {
-  review.hidden = state.kind !== 'empty' && state.kind !== 'review-again';
-  review.disabled = !stocked;
+function show(next) {
+  state = next;
+  const finished = state.kind === 'receipt' || state.kind === 'pending';
+  if (state.item) item.value = state.item.id;
+  item.disabled = busy || finished;
+  review.hidden = finished || state.kind === 'quote';
+  review.disabled = busy || !item.value;
   confirm.hidden = state.kind !== 'quote';
+  confirm.disabled = busy;
   recover.hidden = state.kind !== 'pending';
-  const total = typeof state.totalMinor === 'string'
-    ? new Intl.NumberFormat('en', { style: 'currency', currency: state.currency }).format(Number(state.totalMinor) / 100)
+  recover.disabled = busy;
+  const money = value => new Intl.NumberFormat('en', { style: 'currency', currency: state.currency }).format(value);
+  const total = state.totalMinor ? money(Number(state.totalMinor) / 100) : '';
+  const delivery = state.delivery
+    ? ' · Delivery ' + state.delivery.earliest + (state.delivery.latest === state.delivery.earliest
+      ? '' : ' to ' + state.delivery.latest) + ' (' + state.country + ')'
     : '';
   checkoutState.textContent = ({
     empty: 'Your cart is empty.',
-    quote: 'Review total: ' + total,
-    receipt: 'Order ' + state.orderNumber + ' · ' + total + ' · Your cart is empty.',
+    quote: state.kind === 'quote' ? 'Review ' + state.item.label + ' · ' + total + ' total · '
+      + money(state.shipping) + ' shipping' + delivery : '',
+    receipt: 'Order ' + state.orderNumber + ' · ' + state.item?.label + ' · ' + total + ' · Your cart is empty.',
     pending: 'Waiting for the original order receipt.',
+    unavailable: 'This option is no longer available. Choose another variant or reload for current stock.',
     'review-again': 'The quote changed. Review a fresh total before confirming.',
   })[state.kind];
 }
 
+item.addEventListener('change', () => show({ kind: 'empty' }));
+
 for (const [button, path] of [[review, '/review'], [confirm, '/confirm'], [recover, '/status']]) {
   button.addEventListener('click', async () => {
-    button.disabled = true;
+    const data = button === review ? { itemId: item.value }
+      : button === confirm ? { reviewKey: state.reviewKey } : {};
+    busy = true;
+    show(state);
     try {
-      show(await api(path, {}));
+      state = await api(path, data);
+      busy = false;
+      show(state);
     } catch (error) {
+      busy = false;
+      show(button === confirm ? { kind: 'pending', item: state.item } : state);
       checkoutState.textContent = error.message;
-      if (button === confirm) {
-        confirm.hidden = true;
-        recover.hidden = false;
-      }
-    } finally {
-      button.disabled = button === review && !stocked;
     }
   });
 }
@@ -96,8 +112,14 @@ ask.addEventListener('click', async () => {
 try {
   const product = await api('/product');
   element('product').textContent = product.name;
-  stocked = product.stock > 0;
-  element('availability').textContent = stocked ? 'Available in this shop' : 'Out of stock';
+  for (const choice of product.choices) {
+    const option = new Option(choice.stock > 0 ? choice.label : choice.label + ' (out of stock)', choice.id);
+    option.disabled = choice.stock <= 0;
+    item.add(option);
+  }
+  item.value = product.choices.find(choice => choice.stock > 0)?.id ?? '';
+  element('choice-field').hidden = product.choices.length === 1;
+  element('availability').textContent = item.value ? 'Available in this shop' : 'Out of stock';
   ask.disabled = false;
   show(await api('/status', {}));
 } catch (error) {
