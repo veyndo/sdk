@@ -32,6 +32,22 @@ async function checkCart() {
   void [earliest, amount];
 }
 void checkCart;
+async function checkSelection() {
+  const cart = await checkoutClient.cart.create();
+  const access = { cartToken: cart.token };
+  const options = await checkoutClient.options(access);
+  const shippingPrice: number = options.shipping[0].price;
+  const checkout = { country: options.countries[0], shippingMethodId: options.shipping[0].id,
+    paymentMethodId: options.payments[0].id };
+  const selected = await checkoutClient.select({ revision: cart.revision, checkout }, access);
+  const selectedMethod: string = selected.checkout.shippingMethodId;
+  // @ts-expect-error A selection needs an explicit cart revision.
+  await checkoutClient.select({ checkout }, access);
+  // @ts-expect-error A selection needs an explicit payment method.
+  await checkoutClient.select({ revision: cart.revision, checkout: { country: 'DE', shippingMethodId: 'standard' } }, access);
+  void [shippingPrice, selectedMethod];
+}
+void checkSelection;
 const catalog = createCatalogClient({ baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE' });
 async function checkCatalog() {
   const page = await catalog.list({ limit: 1, search: 'lamp' });

@@ -13,7 +13,7 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.5 adds typed cart creation, reads, additions, preview and apply to the
+SDK 0.4.6 adds typed shipping and payment discovery and selection to the
 Checkout client. The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -190,6 +190,12 @@ Show the buyer Core's price and delivery estimate, then apply the same items
 with the returned revision and review fingerprint. On HTTP 409, reload
 the cart and ask the buyer to review the new quote.
 [Cart walkthrough](https://www.veyndo.ai/docs/checkout-component.html#review-a-cart-change-from-the-sdk).
+
+Use `checkout.options` to list the configured countries and methods.
+Submit the buyer's choices with `checkout.select` and the current cart
+revision. Show the buyer the price and delivery estimate returned by Core
+before confirming the purchase.
+[Shipping and payment walkthrough](https://www.veyndo.ai/docs/checkout-component.html#choose-shipping-and-payment-from-the-sdk).
 
 Create a session from the current native cart, then call
 `confirm` with the exact reviewed amount in minor units, country, payment

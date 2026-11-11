@@ -50,6 +50,21 @@ export function createCheckoutClient(options) {
   const cart = '/store-api/checkout/cart';
 
   return Object.freeze({
+    options(access = {}) {
+      const buyerHeaders = access.cartToken === undefined ? headers(access) : cartHeaders(access);
+      return read('/store-api/checkout/options', { headers: scopedHeaders(buyerHeaders), signal: access.signal });
+    },
+    select(input, access) {
+      const selection = input?.checkout;
+      if (!Number.isSafeInteger(input?.revision) || input.revision < 0 ||
+          ![selection?.country, selection?.shippingMethodId, selection?.paymentMethodId]
+            .every(value => typeof value === 'string' && value.trim())) {
+        throw new TypeError('Checkout selection requires a country, shipping method, payment method and cart revision');
+      }
+      return write('/store-api/checkout/context', {
+        method: 'PUT', body: input, headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+      });
+    },
     cart: Object.freeze({
       create(input = {}, access = {}) {
         return write(cart, {

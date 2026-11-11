@@ -124,3 +124,37 @@ test('a failed cart preview is a failed read and a failed apply may have been wr
     status: 503, outcomeUnknown: true,
   });
 });
+
+test('checkout discovers candidates and saves an explicit choice at the cart revision', async () => {
+  const calls = [];
+  const candidates = { countries: ['DE'], shipping: [{ id: 'standard' }], payments: [{ id: 'demo-card' }], revision: 2 };
+  const choice = { country: 'DE', shippingMethodId: 'standard', paymentMethodId: 'demo-card' };
+  const input = { revision: 7, checkout: choice };
+  const client = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE',
+    fetch: async (url, args) => {
+      calls.push({ url, args });
+      return Response.json(args.method === 'GET' ? candidates : { checkout: choice, revision: 8 });
+    },
+  });
+  const access = { cartToken: 'cart-token', customerToken: 'buyer-token' };
+  assert.throws(() => client.options({ cartToken: '' }), TypeError);
+  assert.throws(() => client.select({ ...input, revision: 1.2 }, access), TypeError);
+  assert.throws(() => client.select({ ...input, checkout: { ...choice, paymentMethodId: '' } }, access), TypeError);
+  assert.equal(calls.length, 0);
+  assert.deepEqual(await client.options(), candidates);
+  assert.deepEqual(await client.options(access), candidates);
+  assert.deepEqual(await client.select(input, access), { checkout: choice, revision: 8 });
+  assert.deepEqual(calls.map(({ url, args }) => [
+    url.pathname, args.method, args.headers.get('sw-context-token'), args.headers.get('x-customer-token'),
+  ]), [
+    ['/store-api/checkout/options', 'GET', null, null],
+    ['/store-api/checkout/options', 'GET', 'cart-token', 'buyer-token'],
+    ['/store-api/checkout/context', 'PUT', 'cart-token', 'buyer-token'],
+  ]);
+  assert.deepEqual(JSON.parse(calls[2].args.body), input);
+  for (const { args } of calls) {
+    assert.equal(args.headers.get('x-tenant'), 'demo');
+    assert.equal(args.headers.get('x-commerce-locale'), 'de-DE');
+  }
+});
