@@ -67,7 +67,10 @@ The SDK is pinned to the [0.4.0 release archive](https://github.com/veyndo/sdk/r
 The same package makes all Commerce and MCP requests. Checkout calls Core for
 the authoritative order and stock transaction. If the confirmation response
 is lost, the example looks up the original receipt. It never creates another
-order to recover the first one. Veyndo persists the order and the receipt.
+order to recover the first one. Successful confirmation returns the
+session and order IDs. The separate lookup also returns the cart and buyer
+IDs, which the host checks before displaying the recovered order.
+Veyndo persists the order and the receipt.
 The example host keeps its short-lived browser sessions in memory.
 
 The host supports one configured product family and the demo card. For a

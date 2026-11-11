@@ -13,7 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.3 ships runnable Node and browser examples for the typed catalog client.
+SDK 0.4.4 adds typed Checkout session creation, confirmation and receipt
+recovery through Core. It also ships the runnable Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
 The screenshot shows the corresponding interaction in the hosted storefront.
@@ -179,6 +180,19 @@ from your project. [Browser walkthrough](https://www.veyndo.ai/docs/one-shop-com
 
 Applications using a same-origin HttpOnly customer session can set
 `credentials: 'same-origin'` on their SDK client. The default is to omit credentials.
+
+### Use the Checkout relay
+
+Import `createCheckoutClient` from `@veyndo/sdk/checkout`. Set `baseUrl` to
+the Core shop origin. Create a session from a current native cart, then call
+`confirm` with the exact reviewed amount in minor units, country, payment
+method and legal policy version. Pass the buyer's current cart token on
+confirmation. A same origin browser can use its existing session cookie.
+
+If confirmation fails with `outcomeUnknown: true`, read the original
+receipt with the same session, cart and buyer IDs. The lookup requires
+the current buyer identity and does not submit a purchase.
+[Checkout walkthrough](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
 The [Connected shop example](examples/connected-shop/README.md) combines that card with catalogue reads, variant selection and an independent Checkout purchase.

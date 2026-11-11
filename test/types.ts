@@ -1,6 +1,22 @@
 /** Negative compile controls ensure registry arguments are not widened to arbitrary JSON. */
 import { createClient, VeyndoError } from '../src/index.js';
 import { createCatalogClient } from '@veyndo/sdk/catalog';
+import { createCheckoutClient, type CheckoutConfirmation } from '@veyndo/sdk/checkout';
+const checkoutClient = createCheckoutClient({ baseUrl: 'https://shop.example', shop: 'demo' });
+async function checkCheckout(input: CheckoutConfirmation) {
+  const confirmed = await checkoutClient.confirm(input, { cartToken: 'cart-token' });
+  const totalMinor: string = confirmed.totalMinor;
+  // @ts-expect-error The independent confirmation does not expose the cart ID.
+  const cartId = confirmed.cartId;
+  const recovered = await checkoutClient.receipt({ sessionId: input.id, cartId: 'cart', customerId: 'buyer' });
+  const customer: string = recovered.customerId;
+  // @ts-expect-error A confirmation requires explicit buyer approval.
+  await checkoutClient.confirm({ ...input, confirmed: false }, { cartToken: 'cart-token' });
+  // @ts-expect-error Reviewed minor units are represented by a string.
+  await checkoutClient.confirm({ ...input, totalMinor: 2490 }, { cartToken: 'cart-token' });
+  void [totalMinor, cartId, customer];
+}
+void checkCheckout;
 const catalog = createCatalogClient({ baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE' });
 async function checkCatalog() {
   const page = await catalog.list({ limit: 1, search: 'lamp' });

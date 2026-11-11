@@ -58,13 +58,13 @@ test('a lost confirmation reads the original receipt and never submits a second 
   const state = {
     customerId: 'buyer-1', headers: { 'x-customer-token': 'fixture' },
     review: { id: 'session-1', cartId: 'cart-1', confirmation: { id: 'session-1' },
-      summary: { reviewKey: 'review-1', item: { id: 'graphite', label: 'Graphite' } } },
+      summary: { reviewKey: 'review-1', item: { id: 'graphite', label: 'Graphite' }, currency: 'EUR', totalMinor: '2490' } },
   };
   const service = checkout({
     async request(path, { body }) {
       writes.push([path, body]);
       if (path.endsWith('/confirm')) throw Object.assign(new Error('Lost response'), { outcomeUnknown: true });
-      return { cartId: 'cart-1', orderId: 'order-1', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
+      return { ...body, orderId: 'order-1', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
     },
   }, 'mug');
   const expected = { kind: 'receipt', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR',
@@ -101,7 +101,7 @@ test('variant reviews use current family stock and only the latest quote can be 
       }
       if (path.endsWith('/create')) return { id: 'session-' + selected, revision: 1 };
       assert.ok(path.endsWith('/confirm'));
-      return { orderId: 'order', orderNumber: 'RAC-2', cartId: 'cart-' + selected,
+      return { sessionId: body.id, orderId: 'order', orderNumber: 'RAC-2',
         totalMinor: body.totalMinor, currency: 'EUR' };
     },
   }, 'lamp');
@@ -119,4 +119,5 @@ test('variant reviews use current family stock and only the latest quote can be 
   const receipt = await service.confirm(state, { reviewKey: graphite.reviewKey });
   assert.equal(receipt.item.id, 'graphite');
   assert.equal(writes.filter(([path]) => path.endsWith('/confirm')).length, 1);
+  assert.equal(writes.filter(([path]) => path.endsWith('/session-receipt')).length, 0);
 });
