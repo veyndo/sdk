@@ -1,4 +1,5 @@
 import type { CallOptions, ClientOptions } from './index.js';
+import type { CatalogCurrencyContext } from './catalog.js';
 
 export interface CheckoutOptions extends Pick<ClientOptions,
   'baseUrl' | 'shop' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'> {
@@ -14,6 +15,71 @@ export interface CheckoutBuyer extends CallOptions {
 
 export interface CartAccess extends CheckoutBuyer {
   cartToken: string;
+}
+
+export interface CheckoutAddress {
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  salutationId?: string;
+  title?: string;
+  company?: string;
+  department?: string;
+  vatId?: string;
+  street: string;
+  postalCode: string;
+  city: string;
+  country?: string;
+  countryStateId?: string;
+  additionalAddressLine1?: string;
+  additionalAddressLine2?: string;
+  phoneNumber?: string;
+}
+
+export interface CheckoutSelection {
+  country: string;
+  shippingMethodId: string;
+  paymentMethodId: string;
+  address?: CheckoutAddress | null;
+  billingAddress?: CheckoutAddress | null;
+  shippingAddressId?: string | null;
+  billingAddressId?: string | null;
+  customerEmail?: string | null;
+  paymentFunding?: { save?: boolean; id?: string | null } | null;
+}
+
+interface CheckoutMethod {
+  id: string;
+  name: string;
+  description: string;
+  countries: string[];
+}
+
+export interface CheckoutShippingMethod extends CheckoutMethod {
+  /** Display amounts in the requested currency. */
+  price: number;
+  freeAbove: number | null;
+  minDays: number;
+  maxDays: number;
+}
+
+export interface CheckoutPaymentMethod extends CheckoutMethod {
+  mode: string;
+  businessOnly: boolean;
+  restrictedCountries: boolean;
+  provider?: string;
+  providerMethod?: string;
+}
+
+export interface CheckoutAvailability {
+  mainLocale: string;
+  locales: string[];
+  countries: string[];
+  currencyContext: CatalogCurrencyContext;
+  shipping: CheckoutShippingMethod[];
+  payments: CheckoutPaymentMethod[];
+  /** Configuration revision. Use StoreCart.revision to submit a selection. */
+  revision: number;
 }
 
 export interface CartItem {
@@ -54,7 +120,11 @@ export interface StoreCart {
   customerId?: string | null;
   lineItems: CartLine[];
   price: CartPrice;
-  checkout: { country: string; shippingMethodId: string; paymentMethodId: string };
+  checkout: CheckoutSelection;
+  selectionNeedsConfirmation?: boolean;
+  availableCountries?: string[];
+  availableShippingMethods?: CheckoutShippingMethod[];
+  availablePaymentMethods?: CheckoutPaymentMethod[];
   checkoutService?: {
     transport: 'same-origin' | 'direct';
     legalPolicyVersion: string;
@@ -144,6 +214,9 @@ export interface CheckoutReceiptLookup {
 }
 
 export interface CheckoutClient {
+  /** List configured candidates. Core validates their country and cart eligibility on select. */
+  options(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAvailability>;
+  select(input: { revision: number; checkout: CheckoutSelection }, access: CartAccess): Promise<StoreCart>;
   cart: StoreCartClient;
   create(input: CheckoutCreate, buyer?: CheckoutBuyer): Promise<CheckoutSession>;
   confirm(input: CheckoutConfirmation, buyer: CartAccess): Promise<CheckoutReceipt>;

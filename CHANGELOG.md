@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.6
+
+- Add typed delivery countries, shipping methods and payment methods to the
+  Checkout client. Save an explicit selection at the current cart revision
+  and use the quote returned by Core for purchase confirmation.
+
 ## 0.4.5
 
 - Add typed Store API cart creation, reads, additions, review and apply to
