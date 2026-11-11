@@ -5,6 +5,11 @@ import { createAccountClient } from '@veyndo/sdk/account';
 const accountClient = createAccountClient({ baseUrl: 'https://shop.example' });
 async function checkAccount() {
   const buyer = { customerToken: 'buyer' };
+  const book = await accountClient.addresses.list(buyer);
+  const address = book.elements[0];
+  await accountClient.addresses.update(address.id, { address: address.address, revision: address.revision }, buyer);
+  // @ts-expect-error Address updates require the address revision.
+  await accountClient.addresses.update(address.id, { address: address.address }, buyer);
   const page = await accountClient.orders.list(undefined, buyer);
   if (page.nextCursor) await accountClient.orders.list({ after: page.nextCursor }, buyer);
   const detail = await accountClient.orders.detail(page.elements[0].id, buyer);

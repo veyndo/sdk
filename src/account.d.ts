@@ -9,6 +9,34 @@ export interface AccountAccess extends CallOptions {
   customerToken?: string;
 }
 
+export interface CustomerAddress {
+  id: string;
+  revision: number;
+  address: CheckoutAddress;
+}
+
+export interface CustomerAddressBook {
+  elements: CustomerAddress[];
+  defaultBillingAddressId: string | null;
+  defaultShippingAddressId: string | null;
+  customerRevision: number;
+}
+
+export interface CustomerAddressInput {
+  address: CheckoutAddress;
+  defaultBilling?: boolean;
+  defaultShipping?: boolean;
+}
+
+export interface CustomerAddressUpdate extends CustomerAddressInput {
+  revision: number;
+}
+
+export interface CustomerAddressSaved {
+  id: string;
+  saved: true;
+}
+
 export interface CustomerOrderLine {
   id: string;
   label: string;
@@ -68,6 +96,12 @@ export interface CustomerOrderPage {
 }
 
 export interface AccountClient {
+  addresses: {
+    list(buyer?: AccountAccess): Promise<CustomerAddressBook>;
+    create(input: CustomerAddressInput, buyer?: AccountAccess): Promise<CustomerAddressSaved>;
+    update(id: string, input: CustomerAddressUpdate, buyer?: AccountAccess): Promise<CustomerAddressSaved>;
+    remove(id: string, input: { revision: number }, buyer?: AccountAccess): Promise<{ deleted: true }>;
+  };
   orders: {
     list(input?: { after?: string }, buyer?: AccountAccess): Promise<CustomerOrderPage>;
     detail(id: string, buyer?: AccountAccess): Promise<CustomerOrderDetail>;
