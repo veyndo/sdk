@@ -10,6 +10,16 @@ Flow draft validation returns a typed result with the revision and
 `saved: false`. Other results remain available as JSON until their owners
 declare a schema. [Component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
 
+## Current status
+
+SDK 0.4.1 includes typed Flow validation results and MCP App discovery. The Connected Shop example combines a product read, an interactive App and a reviewed purchase through independent Checkout. The screenshot shows the corresponding hosted storefront interaction.
+
+[Component guide](https://www.veyndo.ai/docs/agentic-component-ui.html) · [Hosted status](https://www.veyndo.ai/docs/status.html) · [Versions](https://www.veyndo.ai/docs/components.json)
+
+[Überblick auf Deutsch](https://www.veyndo.ai/docs/platform-overview.html)
+
+[![Native storefront showing an App result next to cart review](https://raw.githubusercontent.com/veyndo/veyndo/1d824485a47d6c23eb46260c651f42c5d5df492f/docs/assets/apps/product-guide-cart-review-20261111.jpg)](https://www.veyndo.ai/docs/agentic-component-ui.html)
+
 ## Try it from Node
 
 Clone this repository, use Node 22 or later, and run the example against your shop:
@@ -175,15 +185,6 @@ storage, payment or complete-product acceptance. CI runs Node 22 and 24.
 
 The SDK retains the existing [Veyndo Sustainable Use License](LICENSE). Moving code
 to a separate repository does not change its licensing terms.
-
-## Kurz auf Deutsch
-
-Das SDK verbindet eigene Anwendungen mit Veyndo oder einem separat betriebenen
-Baustein. JavaScript und TypeScript verwenden dieselben Operationen wie die
-vorhandene MCP Schnittstelle. Der Server prüft Rechte und Shopzugehörigkeit.
-Beispiele stehen unter `examples/`; Fortschritt und Gesamtabnahme stehen in der
-zentralen Komponentenliste. Die übrigen Komponenten sind noch nicht vollständig
-herausgelöst.
 
 ## Independent host exchange
 
