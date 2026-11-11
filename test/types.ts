@@ -17,6 +17,21 @@ async function checkCheckout(input: CheckoutConfirmation) {
   void [totalMinor, cartId, customer];
 }
 void checkCheckout;
+async function checkCart() {
+  const cart = await checkoutClient.cart.create();
+  const access = { cartToken: cart.token };
+  const items = [{ id: 'lamp', quantity: 1 }];
+  const preview = await checkoutClient.cart.preview({ items, revision: cart.revision }, access);
+  const earliest: string | undefined = preview.delivery?.earliest;
+  const applied = await checkoutClient.cart.apply({ items, revision: preview.revision, review: preview.review }, access);
+  const amount: string | undefined = applied.price.totalMinor;
+  // @ts-expect-error Applying a cart proposal requires its review.
+  await checkoutClient.cart.apply({ items, revision: cart.revision }, access);
+  // @ts-expect-error A current token is required to read an existing cart.
+  await checkoutClient.cart.read({});
+  void [earliest, amount];
+}
+void checkCart;
 const catalog = createCatalogClient({ baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE' });
 async function checkCatalog() {
   const page = await catalog.list({ limit: 1, search: 'lamp' });

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.5
+
+- Add typed Store API cart creation, reads, additions, review and apply to
+  `@veyndo/sdk/checkout`. The preview returns Core's quote and review
+  fingerprint. Applying the proposal requires its current cart revision.
+
 ## 0.4.4
 
 - Add the typed `@veyndo/sdk/checkout` client for draft creation, reviewed
