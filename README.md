@@ -13,7 +13,7 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.7 adds typed order history and detail reads for the signed-in buyer.
+SDK 0.4.8 lets a signed-in buyer download receipts from their order history.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -212,8 +212,10 @@ the current buyer identity and does not submit a purchase.
 Use `@veyndo/sdk/account` from a signed-in buyer session. Pass the
 customer token on each call, or use `credentials: 'same-origin'` in the
 shop browser. `orders.list` returns the buyer's orders and a cursor when
-another page is available. `orders.detail` includes customer-visible
-receipt metadata. [Order history walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#read-order-history-with-the-sdk).
+another page is available. `orders.detail` includes customer-visible receipts.
+Pass the order ID and receipt ID to `orders.receiptPdf` to download PDF bytes.
+The client applies `maxResponseBytes` to the download (1 MiB by default).
+[Order history walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#read-order-history-with-the-sdk).
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
 The [Connected Shop example](examples/connected-shop/README.md) runs that
