@@ -60,11 +60,13 @@ parent product while the checkout uses the selected variant ID.
 | `guide.mjs` | Discover the public MCP App resource and its filter from Veyndo. All reads retain the original product and resource. |
 | `browser.mjs` | Mount the app HTML in an isolated iframe using the official AppBridge. Only the declared tool can read the chosen product. |
 | `layout.mjs` and `openui.mjs` | Admit the panel order and render it with OpenUI. |
-| `commerce.mjs` | Read the product family, prepare a cart for the chosen variant and create a Checkout session. Confirm only the current reviewed offer. |
+| `commerce.mjs` | Read the family with the catalog client. Preview and apply the variant basket, create a Checkout session and confirm only the current offer. |
 | `server.mjs` | Hold buyer and cart credentials, limit requests to this browser origin, and serve the guide with network access disabled. |
 
-The SDK is pinned to the [0.4.0 release archive](https://github.com/veyndo/sdk/releases/tag/v0.4.0).
-The same package makes all Commerce and MCP requests. Checkout calls Core for
+The SDK is pinned to the [0.4.6 release archive](https://github.com/veyndo/sdk/releases/tag/v0.4.6).
+The Node host uses `@veyndo/sdk/catalog` for product detail and
+`@veyndo/sdk/checkout` for cart review, confirmation and recovery. It uses
+the base client for demo buyer setup and MCP discovery. Checkout calls Core for
 the authoritative order and stock transaction. If the confirmation response
 is lost, the example looks up the original receipt. It never creates another
 order to recover the first one. Successful confirmation returns the

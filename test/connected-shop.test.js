@@ -1,9 +1,22 @@
 /** Protect the example's resource binding and its recovery path after a lost confirmation. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { createClient } from '@veyndo/sdk';
+import { createCatalogClient } from '@veyndo/sdk/catalog';
+import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from '../examples/connected-shop/commerce.mjs';
 import { discoverGuide } from '../examples/connected-shop/guide.mjs';
 import { generateLayout, isLayoutSource, layoutSource } from '../examples/connected-shop/layout.mjs';
+
+function exampleWithStoreApi(respond, productId) {
+  const options = {
+    baseUrl: 'https://shop.example', shop: 'fixture',
+    fetch: async (url, { body }) => Response.json(await respond(url.pathname, body && JSON.parse(body))),
+  };
+  return checkout({
+    account: createClient(options), catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
+  }, productId);
+}
 
 test('generated OpenUI changes panel order without introducing actions or purchase data', async () => {
   const model = text => async (url, options) => {
@@ -56,16 +69,15 @@ test('guide filter and pagination remain bound to the selected product and resou
 test('a lost confirmation reads the original receipt and never submits a second purchase', async () => {
   const writes = [];
   const state = {
-    customerId: 'buyer-1', headers: { 'x-customer-token': 'fixture' },
-    review: { id: 'session-1', cartId: 'cart-1', confirmation: { id: 'session-1' },
+    customerId: 'buyer-1', customerToken: 'fixture',
+    review: { id: 'session-1', cartId: 'cart-1', cartToken: 'cart-token',
+      confirmation: { id: 'session-1', confirmed: true, totalMinor: '2490' },
       summary: { reviewKey: 'review-1', item: { id: 'graphite', label: 'Graphite' }, currency: 'EUR', totalMinor: '2490' } },
   };
-  const service = checkout({
-    async request(path, { body }) {
-      writes.push([path, body]);
-      if (path.endsWith('/confirm')) throw Object.assign(new Error('Lost response'), { outcomeUnknown: true });
-      return { ...body, orderId: 'order-1', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
-    },
+  const service = exampleWithStoreApi((path, body) => {
+    writes.push([path, body]);
+    if (path.endsWith('/confirm')) throw new Error('Lost response');
+    return { ...body, orderId: 'order-1', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
   }, 'mug');
   const expected = { kind: 'receipt', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR',
     item: { id: 'graphite', label: 'Graphite' } };
@@ -73,7 +85,7 @@ test('a lost confirmation reads the original receipt and never submits a second 
   assert.deepEqual(await service.confirm(state, { reviewKey: 'review-1' }), expected);
   assert.deepEqual(await service.status(state), expected);
   assert.deepEqual(writes, [
-    ['/store-api/checkout/independent/confirm', { id: 'session-1' }],
+    ['/store-api/checkout/independent/confirm', { id: 'session-1', confirmed: true, totalMinor: '2490' }],
     ['/store-api/checkout/session-receipt', { sessionId: 'session-1', cartId: 'cart-1', customerId: 'buyer-1' }],
   ]);
 });
@@ -83,29 +95,36 @@ test('variant reviews use current family stock and only the latest quote can be 
   let selected;
   const parent = { id: 'lamp', name: 'Lamp', stock: 20 };
   const variant = (id, stock) => ({ id, stock, parent_id: 'lamp', options: { finish: id } });
-  const service = checkout({
-    async request(path, { body }) {
-      if (path.includes('/product/')) return { familyId: 'lamp', product: parent,
-        variants: [parent, variant('brass', 2), variant('graphite', 1), variant('silver', 0)],
-        variantsPagination: { hasMore: false } };
-      writes.push([path, body]);
-      if (path.endsWith('/cart')) return { token: 'cart-token' };
-      if (path.endsWith('/line-item')) {
-        selected = body.items[0].referencedId;
-        return { id: 'cart-' + selected, revision: 1, locale: 'en-GB',
-          checkout: { paymentMethodId: 'demo-card', country: 'DE' },
-          checkoutService: { transport: 'same-origin', legalPolicyVersion: 'demo' },
-          shippingCosts: { totalPrice: 0 },
-          deliveries: [{ deliveryDate: { earliest: '2026-11-12', latest: '2026-11-13' } }],
-          price: { currency: 'EUR', totalMinor: selected === 'brass' ? '6490' : '7990' } };
-      }
-      if (path.endsWith('/create')) return { id: 'session-' + selected, revision: 1 };
-      assert.ok(path.endsWith('/confirm'));
-      return { sessionId: body.id, orderId: 'order', orderNumber: 'RAC-2',
-        totalMinor: body.totalMinor, currency: 'EUR' };
-    },
+  const review = 'a'.repeat(64);
+  const service = exampleWithStoreApi((path, body) => {
+    if (path.includes('/product/')) return { familyId: 'lamp', product: parent,
+      variants: [parent, variant('brass', 2), variant('graphite', 1), variant('silver', 0)],
+      variantsPagination: { hasMore: false } };
+    writes.push([path, body]);
+    if (path.endsWith('/preview')) {
+      assert.equal(body.revision, 1);
+      selected = body.items[0].id;
+      return { revision: 1, review };
+    }
+    if (path.endsWith('/cart') && body.session) return { token: 'cart-token', revision: 1 };
+    if (path.endsWith('/cart')) {
+      assert.deepEqual(body, { revision: 1, review, items: [{ id: selected, quantity: 1 }] });
+      return { id: 'cart-' + selected, token: 'cart-token', revision: 2, locale: 'en-GB',
+        checkout: { paymentMethodId: 'demo-card', country: 'DE' },
+        checkoutService: { transport: 'same-origin', legalPolicyVersion: 'demo' },
+        shippingCosts: { totalPrice: 0 },
+        deliveries: [{ deliveryDate: { earliest: '2026-11-12', latest: '2026-11-13' } }],
+        price: { currency: 'EUR', totalMinor: selected === 'brass' ? '6490' : '7990' } };
+    }
+    if (path.endsWith('/create')) {
+      assert.equal(body.context.cart.revision, 2);
+      return { id: 'session-' + selected, revision: 1 };
+    }
+    assert.ok(path.endsWith('/confirm'));
+    return { sessionId: body.id, orderId: 'order', orderNumber: 'RAC-2',
+      totalMinor: body.totalMinor, currency: 'EUR' };
   }, 'lamp');
-  const state = { customerId: 'buyer', headers: { 'x-customer-token': 'fixture' } };
+  const state = { customerId: 'buyer', customerToken: 'fixture' };
   for (const itemId of ['foreign', 'lamp', 'silver']) {
     assert.deepEqual(await service.review(state, { itemId }), { kind: 'unavailable' });
   }

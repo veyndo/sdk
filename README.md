@@ -208,7 +208,9 @@ the current buyer identity and does not submit a purchase.
 [Checkout walkthrough](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
-The [Connected shop example](examples/connected-shop/README.md) combines that card with catalogue reads, variant selection and an independent Checkout purchase.
+The [Connected Shop example](examples/connected-shop/README.md) runs that
+card beside the typed catalog and Checkout clients. It pins SDK 0.4.6
+and uses Core's cart preview before confirming a simulated variant purchase.
 The example negotiates the extension, discovers the installed view and reads
 its HTML resource and full tool result.
 
