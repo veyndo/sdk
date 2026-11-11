@@ -2,6 +2,38 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createAccountClient } from '@veyndo/sdk/account';
 
+test('address book writes use buyer scope and preserve the address revision', async () => {
+  const calls = [];
+  const address = { name: 'Buyer', street: 'Test 1', city: 'Berlin', postalCode: '10115', country: 'DE' };
+  const buyer = { customerToken: 'buyer' };
+  const id = 'address+1';
+  const account = createAccountClient({
+    baseUrl: 'https://shop.example', shop: 'demo',
+    fetch: async (url, options) => {
+      calls.push([options.method, url.pathname, options.body && JSON.parse(options.body)]);
+      assert.equal(options.headers.get('x-customer-token'), 'buyer');
+      assert.equal(options.headers.get('x-tenant'), 'demo');
+      return options.method === 'PUT'
+        ? new Response(null, { status: 409 })
+        : Response.json(options.method === 'GET' ? { elements: [] } : { id });
+    },
+  });
+  assert.deepEqual((await account.addresses.list(buyer)).elements, []);
+  const input = { address, defaultShipping: true };
+  assert.equal((await account.addresses.create(input, buyer)).id, id);
+  await assert.rejects(account.addresses.update(id, { ...input, revision: 7 }, buyer),
+    { kind: 'http', status: 409, outcomeUnknown: false });
+  await account.addresses.remove(id, { revision: 8 }, buyer);
+  await assert.rejects(account.addresses.remove('../foreign', { revision: 8 }, buyer), TypeError);
+  const base = '/store-api/account/addresses';
+  assert.deepEqual(calls, [
+    ['GET', base, undefined],
+    ['POST', base, input],
+    ['PUT', base + '/address%2B1', { ...input, revision: 7 }],
+    ['DELETE', base + '/address%2B1', { revision: 8 }],
+  ]);
+});
+
 test('receipt download uses the bounded buyer transport and returns PDF bytes', async () => {
   const pdf = '%PDF-1.4\nfixture';
   const account = createAccountClient({

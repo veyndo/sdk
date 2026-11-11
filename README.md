@@ -13,7 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.8 lets a signed-in buyer download receipts from their order history.
+SDK 0.4.9 adds the buyer's address book. A storefront can save a delivery
+address, select it at checkout and show the order and its PDF receipt.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -216,6 +217,12 @@ another page is available. `orders.detail` includes customer-visible receipts.
 Pass the order ID and receipt ID to `orders.receiptPdf` to download PDF bytes.
 The client applies `maxResponseBytes` to the download (1 MiB by default).
 [Order history walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#read-order-history-with-the-sdk).
+
+Use `addresses.list` to get saved addresses and their default assignments.
+`addresses.create`, `addresses.update` and `addresses.remove` use the same buyer
+session. Updates and deletions take the address revision from the list.
+Pass the selected address ID to Checkout as `shippingAddressId` or
+`billingAddressId`. [Address book walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#manage-buyer-addresses-with-the-sdk).
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
 The [Connected Shop example](examples/connected-shop/README.md) runs that
