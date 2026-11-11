@@ -71,3 +71,56 @@ test('checkout refuses an unrelated receipt and preserves ambiguity after a malf
   await assert.rejects(client.confirm(confirmation, { cartToken: 'cart-token' }), { kind: 'protocol', outcomeUnknown: true });
   await assert.rejects(client.receipt(lookup), { kind: 'protocol', outcomeUnknown: false });
 });
+
+test('cart review and apply preserve scope, revision and the original proposal', async () => {
+  const calls = [];
+  const proposal = { items: [{ id: 'lamp', quantity: 1 }], revision: 7 };
+  const review = 'a'.repeat(64);
+  const client = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'uk', locale: 'en-GB', currency: 'GBP',
+    fetch: async (url, args) => {
+      calls.push({ url, args });
+      return Response.json(url.pathname.endsWith('/preview') ? { review } : { id: 'cart' });
+    },
+  });
+  const access = { cartToken: 'cart-token', customerToken: 'buyer-token' };
+  assert.throws(() => client.cart.read({}), TypeError);
+  assert.throws(() => client.cart.apply({ items: proposal.items, review }, access), TypeError);
+  assert.throws(() => client.cart.apply({ ...proposal, review: 'invalid' }, access), TypeError);
+  assert.equal(calls.length, 0);
+
+  await client.cart.create({ session: 'fixture' }, { customerToken: 'buyer-token' });
+  await client.cart.read(access);
+  await client.cart.add({ items: [{ referencedId: 'lamp', quantity: 1 }] }, access);
+  assert.equal((await client.cart.preview(proposal, access)).review, review);
+  await client.cart.apply({ ...proposal, review }, access);
+  assert.deepEqual(calls.map(({ url, args }) => [
+    url.pathname, args.method, args.body && JSON.parse(args.body), args.headers.get('sw-context-token'),
+  ]), [
+    ['/store-api/checkout/cart', 'POST', { session: 'fixture' }, null],
+    ['/store-api/checkout/cart', 'GET', undefined, 'cart-token'],
+    ['/store-api/checkout/cart/line-item', 'POST', { items: [{ referencedId: 'lamp', quantity: 1 }] }, 'cart-token'],
+    ['/store-api/checkout/cart/preview', 'POST', proposal, 'cart-token'],
+    ['/store-api/checkout/cart', 'PUT', { ...proposal, review }, 'cart-token'],
+  ]);
+  for (const { args } of calls) {
+    assert.equal(args.headers.get('x-tenant'), 'demo');
+    assert.equal(args.headers.get('x-customer-token'), 'buyer-token');
+    assert.equal(args.headers.get('sw-sales-channel-id'), 'uk');
+    assert.equal(args.headers.get('x-commerce-locale'), 'en-GB');
+    assert.equal(args.headers.get('x-commerce-currency'), 'GBP');
+  }
+});
+
+test('a failed cart preview is a failed read and a failed apply may have been written', async () => {
+  const client = createCheckoutClient({
+    baseUrl: 'https://shop.example',
+    fetch: async () => new Response(null, { status: 503 }),
+  });
+  const proposal = { items: [], revision: 1 };
+  const access = { cartToken: 'cart-token' };
+  await assert.rejects(client.cart.preview(proposal, access), { status: 503, outcomeUnknown: false });
+  await assert.rejects(client.cart.apply({ ...proposal, review: 'a'.repeat(64) }, access), {
+    status: 503, outcomeUnknown: true,
+  });
+});

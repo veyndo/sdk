@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.4 adds typed Checkout session creation, confirmation and receipt
-recovery through Core. It also ships the runnable Node and browser catalog examples.
+SDK 0.4.5 adds typed cart creation, reads, additions, preview and apply to the
+Checkout client. The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
 The screenshot shows the corresponding interaction in the hosted storefront.
@@ -184,7 +184,14 @@ Applications using a same-origin HttpOnly customer session can set
 ### Use the Checkout relay
 
 Import `createCheckoutClient` from `@veyndo/sdk/checkout`. Set `baseUrl` to
-the Core shop origin. Create a session from a current native cart, then call
+the Core shop origin. Use `checkout.cart` to open a cart and add items. To
+replace the basket, preview the proposed items with the current revision.
+Show the buyer Core's price and delivery estimate, then apply the same items
+with the returned revision and review fingerprint. On HTTP 409, reload
+the cart and ask the buyer to review the new quote.
+[Cart walkthrough](https://www.veyndo.ai/docs/checkout-component.html#review-a-cart-change-from-the-sdk).
+
+Create a session from the current native cart, then call
 `confirm` with the exact reviewed amount in minor units, country, payment
 method and legal policy version. Pass the buyer's current cart token on
 confirmation. A same origin browser can use its existing session cookie.
