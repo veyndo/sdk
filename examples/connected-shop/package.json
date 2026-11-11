@@ -12,7 +12,7 @@
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "2.0.4",
     "@openuidev/react-lang": "1.0.1",
-    "@veyndo/sdk": "https://github.com/veyndo/sdk/releases/download/v0.4.0/veyndo-sdk-0.4.0.tgz",
+    "@veyndo/sdk": "https://github.com/veyndo/sdk/releases/download/v0.4.6/veyndo-sdk-0.4.6.tgz",
     "esbuild": "0.28.2",
     "react": "19.2.0",
     "react-dom": "19.2.0",

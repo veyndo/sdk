@@ -5,6 +5,8 @@ import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { createClient } from '@veyndo/sdk';
+import { createCatalogClient } from '@veyndo/sdk/catalog';
+import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from './commerce.mjs';
 import { discoverGuide } from './guide.mjs';
 import { generateLayout } from './layout.mjs';
@@ -19,8 +21,11 @@ if (core.hostname !== '127.0.0.1' || core.protocol !== 'http:' || core.origin ==
     !Number.isInteger(port) || port < 1024 || port > 65535 || !shop)
   throw new Error('Use distinct loopback ports and set VEYNDO_SHOP to an isolated demo shop');
 
-const client = createClient({ baseUrl: core, shop, mcpApps: true, timeoutMs: 8000 });
-const commerce = checkout(client, productId);
+const options = { baseUrl: core, shop, timeoutMs: 8000 };
+const client = createClient({ ...options, mcpApps: true });
+const commerce = checkout({
+  account: client, catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
+}, productId);
 const guide = await discoverGuide(client, productId);
 const bundle = await build({
   entryPoints: [fileURLToPath(new URL('browser.mjs', import.meta.url))],
