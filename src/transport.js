@@ -38,7 +38,7 @@ async function jsonBody(response, limit) {
   catch (cause) { throw new VeyndoError('Server returned invalid JSON', { kind: 'protocol', cause }); }
 }
 
-export function transport(options) {
+export function transport(options, { readOnly = false } = {}) {
   const baseUrl = new URL(options.baseUrl);
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(baseUrl.hostname);
   if (!(baseUrl.protocol === 'https:' || (baseUrl.protocol === 'http:' && loopback)) ||
@@ -66,7 +66,7 @@ export function transport(options) {
     if (input.body !== undefined) headers.set('Content-Type', 'application/json');
     const timer = AbortSignal.timeout(timeoutMs);
     const signal = input.signal ? AbortSignal.any([timer, input.signal]) : timer;
-    const mutating = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+    const mutating = !readOnly && !['GET', 'HEAD', 'OPTIONS'].includes(method);
     let dispatched = false;
     try {
       signal.throwIfAborted();
@@ -88,7 +88,8 @@ export function transport(options) {
       }
       const kind = input.signal?.aborted ? 'aborted' : timer.aborted ? 'timeout' : 'network';
       throw new VeyndoError({ aborted: 'Request cancelled', timeout: 'Request timed out',
-        network: 'Connection failed; inspect the original operation before repeating a write' }[kind],
+        network: mutating ? 'Connection failed; inspect the original operation before repeating a write' :
+          'Connection failed' }[kind],
         { kind, outcomeUnknown, cause });
     }
   };
