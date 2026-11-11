@@ -1,5 +1,21 @@
 /** Negative compile controls ensure registry arguments are not widened to arbitrary JSON. */
 import { createClient, VeyndoError } from '../src/index.js';
+import { createCatalogClient } from '@veyndo/sdk/catalog';
+const catalog = createCatalogClient({ baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE' });
+async function checkCatalog() {
+  const page = await catalog.list({ limit: 1, search: 'lamp' });
+  if (page.nextCursor) await catalog.list({ after: page.nextCursor });
+  const item = page.elements[0];
+  const price: number = item.price;
+  const detail = await catalog.detail(item.id, { limit: 1 });
+  const taxStatus: 'gross' | 'net' = detail.taxStatus;
+  // @ts-expect-error Product IDs are strings.
+  await catalog.detail(1);
+  // @ts-expect-error Cursors are strings.
+  await catalog.list({ after: 1 });
+  void [price, taxStatus];
+}
+void checkCatalog;
 const client = createClient({ baseUrl: 'https://component.example', shop: 'example' });
 void client.tool('knowledge.search', { query: 'Lampe' });
 void client.tool('app.care.read', { productId: 'lamp' });

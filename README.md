@@ -7,12 +7,13 @@ and does not import a commerce server, database driver or model provider.
 The client uses Veyndo's stateless JSON MCP transport and direct JSON HTTP APIs.
 The native registry supplies input types and any declared result types.
 Flow draft validation returns a typed result with the revision and
-`saved: false`. Other results remain available as JSON until their owners
-declare a schema. [Component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
+`saved: false`. The Store API catalog and the independent Knowledge service
+also have typed clients. Operations without declared results return JSON.
+[Component plan](https://github.com/veyndo/veyndo/blob/main/docs/commerce-components.md).
 
 ## Current status
 
-SDK 0.4.1 includes typed Flow validation results and MCP App discovery.
+SDK 0.4.2 adds typed catalog listing, product details and variant pages.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
 The screenshot shows the corresponding interaction in the hosted storefront.
@@ -22,6 +23,33 @@ The screenshot shows the corresponding interaction in the hosted storefront.
 [Überblick auf Deutsch](https://www.veyndo.ai/docs/platform-overview.html)
 
 [![Native storefront showing an App result next to cart review](https://raw.githubusercontent.com/veyndo/veyndo/1d824485a47d6c23eb46260c651f42c5d5df492f/docs/assets/apps/product-guide-cart-review-20261111.jpg)](https://www.veyndo.ai/docs/agentic-component-ui.html)
+
+## Read the Store API catalog
+
+Use the [0.4.2 package](https://github.com/veyndo/sdk/releases/tag/v0.4.2) in
+your own project, or run `node examples/store-catalog.mjs` from this repository.
+The example reads the public Lumen shop without a key.
+
+```js
+import { createCatalogClient } from '@veyndo/sdk/catalog';
+
+const catalog = createCatalogClient({
+  baseUrl: 'https://app.veyndo.ai',
+  shop: 'lumen-story-lab-15-o-98aa4751fa',
+  locale: 'de-DE',
+});
+const page = await catalog.list({ limit: 10 });
+if (page.elements.length) {
+  const detail = await catalog.detail(page.elements[0].id, { limit: 10 });
+  console.log(detail.product.name, detail.variants);
+}
+```
+
+Keep the shop, language, channel, currency and filters consistent when
+passing `nextCursor` back as `after`. Variant pages may repeat the parent
+and selected SKU. When combining pages, use each product's `id` once.
+Prices and delivery estimates are for display. Checkout recalculates the
+order before purchase.
 
 ## Try it from Node
 

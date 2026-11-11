@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+- Add the typed `@veyndo/sdk/catalog` client for Store API listings, product
+  details and variant pages, with a runnable public shop example.
+- Report a failed catalog POST as a failed read, with a known write outcome.
+
 ## 0.4.1
 
 - Infer declared native result types from the Veyndo operation registry.
