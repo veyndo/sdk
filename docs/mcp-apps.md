@@ -32,3 +32,5 @@ The [Connected shop example](https://github.com/veyndo/sdk/tree/main/examples/co
 runs a filterable guide and independent Checkout against the same test shop.
 The app reads the configured product. The host controls variant selection and
 requires a new purchase review when the selected variant changes.
+The [OpenUI layout](../examples/connected-shop/README.md#generate-the-layout-with-openui)
+orders those panels while the MCP App retains its original read tool and scope.

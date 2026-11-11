@@ -1,5 +1,7 @@
 /** Connect a read-only MCP App to its conversation and keep checkout approval in the host. */
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
+import { renderLayout } from './openui.mjs';
+import { layoutSource } from './layout.mjs';
 
 const element = id => document.getElementById(id);
 const review = element('review');
@@ -110,7 +112,14 @@ ask.addEventListener('click', async () => {
 });
 
 try {
-  const product = await api('/product');
+  const focus = location.hash === '#guide' ? 'guide' : 'checkout';
+  const [product, layout] = await Promise.all([
+    api('/product'),
+    api('/layout', { focus }).catch(() => ({ source: layoutSource(focus), generator: 'local' })),
+  ]);
+  renderLayout(element('generated-workspace'), element('base-workspace'), {
+    Purchase: element('purchase-panel'), Guide: element('guide-panel'),
+  }, layout);
   element('product').textContent = product.name;
   for (const choice of product.choices) {
     const option = new Option(choice.stock > 0 ? choice.label : choice.label + ' (out of stock)', choice.id);
