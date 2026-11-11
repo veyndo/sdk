@@ -13,8 +13,8 @@
       <h1>Connected shop</h1>
       <p>Explore one product, open its interactive guide and complete a simulated purchase.</p>
     </header>
-    <div class="workspace">
-      <section aria-labelledby="product">
+    <div id="base-workspace" class="workspace">
+      <section id="purchase-panel" aria-labelledby="product">
         <h2 id="product">Loading product…</h2>
         <p id="availability" role="status"></p>
         <div class="checkout">
@@ -29,7 +29,7 @@
           <button id="recover" hidden>Check order status</button>
         </div>
       </section>
-      <section class="conversation" aria-labelledby="conversation">
+      <section id="guide-panel" class="conversation" aria-labelledby="conversation">
         <h2 id="conversation">Product conversation</h2>
         <button id="ask" type="button" disabled>What should I know about this product?</button>
         <div id="turn" hidden>
@@ -39,6 +39,7 @@
         </div>
       </section>
     </div>
+    <div id="generated-workspace"></div>
     <footer>
       <span>Veyndo catalogue</span><span>MCP App product guide</span><span>Independent Checkout</span>
     </footer>

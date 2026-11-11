@@ -33,6 +33,20 @@ The browser session uses a synthetic buyer account and a test cart. Opening a
 new browser session lets you place another demo order. Reloading the same
 session shows the original receipt.
 
+### Generate the layout with OpenUI
+
+The Node host assembles the Purchase and Product Guide panels as OpenUI.
+Append `#guide` to the example URL to ask for the guide first. With an
+`OPENAI_API_KEY` in the Node environment, OpenAI chooses the order of those
+two panels. Set `OPENAI_MODEL` to select a different model. The model receives
+only the requested focus. The local layout is available without a key and
+also serves as the fallback for invalid or unavailable model responses.
+
+OpenUI places the host's existing controls. It receives no price, variant ID,
+cart token or confirmation capability from the model. The MCP App continues
+to read the configured product and the host requests the current cart quote
+from Core before the shopper can confirm.
+
 Choose one variant and select **Review purchase** to see Core's total,
 shipping cost and delivery estimate. Change the selection to clear the offer.
 Review again, then select **Confirm simulated purchase**. The receipt names
@@ -45,6 +59,7 @@ parent product while the checkout uses the selected variant ID.
 | --- | --- |
 | `guide.mjs` | Discover the public MCP App resource and its filter from Veyndo. All reads retain the original product and resource. |
 | `browser.mjs` | Mount the app HTML in an isolated iframe using the official AppBridge. Only the declared tool can read the chosen product. |
+| `layout.mjs` and `openui.mjs` | Admit the panel order and render it with OpenUI. |
 | `commerce.mjs` | Read the product family, prepare a cart for the chosen variant and create a Checkout session. Confirm only the current reviewed offer. |
 | `server.mjs` | Hold buyer and cart credentials, limit requests to this browser origin, and serve the guide with network access disabled. |
 

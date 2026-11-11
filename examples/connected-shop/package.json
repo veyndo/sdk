@@ -2,14 +2,20 @@
   "name": "veyndo-connected-shop-example",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check commerce.mjs && node --check guide.mjs && node --check browser.mjs"
+    "check": "node --check server.mjs && node --check commerce.mjs && node --check guide.mjs && node --check browser.mjs && node --check layout.mjs && node --check openui.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "2.0.4",
+    "@openuidev/react-lang": "1.0.1",
     "@veyndo/sdk": "https://github.com/veyndo/sdk/releases/download/v0.4.0/veyndo-sdk-0.4.0.tgz",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "zod": "4.6.7"
   }
 }

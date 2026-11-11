@@ -7,6 +7,7 @@ import { build } from 'esbuild';
 import { createClient } from '@veyndo/sdk';
 import { checkout } from './commerce.mjs';
 import { discoverGuide } from './guide.mjs';
+import { generateLayout } from './layout.mjs';
 
 const core = new URL(process.env.VEYNDO_URL ?? 'http://127.0.0.1:8787');
 const port = Number(process.env.PORT ?? 8812);
@@ -23,7 +24,8 @@ const commerce = checkout(client, productId);
 const guide = await discoverGuide(client, productId);
 const bundle = await build({
   entryPoints: [fileURLToPath(new URL('browser.mjs', import.meta.url))],
-  bundle: true, format: 'esm', write: false, logLevel: 'silent',
+  bundle: true, format: 'esm', write: false, logLevel: 'silent', minify: true,
+  define: { 'process.env.NODE_ENV': '"production"' },
 });
 const assets = new Map([
   ['/', ['text/html', await readFile(new URL('index.html', import.meta.url))]],
@@ -64,6 +66,9 @@ async function readBody(request) {
 }
 
 const actions = new Map([
+  ['/layout', (_state, { focus }) => generateLayout(focus, {
+    key: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL,
+  })],
   ['/ask', async state => ({ answer: 'Here is the installed product guide for this item.',
     arguments: guide.original, definition: guide.definition, result: await guide.read(state) })],
   ['/filter', (state, body) => guide.read(state, body)],

@@ -3,6 +3,27 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { checkout } from '../examples/connected-shop/commerce.mjs';
 import { discoverGuide } from '../examples/connected-shop/guide.mjs';
+import { generateLayout, isLayoutSource, layoutSource } from '../examples/connected-shop/layout.mjs';
+
+test('generated OpenUI changes panel order without introducing actions or purchase data', async () => {
+  const model = text => async (url, options) => {
+    assert.equal(url, 'https://api.openai.com/v1/responses');
+    assert.equal(options.redirect, 'error');
+    const body = JSON.parse(options.body);
+    assert.equal(body.store, false);
+    assert.equal(body.input, 'checkout');
+    return Response.json({ output: [{ content: [{ type: 'output_text', text }] }] });
+  };
+  const local = { source: layoutSource('checkout'), generator: 'local' };
+  assert.deepEqual(await generateLayout('checkout'), local);
+  assert.deepEqual(await generateLayout('checkout', { key: 'fixture', fetcher: model('{"first":"guide"}') }),
+    { source: layoutSource('guide'), generator: 'openai' });
+  for (const result of ['{"first":"buy"}', '{"first":"guide","totalMinor":"1"}', 'Shop([Pay()])']) {
+    assert.deepEqual(await generateLayout('checkout', { key: 'fixture', fetcher: model(result) }), local);
+  }
+  assert.equal(isLayoutSource('root = Shop([Guide(), Purchase("chair", 1)])'), false);
+  await assert.rejects(generateLayout('constructor'), /valid layout focus/);
+});
 
 test('guide filter and pagination remain bound to the selected product and resource', async () => {
   const name = 'app.example_agent_results.list_entries';

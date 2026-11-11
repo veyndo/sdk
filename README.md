@@ -12,7 +12,10 @@ declare a schema. [Component plan](https://github.com/veyndo/veyndo/blob/main/do
 
 ## Current status
 
-SDK 0.4.1 includes typed Flow validation results and MCP App discovery. The Connected Shop example combines a product family, an interactive App and a reviewed variant purchase through independent Checkout. The screenshot shows the corresponding hosted storefront interaction.
+SDK 0.4.1 includes typed Flow validation results and MCP App discovery.
+[Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
+places a Product Guide and reviewed variant checkout in an OpenUI layout.
+The screenshot shows the corresponding interaction in the hosted storefront.
 
 [Component guide](https://www.veyndo.ai/docs/agentic-component-ui.html) · [Hosted status](https://www.veyndo.ai/docs/status.html) · [Versions](https://www.veyndo.ai/docs/components.json)
 

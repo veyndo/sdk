@@ -38,5 +38,5 @@ iframe { display: block; width: 100%; height: 16rem; border: 1px solid var(--lin
 footer { border-top: 1px solid var(--line); padding-block: 1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; color: var(--muted); font-size: .9rem; }
 @media (max-width: 44rem) {
   .workspace { grid-template-columns: minmax(0, 1fr); }
-  .conversation { border-top: 1px solid var(--line); padding-block-start: 1.5rem; }
+  .workspace > :not(:first-child) { border-top: 1px solid var(--line); padding-block-start: 1.5rem; }
 }
