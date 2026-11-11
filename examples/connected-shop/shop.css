@@ -28,6 +28,10 @@ button { font: inherit; font-weight: 650; padding: .7rem .95rem; min-height: 2.7
 button:hover:enabled { background: #064568; }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 button:disabled { background: #e1ebf1; color: #4d6270; cursor: wait; }
+#choice-field { margin-top: .85rem; }
+#choice-field label { display: block; font-weight: 650; margin-bottom: .3rem; }
+#item { width: 100%; min-height: 2.75rem; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: .55rem; padding: .45rem .65rem; }
+#item:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 #checkout-state { font-variant-numeric: tabular-nums; }
 .question { width: fit-content; margin-inline-start: auto; background: #deedf6; color: var(--ink); border-radius: .7rem; padding: .65rem .9rem; }
 iframe { display: block; width: 100%; height: 16rem; border: 1px solid var(--line); border-radius: .85rem; background: #fff; }

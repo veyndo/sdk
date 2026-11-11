@@ -12,7 +12,7 @@ declare a schema. [Component plan](https://github.com/veyndo/veyndo/blob/main/do
 
 ## Current status
 
-SDK 0.4.1 includes typed Flow validation results and MCP App discovery. The Connected Shop example combines a product read, an interactive App and a reviewed purchase through independent Checkout. The screenshot shows the corresponding hosted storefront interaction.
+SDK 0.4.1 includes typed Flow validation results and MCP App discovery. The Connected Shop example combines a product family, an interactive App and a reviewed variant purchase through independent Checkout. The screenshot shows the corresponding hosted storefront interaction.
 
 [Component guide](https://www.veyndo.ai/docs/agentic-component-ui.html) · [Hosted status](https://www.veyndo.ai/docs/status.html) · [Versions](https://www.veyndo.ai/docs/components.json)
 
@@ -139,7 +139,7 @@ origin check. Same-origin HttpOnly customer sessions can use
 `credentials: 'same-origin'`; credentials are omitted by default.
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
-The [Connected shop example](examples/connected-shop/README.md) combines that card with catalog reads and an independent Checkout purchase.
+The [Connected shop example](examples/connected-shop/README.md) combines that card with catalogue reads, variant selection and an independent Checkout purchase.
 The example negotiates the extension, discovers the installed view and reads
 its HTML resource and full tool result.
 

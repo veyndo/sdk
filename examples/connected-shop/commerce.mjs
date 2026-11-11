@@ -11,10 +11,25 @@ export function checkout(client, productId) {
     return client.request('/store-api/' + path, { method, body, headers });
   }
 
+  async function product() {
+    const detail = await call('product/' + encodeURIComponent(productId) + '?limit=50');
+    const parent = detail.product;
+    const variants = detail.familyId === parent.id
+      ? detail.variants.filter(item => item.parent_id === parent.id)
+      : [];
+    if (detail.familyId === parent.id && detail.variantsPagination.hasMore)
+      throw new Error('Choose a product family with at most 50 entries for this example');
+    const choices = (variants.length ? variants : [parent]).map(item => ({
+      id: item.id, stock: item.stock,
+      label: Object.values(item.options ?? {}).join(' / ') || item.name,
+    }));
+    return { name: parent.name, choices };
+  }
+
   function receipt(state, order) {
     if (order.cartId !== state.review.cartId || !order.orderId || !order.orderNumber)
       throw new Error('The receipt does not match the original cart');
-    state.receipt = { kind: 'receipt', orderNumber: order.orderNumber,
+    state.receipt = { kind: 'receipt', orderNumber: order.orderNumber, item: state.review.summary.item,
       totalMinor: String(order.totalMinor), currency: order.currency };
     return state.receipt;
   }
@@ -26,7 +41,7 @@ export function checkout(client, productId) {
       }, state.headers));
     } catch (error) {
       if (error.status !== 404) throw error;
-      return { kind: 'pending' };
+      return { kind: 'pending', item: state.review.summary.item };
     }
   }
 
@@ -37,13 +52,13 @@ export function checkout(client, productId) {
   }
 
   return {
-    async product() {
-      const { product } = await call('product/' + encodeURIComponent(productId));
-      return { id: product.id, name: product.name, stock: product.stock };
-    },
+    product,
     status,
-    async review(state) {
-      if (state.review) return status(state);
+    async review(state, { itemId }) {
+      if (state.receipt || state.uncertain) return status(state);
+      state.review = null;
+      const item = (await product()).choices.find(choice => choice.id === itemId && choice.stock > 0);
+      if (!item) return { kind: 'unavailable' };
       if (!state.headers) {
         const email = 'sdk-demo-' + randomUUID() + '@example.test';
         const account = await call('account/register', 'POST', {
@@ -61,7 +76,7 @@ export function checkout(client, productId) {
       const initial = await call('checkout/cart', 'POST', { session: randomUUID() }, headers);
       headers['sw-context-token'] = initial.token;
       const cart = await call('checkout/cart/line-item', 'POST',
-        { items: [{ referencedId: productId, quantity: 1 }] }, headers);
+        { items: [{ referencedId: item.id, quantity: 1 }] }, headers);
       if (cart.checkoutService?.transport !== 'same-origin' ||
           cart.checkout.paymentMethodId !== 'demo-card' || cart.price.currency !== 'EUR')
         throw new Error('The shop must use independent Checkout with the demo card and EUR');
@@ -73,8 +88,9 @@ export function checkout(client, productId) {
           currency: cart.price.currency, country: cart.checkout.country,
         },
       }, headers);
-      const summary = { kind: 'quote', currency: cart.price.currency,
-        totalMinor: String(cart.price.totalMinor) };
+      const summary = { kind: 'quote', item, reviewKey: randomUUID(), currency: cart.price.currency,
+        totalMinor: String(cart.price.totalMinor), shipping: cart.shippingCosts.totalPrice,
+        delivery: cart.deliveries[0]?.deliveryDate, country: cart.checkout.country };
       state.review = {
         id: session.id, cartId: cart.id, summary,
         confirmation: {
@@ -85,8 +101,10 @@ export function checkout(client, productId) {
       };
       return summary;
     },
-    async confirm(state) {
-      if (!state.review || state.receipt || state.uncertain) return status(state);
+    async confirm(state, { reviewKey }) {
+      if (state.receipt || state.uncertain) return status(state);
+      if (!state.review || reviewKey !== state.review.summary.reviewKey)
+        return { kind: 'review-again' };
       try {
         return receipt(state, await call('checkout/independent/confirm', 'POST',
           state.review.confirmation, state.headers));

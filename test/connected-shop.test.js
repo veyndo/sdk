@@ -36,7 +36,8 @@ test('a lost confirmation reads the original receipt and never submits a second 
   const writes = [];
   const state = {
     customerId: 'buyer-1', headers: { 'x-customer-token': 'fixture' },
-    review: { id: 'session-1', cartId: 'cart-1', confirmation: { id: 'session-1' } },
+    review: { id: 'session-1', cartId: 'cart-1', confirmation: { id: 'session-1' },
+      summary: { reviewKey: 'review-1', item: { id: 'graphite', label: 'Graphite' } } },
   };
   const service = checkout({
     async request(path, { body }) {
@@ -45,12 +46,56 @@ test('a lost confirmation reads the original receipt and never submits a second 
       return { cartId: 'cart-1', orderId: 'order-1', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
     },
   }, 'mug');
-  const expected = { kind: 'receipt', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR' };
-  assert.deepEqual(await service.confirm(state), expected);
-  assert.deepEqual(await service.confirm(state), expected);
+  const expected = { kind: 'receipt', orderNumber: 'RAC-1', totalMinor: '2490', currency: 'EUR',
+    item: { id: 'graphite', label: 'Graphite' } };
+  assert.deepEqual(await service.confirm(state, { reviewKey: 'review-1' }), expected);
+  assert.deepEqual(await service.confirm(state, { reviewKey: 'review-1' }), expected);
   assert.deepEqual(await service.status(state), expected);
   assert.deepEqual(writes, [
     ['/store-api/checkout/independent/confirm', { id: 'session-1' }],
     ['/store-api/checkout/session-receipt', { sessionId: 'session-1', cartId: 'cart-1', customerId: 'buyer-1' }],
   ]);
+});
+
+test('variant reviews use current family stock and only the latest quote can be confirmed', async () => {
+  const writes = [];
+  let selected;
+  const parent = { id: 'lamp', name: 'Lamp', stock: 20 };
+  const variant = (id, stock) => ({ id, stock, parent_id: 'lamp', options: { finish: id } });
+  const service = checkout({
+    async request(path, { body }) {
+      if (path.includes('/product/')) return { familyId: 'lamp', product: parent,
+        variants: [parent, variant('brass', 2), variant('graphite', 1), variant('silver', 0)],
+        variantsPagination: { hasMore: false } };
+      writes.push([path, body]);
+      if (path.endsWith('/cart')) return { token: 'cart-token' };
+      if (path.endsWith('/line-item')) {
+        selected = body.items[0].referencedId;
+        return { id: 'cart-' + selected, revision: 1, locale: 'en-GB',
+          checkout: { paymentMethodId: 'demo-card', country: 'DE' },
+          checkoutService: { transport: 'same-origin', legalPolicyVersion: 'demo' },
+          shippingCosts: { totalPrice: 0 },
+          deliveries: [{ deliveryDate: { earliest: '2026-11-12', latest: '2026-11-13' } }],
+          price: { currency: 'EUR', totalMinor: selected === 'brass' ? '6490' : '7990' } };
+      }
+      if (path.endsWith('/create')) return { id: 'session-' + selected, revision: 1 };
+      assert.ok(path.endsWith('/confirm'));
+      return { orderId: 'order', orderNumber: 'RAC-2', cartId: 'cart-' + selected,
+        totalMinor: body.totalMinor, currency: 'EUR' };
+    },
+  }, 'lamp');
+  const state = { customerId: 'buyer', headers: { 'x-customer-token': 'fixture' } };
+  for (const itemId of ['foreign', 'lamp', 'silver']) {
+    assert.deepEqual(await service.review(state, { itemId }), { kind: 'unavailable' });
+  }
+  assert.equal(writes.length, 0);
+  const brass = await service.review(state, { itemId: 'brass' });
+  const graphite = await service.review(state, { itemId: 'graphite' });
+  assert.equal(brass.totalMinor, '6490');
+  assert.equal(graphite.totalMinor, '7990');
+  assert.equal(graphite.delivery.latest, '2026-11-13');
+  assert.deepEqual(await service.confirm(state, { reviewKey: brass.reviewKey }), { kind: 'review-again' });
+  const receipt = await service.confirm(state, { reviewKey: graphite.reviewKey });
+  assert.equal(receipt.item.id, 'graphite');
+  assert.equal(writes.filter(([path]) => path.endsWith('/confirm')).length, 1);
 });

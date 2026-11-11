@@ -30,3 +30,5 @@ app results and filters.
 
 The [Connected shop example](https://github.com/veyndo/sdk/tree/main/examples/connected-shop)
 runs a filterable guide and independent Checkout against the same test shop.
+The app reads the configured product. The host controls variant selection and
+requires a new purchase review when the selected variant changes.
