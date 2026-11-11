@@ -5,6 +5,11 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.8
+
+- Download the buyer's own receipt as PDF bytes via `orders.receiptPdf`.
+  The download uses the existing buyer session and response size limit.
+
 ## 0.4.7
 
 - Add the typed `@veyndo/sdk/account` client for buyer order history,

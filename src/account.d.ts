@@ -71,6 +71,8 @@ export interface AccountClient {
   orders: {
     list(input?: { after?: string }, buyer?: AccountAccess): Promise<CustomerOrderPage>;
     detail(id: string, buyer?: AccountAccess): Promise<CustomerOrderDetail>;
+    /** Download a visible receipt for an owned order, within maxResponseBytes. */
+    receiptPdf(orderId: string, receiptId: string, buyer?: AccountAccess): Promise<Uint8Array>;
   };
 }
 
