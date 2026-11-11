@@ -1,6 +1,22 @@
 /** Negative compile controls ensure registry arguments are not widened to arbitrary JSON. */
 import { createClient, VeyndoError } from '../src/index.js';
 import { createCatalogClient } from '@veyndo/sdk/catalog';
+import { createAccountClient } from '@veyndo/sdk/account';
+const accountClient = createAccountClient({ baseUrl: 'https://shop.example' });
+async function checkAccount() {
+  const buyer = { customerToken: 'buyer' };
+  const page = await accountClient.orders.list(undefined, buyer);
+  if (page.nextCursor) await accountClient.orders.list({ after: page.nextCursor }, buyer);
+  const detail = await accountClient.orders.detail(page.elements[0].id, buyer);
+  const path: string = detail.receipts[0].pdfPath;
+  const number: string = detail.orderNumber;
+  // @ts-expect-error Order cursors are strings.
+  await accountClient.orders.list({ after: 1 }, buyer);
+  // @ts-expect-error Order history never carries a cart token.
+  const token = detail.cart.token;
+  void [path, number, token];
+}
+void checkAccount;
 import { createCheckoutClient, type CheckoutConfirmation } from '@veyndo/sdk/checkout';
 const checkoutClient = createCheckoutClient({ baseUrl: 'https://shop.example', shop: 'demo' });
 async function checkCheckout(input: CheckoutConfirmation) {

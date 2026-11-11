@@ -5,6 +5,11 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.7
+
+- Add the typed `@veyndo/sdk/account` client for buyer order history,
+  cursor pagination and order details with customer-visible receipt metadata.
+
 ## 0.4.6
 
 - Add typed delivery countries, shipping methods and payment methods to the

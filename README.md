@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.6 adds typed shipping and payment discovery and selection to the
-Checkout client. The package also includes the Node and browser catalog examples.
+SDK 0.4.7 adds typed order history and detail reads for the signed-in buyer.
+The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
 The screenshot shows the corresponding interaction in the hosted storefront.
@@ -206,6 +206,14 @@ If confirmation fails with `outcomeUnknown: true`, read the original
 receipt with the same session, cart and buyer IDs. The lookup requires
 the current buyer identity and does not submit a purchase.
 [Checkout walkthrough](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
+
+### Read the buyer's order history
+
+Use `@veyndo/sdk/account` from a signed-in buyer session. Pass the
+customer token on each call, or use `credentials: 'same-origin'` in the
+shop browser. `orders.list` returns the buyer's orders and a cursor when
+another page is available. `orders.detail` includes customer-visible
+receipt metadata. [Order history walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#read-order-history-with-the-sdk).
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
 The [Connected Shop example](examples/connected-shop/README.md) runs that
