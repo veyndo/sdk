@@ -26,9 +26,11 @@ export function checkout(client, productId) {
     return { name: parent.name, choices };
   }
 
-  function receipt(state, order) {
-    if (order.cartId !== state.review.cartId || !order.orderId || !order.orderNumber)
-      throw new Error('The receipt does not match the original cart');
+  function receipt(state, order, recovered = false) {
+    if (order.sessionId !== state.review.id || !order.orderId || !order.orderNumber ||
+        order.currency !== state.review.summary.currency || order.totalMinor !== state.review.summary.totalMinor ||
+        (recovered && (order.cartId !== state.review.cartId || order.customerId !== state.customerId)))
+      throw new Error('The receipt does not match the reviewed purchase');
     state.receipt = { kind: 'receipt', orderNumber: order.orderNumber, item: state.review.summary.item,
       totalMinor: String(order.totalMinor), currency: order.currency };
     return state.receipt;
@@ -38,7 +40,7 @@ export function checkout(client, productId) {
     try {
       return receipt(state, await call('checkout/session-receipt', 'POST', {
         sessionId: state.review.id, cartId: state.review.cartId, customerId: state.customerId,
-      }, state.headers));
+      }, state.headers), true);
     } catch (error) {
       if (error.status !== 404) throw error;
       return { kind: 'pending', item: state.review.summary.item };

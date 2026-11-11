@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4
+
+- Add the typed `@veyndo/sdk/checkout` client for draft creation, reviewed
+  confirmation and original receipt lookup through Core.
+- Let Connected Shop display a successful confirmation directly. When the
+  outcome is uncertain, it checks the original session, cart and buyer.
+
 ## 0.4.3
 
 - Ship runnable Node and browser catalog examples in the release archive.
