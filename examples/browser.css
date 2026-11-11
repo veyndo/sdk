@@ -1,0 +1,56 @@
+:root {
+  color-scheme: light;
+  font: 1rem/1.5 system-ui, sans-serif;
+  color: #162939;
+  background: #f4f7fa;
+  accent-color: #07518b;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none; }
+body { margin: 0; }
+main { max-width: 62rem; margin-inline: auto; padding: 3rem 1.25rem; }
+h1, h2 { line-height: 1.2; letter-spacing: -.025em; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.25rem; overflow-wrap: anywhere; }
+.intro, [role="status"] { color: #455d70; max-width: 65ch; }
+form { margin-block: 1.75rem 2.25rem; max-width: 32rem; }
+label { display: block; font-weight: 650; margin-block-end: .35rem; }
+.search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; }
+input, button {
+  min-height: 2.75rem;
+  font: inherit;
+  border: 1px solid #8299ad;
+  border-radius: .5rem;
+  background: #fff;
+  color: inherit;
+  padding: .45rem .85rem;
+}
+input { width: 100%; min-width: 0; }
+button { cursor: pointer; font-weight: 650; }
+button[type="submit"] { color: #fff; background: #07518b; border-color: #07518b; }
+button:hover { background: #e7f1f9; }
+button[type="submit"]:hover { background: #053e6a; }
+button:disabled { cursor: wait; opacity: .7; }
+:focus-visible { outline: 3px solid #1268a6; outline-offset: 3px; }
+.catalog { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.5rem; align-items: start; }
+section { min-width: 0; }
+#detail { border: 1px solid #bacbda; border-radius: .8rem; padding: 1.25rem; background: #fff; }
+#products { list-style: none; margin: 0; padding: 0; border-block-start: 1px solid #bacbda; }
+#products li { border-block-end: 1px solid #bacbda; }
+#products button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow-wrap: anywhere;
+  padding-block: .65rem;
+}
+#products button:hover, #products button[aria-current="true"] { background: #e1eef8; }
+#more { margin-block-start: 1rem; }
+.price { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-block-end: .25rem; }
+#stock { margin: 0; }
+@media (max-width: 42rem) {
+  main { padding-block-start: 1.5rem; }
+  .catalog { grid-template-columns: 1fr; }
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3
+
+- Ship runnable Node and browser catalog examples in the release archive.
+  The browser uses a local Node host to search, page through the catalog
+  and inspect product details from the configured public shop.
+
 ## 0.4.2
 
 - Add the typed `@veyndo/sdk/catalog` client for Store API listings, product
