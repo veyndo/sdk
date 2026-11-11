@@ -5,6 +5,11 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.10
+
+- Read the buyer profile and save editable contact fields through
+  `@veyndo/sdk/account`. Address book changes use the dedicated address methods.
+
 ## 0.4.9
 
 - Add typed buyer address book reads, creation, updates and deletion through

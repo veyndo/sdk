@@ -37,6 +37,42 @@ export interface CustomerAddressSaved {
   saved: true;
 }
 
+export interface CustomerContact {
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  salutationId?: string;
+  title?: string;
+  phoneNumber?: string;
+  birthday?: string | null;
+  company?: string;
+  vatIds?: string[];
+  defaultPaymentMethodId?: string | null;
+}
+
+export interface CustomerProfile {
+  id: string;
+  email: string;
+  customerNumber: string;
+  customerGroup: string;
+  active: boolean;
+  company: string | null;
+  revision: number;
+  createdAt: string;
+  profile: Partial<CustomerContact> & { address?: CheckoutAddress | null };
+  addresses: CustomerAddressBook;
+  defaultBillingAddressId: string | null;
+  defaultShippingAddressId: string | null;
+  salesChannelId: string;
+  languageId: string;
+  firstLogin: string | null;
+  lastLogin: string | null;
+  lastPaymentMethodId: string | null;
+  orderCount: number;
+  orderTotalAmount: number;
+  lastOrderDate: string | null;
+}
+
 export interface CustomerOrderLine {
   id: string;
   label: string;
@@ -96,6 +132,11 @@ export interface CustomerOrderPage {
 }
 
 export interface AccountClient {
+  profile: {
+    get(buyer?: AccountAccess): Promise<CustomerProfile>;
+    /** Replace the editable contact fields. Send the current values you want to keep. */
+    save(contact: CustomerContact, buyer?: AccountAccess): Promise<{ saved: true }>;
+  };
   addresses: {
     list(buyer?: AccountAccess): Promise<CustomerAddressBook>;
     create(input: CustomerAddressInput, buyer?: AccountAccess): Promise<CustomerAddressSaved>;

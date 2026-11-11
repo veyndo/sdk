@@ -2,6 +2,29 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createAccountClient } from '@veyndo/sdk/account';
 
+test('profile reads and contact replacement reuse the signed-in buyer session', async () => {
+  const calls = [];
+  const contact = { name: 'Example Buyer', phoneNumber: '+4930123456' };
+  const account = createAccountClient({
+    baseUrl: 'https://shop.example', shop: 'demo', credentials: 'same-origin',
+    fetch: async (url, options) => {
+      calls.push([options.method, url.pathname, options.body && JSON.parse(options.body)]);
+      assert.equal(options.headers.get('x-tenant'), 'demo');
+      assert.equal(options.headers.get('x-customer-token'), 'buyer');
+      assert.equal(options.credentials, 'same-origin');
+      return Response.json(options.method === 'GET' ? { id: 'customer', profile: contact } : { saved: true });
+    },
+  });
+  const buyer = { customerToken: 'buyer' };
+  assert.equal((await account.profile.get(buyer)).id, 'customer');
+  assert.deepEqual(await account.profile.save(contact, buyer), { saved: true });
+  const path = '/store-api/account/profile';
+  assert.deepEqual(calls, [
+    ['GET', path, undefined],
+    ['PUT', path, { ...contact, address: null }],
+  ]);
+});
+
 test('address book writes use buyer scope and preserve the address revision', async () => {
   const calls = [];
   const address = { name: 'Buyer', street: 'Test 1', city: 'Berlin', postalCode: '10115', country: 'DE' };

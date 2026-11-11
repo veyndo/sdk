@@ -1,8 +1,9 @@
-/** Manage the signed-in buyer's address book and read order history through the Store API. */
+/** Access the signed-in buyer's profile, addresses and orders through the Store API. */
 import { transport, VeyndoError } from './transport.js';
 
 const path = '/store-api/account/orders';
 const addresses = '/store-api/account/addresses';
+const profile = '/store-api/account/profile';
 
 function idSegment(id, resource) {
   if (typeof id !== 'string' || !id.trim() || /[/\\]/.test(id) || id === '.' || id === '..') {
@@ -20,6 +21,14 @@ export function createAccountClient({ baseUrl, shop, credentials, timeoutMs, max
   }
 
   return Object.freeze({
+    profile: Object.freeze({
+      get(buyer) {
+        return call(profile, buyer);
+      },
+      save(contact, buyer) {
+        return call(profile, buyer, { method: 'PUT', body: { ...contact, address: null } });
+      },
+    }),
     addresses: Object.freeze({
       list(buyer) {
         return call(addresses, buyer);
