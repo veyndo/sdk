@@ -5,6 +5,11 @@ import { createAccountClient } from '@veyndo/sdk/account';
 const accountClient = createAccountClient({ baseUrl: 'https://shop.example' });
 async function checkAccount() {
   const buyer = { customerToken: 'buyer' };
+  const profile = await accountClient.profile.get(buyer);
+  const email: string = profile.email;
+  await accountClient.profile.save({ name: 'Example Buyer', phoneNumber: '+4930123456' }, buyer);
+  // @ts-expect-error Account identity is not editable contact data.
+  await accountClient.profile.save({ name: 'Example Buyer', email }, buyer);
   const book = await accountClient.addresses.list(buyer);
   const address = book.elements[0];
   await accountClient.addresses.update(address.id, { address: address.address, revision: address.revision }, buyer);

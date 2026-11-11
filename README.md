@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.9 adds the buyer's address book. A storefront can save a delivery
-address, select it at checkout and show the order and its PDF receipt.
+SDK 0.4.10 adds buyer profile reads and contact editing. A storefront can
+show the account, select a saved address at checkout and offer PDF receipts.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -209,6 +209,11 @@ the current buyer identity and does not submit a purchase.
 [Checkout walkthrough](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
 
 ### Read the buyer's order history
+
+Use `profile.get` to load the signed-in buyer and `profile.save` to replace
+the editable contact fields. Send the values you want to keep. Use the
+address book methods for delivery and billing addresses.
+[Profile walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#edit-the-buyer-profile-with-the-sdk).
 
 Use `@veyndo/sdk/account` from a signed-in buyer session. Pass the
 customer token on each call, or use `credentials: 'same-origin'` in the
