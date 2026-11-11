@@ -1,17 +1,37 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><title>Veyndo public catalogue example</title>
-<h1>Search the catalogue</h1>
-<form><label>Search <input name="query" required></label><button>Search</button></form>
-<pre id="result" aria-live="polite"></pre>
-<script type="module">
-  // Serve this example on the configured shop origin. The server enforces origin and public access.
-  // Use @veyndo/sdk/guest for sandboxed app iframes; never put merchant keys in this page.
-  import { createClient } from '../src/index.js';
-  const client = createClient({ baseUrl: location.origin });
-  document.querySelector('form').addEventListener('submit', async event => {
-    event.preventDefault(); const output = document.querySelector('#result');
-    try { output.textContent = JSON.stringify(await client.tool('catalog.search', {
-      query: new FormData(event.target).get('query'),
-    }), null, 2); } catch (error) { output.textContent = error.message; }
-  });
-</script></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Browse a Veyndo catalog</title>
+  <link rel="stylesheet" href="/browser.css">
+  <script type="module" src="/browser-catalog.mjs"></script>
+</head>
+<body>
+  <main>
+    <h1>Browse a Veyndo catalog</h1>
+    <p class="intro">Search the selected shop and open a product to see its price and stock.</p>
+    <form role="search">
+      <label for="query">Product search</label>
+      <div class="search">
+        <input id="query" name="query" type="search" maxlength="200">
+        <button type="submit">Search</button>
+      </div>
+    </form>
+    <div class="catalog">
+      <section aria-labelledby="products-title">
+        <h2 id="products-title">Products</h2>
+        <p id="status" role="status">Loading products…</p>
+        <ul id="products"></ul>
+        <button id="more" type="button" hidden>Load more products</button>
+      </section>
+      <section id="detail" aria-labelledby="detail-title" aria-busy="false">
+        <h2 id="detail-title" tabindex="-1">Product details</h2>
+        <p id="detail-status" role="status">Choose a product to view its details.</p>
+        <p id="price" class="price" hidden></p>
+        <p id="stock" hidden></p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

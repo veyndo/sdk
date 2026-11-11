@@ -13,7 +13,7 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.2 adds typed catalog listing, product details and variant pages.
+SDK 0.4.3 ships runnable Node and browser examples for the typed catalog client.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
 The screenshot shows the corresponding interaction in the hosted storefront.
@@ -26,7 +26,7 @@ The screenshot shows the corresponding interaction in the hosted storefront.
 
 ## Read the Store API catalog
 
-Use the [0.4.2 package](https://github.com/veyndo/sdk/releases/tag/v0.4.2) in
+Use the [0.4.3 package](https://github.com/veyndo/sdk/releases/tag/v0.4.3) in
 your own project, or run `node examples/store-catalog.mjs` from this repository.
 The example reads the public Lumen shop without a key.
 
@@ -164,10 +164,21 @@ this tool returns an error.
 
 ## Browser and app integration
 
-`examples/browser.html` demonstrates public catalog search on the configured shop
-origin. The shop must permit that origin; the SDK does not bypass CORS or the MCP
-origin check. Same-origin HttpOnly customer sessions can use
-`credentials: 'same-origin'`; credentials are omitted by default.
+Run the browser example from this repository with Node 22 or later:
+
+```sh
+node examples/browser.mjs
+```
+
+Open the printed address and search, load the next page, or select a product.
+The local Node host reads the public Lumen catalog through the SDK. You can
+set `VEYNDO_URL`, `VEYNDO_SHOP`, `VEYNDO_LOCALE` and `PORT` at startup.
+The browser calls the local host and needs no shop credentials. After installing
+the release archive, run `node node_modules/@veyndo/sdk/examples/browser.mjs`
+from your project. [Browser walkthrough](https://www.veyndo.ai/docs/one-shop-components.html#run-the-browser-example).
+
+Applications using a same-origin HttpOnly customer session can set
+`credentials: 'same-origin'` on their SDK client. The default is to omit credentials.
 
 [Read and render a Veyndo MCP App in your own host](docs/mcp-apps.md).
 The [Connected shop example](examples/connected-shop/README.md) combines that card with catalogue reads, variant selection and an independent Checkout purchase.
