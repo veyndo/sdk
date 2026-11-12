@@ -68,10 +68,10 @@ documented read tool and arguments; it does not invent a released Knowledge API.
 credentials, routing, failures, revocation, context races and hostile definitions.
 These are protocol/host tests, not acceptance of every underlying business service.
 
-The first native consumer is the existing reviewed Products/Orders/Customers
-workspace renderer. Its entity, PII, criteria and intake checks run before shared
-layout admission. OpenUI maps only registered local controls; the SDK adds no
-arbitrary generated JavaScript or new data writer.
+Studio renders reviewed product, order and customer workspaces with the shared
+A2UI adapter and an OpenUI fallback. Entity, PII, criteria and intake checks run
+before layout admission. Both renderers map approved layouts to registered
+native controls. [Studio workflow](https://www.veyndo.ai/docs/agentic-component-ui.html#open-an-a2ui-working-view-in-studio).
 
 ## Render an admitted workspace with A2UI
 

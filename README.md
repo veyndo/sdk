@@ -28,7 +28,7 @@ The screenshot shows the corresponding interaction in the hosted storefront.
 
 ## Read the Store API catalog
 
-Use the [0.4.3 package](https://github.com/veyndo/sdk/releases/tag/v0.4.3) in
+Use the [0.4.15 package](https://github.com/veyndo/sdk/releases/tag/v0.4.15) in
 your own project, or run `node examples/store-catalog.mjs` from this repository.
 The example reads the public Lumen shop without a key.
 
@@ -71,11 +71,11 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install github:veyndo/sdk#v0.4.1
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.15/veyndo-sdk-0.4.15.tgz
 ```
 
-The GitHub prerelease includes MCP App resources, the Knowledge client and
-typed Flow draft validation. The package is distributed from GitHub.
+The package includes MCP App resources, the Knowledge client, typed Flow draft
+validation, buyer account operations and the A2UI workspace adapter.
 
 ```js
 import { createClient, VeyndoError } from '@veyndo/sdk';
