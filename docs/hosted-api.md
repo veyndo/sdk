@@ -4,7 +4,7 @@ Use Node 22+ with the SDK package and an existing Veyndo shop. The public
 Lumen demo is enough for the first catalog read.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.16/veyndo-sdk-0.4.16.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.17/veyndo-sdk-0.4.17.tgz
 node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 

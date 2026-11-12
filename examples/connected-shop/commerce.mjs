@@ -32,9 +32,7 @@ export function checkout({ account, catalog, checkoutClient }, productId) {
 
   async function recover(state) {
     try {
-      return receipt(state, await checkoutClient.receipt({
-        sessionId: state.review.id, cartId: state.review.cartId, customerId: state.customerId,
-      }, { customerToken: state.customerToken }));
+      return receipt(state, await checkoutClient.receipt(state.review.receiptLookup, { customerToken: state.customerToken }));
     } catch (error) {
       if (error.status !== 404) throw error;
       return { kind: 'pending', item: state.review.summary.item };
@@ -65,12 +63,6 @@ export function checkout({ account, catalog, checkoutClient }, productId) {
         state.customerToken = buyer.customerToken;
       }
       const buyer = { customerToken: state.customerToken };
-      if (!state.customerId) {
-        state.customerId = (await account.request('/store-api/account/profile', {
-          headers: { 'x-customer-token': buyer.customerToken },
-        })).id;
-        if (!state.customerId) throw new Error('The shop did not provide a buyer identity');
-      }
       const initial = await checkoutClient.cart.create({ session: randomUUID() }, buyer);
       const access = { ...buyer, cartToken: initial.token };
       const items = [{ id: item.id, quantity: 1 }];
@@ -80,24 +72,15 @@ export function checkout({ account, catalog, checkoutClient }, productId) {
           cart.checkout.paymentMethodId !== 'demo-card' || cart.price.currency !== 'EUR' ||
           !cart.locale || typeof cart.price.totalMinor !== 'string')
         throw new Error('The shop must use independent Checkout with the demo card and EUR');
-      const session = await checkoutClient.create({
-        requestKey: randomUUID(), expiresIn: 3600,
-        context: {
-          cart: { backend: 'native', id: cart.id, revision: cart.revision },
-          salesChannel: 'default', environment: 'live', locale: cart.locale,
-          currency: cart.price.currency, country: cart.checkout.country,
-        },
-      }, buyer);
+      const prepared = await checkoutClient.prepare(cart, { requestKey: randomUUID(), ...buyer });
       const summary = { kind: 'quote', item, reviewKey: randomUUID(), currency: cart.price.currency,
-        totalMinor: cart.price.totalMinor, shipping: cart.shippingCosts.totalPrice,
-        delivery: cart.deliveries[0]?.deliveryDate, country: cart.checkout.country };
+        totalMinor: prepared.confirmation.totalMinor, shipping: cart.shippingCosts.totalPrice,
+        delivery: cart.deliveries[0]?.deliveryDate, country: prepared.confirmation.country };
       state.review = {
-        id: session.id, cartId: cart.id, cartToken: cart.token, summary,
-        confirmation: {
-          id: session.id, revision: session.revision, confirmed: true,
-          totalMinor: cart.price.totalMinor, country: cart.checkout.country,
-          paymentMethod: 'demo-card', legalPolicyVersion: cart.checkoutService.legalPolicyVersion,
-        },
+        receiptLookup: prepared.receiptLookup,
+        cartToken: cart.token,
+        summary,
+        confirmation: prepared.confirmation,
       };
       return summary;
     },
@@ -106,7 +89,7 @@ export function checkout({ account, catalog, checkoutClient }, productId) {
       if (!state.review || reviewKey !== state.review.summary.reviewKey)
         return { kind: 'review-again' };
       try {
-        return receipt(state, await checkoutClient.confirm(state.review.confirmation, {
+        return receipt(state, await checkoutClient.confirm({ ...state.review.confirmation, confirmed: true }, {
           customerToken: state.customerToken, cartToken: state.review.cartToken,
         }));
       } catch (error) {

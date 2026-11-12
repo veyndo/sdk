@@ -158,3 +158,61 @@ test('checkout discovers candidates and saves an explicit choice at the cart rev
     assert.equal(args.headers.get('x-commerce-locale'), 'de-DE');
   }
 });
+
+function preparedCart(overrides = {}) {
+  return {
+    id: 'cart-1', revision: 7, status: 'open', customerId: 'buyer-1', locale: 'de-DE',
+    lineItems: [{ id: 'lamp' }], price: { currency: 'EUR', totalMinor: '12990' },
+    checkout: { country: 'DE', paymentMethodId: 'test-paypal' },
+    checkoutService: { transport: 'same-origin', legalPolicyVersion: 'policy-v2', paypalSandbox: true },
+    ...overrides,
+  };
+}
+
+test('prepares a checkout from the exact quote and leaves confirmation to the caller', async () => {
+  const requests = [];
+  const checkout = createCheckoutClient({ baseUrl: 'https://shop.example', shop: 'lumen', channel: 'b2c',
+    async fetch(url, request) {
+      const body = JSON.parse(request.body);
+      requests.push({ path: url.pathname, body });
+      assert.equal(request.headers.get('x-customer-token'), 'buyer-token');
+      assert.equal(request.headers.get('sw-sales-channel-id'), 'b2c');
+      assert.equal(request.headers.has('sw-context-token'), false);
+      return Response.json({ id: 'session-1', revision: 3, state: 'draft', commerceValidated: false,
+        expiresAt: '2026-11-12T16:00:00Z', context: body.context });
+    },
+  });
+  const { confirmation, receiptLookup } = await checkout.prepare(preparedCart(), {
+    requestKey: 'buyer-cart-1-r7', customerToken: 'buyer-token',
+  });
+  assert.deepEqual(requests, [{ path: '/store-api/checkout/independent/create', body: {
+    requestKey: 'buyer-cart-1-r7', expiresIn: 900, context: {
+      cart: { backend: 'native', id: 'cart-1', revision: 7 }, salesChannel: 'b2c', environment: 'live',
+      locale: 'de-DE', currency: 'EUR', country: 'DE',
+    },
+  } }]);
+  assert.deepEqual(confirmation, {
+    id: 'session-1', revision: 3, totalMinor: '12990', country: 'DE', paymentMethod: 'test-paypal',
+    legalPolicyVersion: 'policy-v2', paypalSandbox: true,
+  });
+  assert.deepEqual(receiptLookup, { sessionId: 'session-1', cartId: 'cart-1', customerId: 'buyer-1' });
+});
+
+test('refuses an unreviewed cart and stops when the checkout draft response changes scope', async () => {
+  let calls = 0;
+  const checkout = createCheckoutClient({ baseUrl: 'https://shop.example', async fetch(_, request) {
+    calls++;
+    const { context } = JSON.parse(request.body);
+    return Response.json({ id: 'session-1', revision: 1, state: 'draft', commerceValidated: false,
+      expiresAt: '2026-11-12T16:00:00Z', context: { ...context, salesChannel: 'foreign' } });
+  } });
+  for (const mismatch of [{ selectionNeedsConfirmation: true }, { lineItems: [] },
+    { customerId: null }, { price: { currency: 'EUR', totalMinor: 12990 } },
+    { checkoutService: { transport: 'direct', legalPolicyVersion: 'policy-v2' } }]) {
+    await assert.rejects(checkout.prepare(preparedCart(mismatch), { requestKey: 'buyer-cart-1-r7' }), TypeError);
+  }
+  assert.equal(calls, 0);
+  await assert.rejects(checkout.prepare(preparedCart(), { requestKey: 'buyer-cart-1-r7' }),
+    error => error.kind === 'protocol' && error.outcomeUnknown === true);
+  assert.equal(calls, 1);
+});

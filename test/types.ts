@@ -190,3 +190,14 @@ async function checkHosted() {
   void [mode, id];
 }
 void checkHosted;
+
+async function checkPreparedCheckout(cart: import('@veyndo/sdk/checkout').StoreCart) {
+  const draft = await hosted.checkout.prepare(cart, { requestKey: 'stable-cart-revision-key' });
+  const total: string = draft.confirmation.totalMinor;
+  // @ts-expect-error Preparing a draft is not buyer approval.
+  await hosted.checkout.confirm(draft.confirmation, { cartToken: cart.token });
+  await hosted.checkout.confirm({ ...draft.confirmation, confirmed: true }, { cartToken: cart.token });
+  await hosted.checkout.receipt(draft.receiptLookup);
+  void total;
+}
+void checkPreparedCheckout;

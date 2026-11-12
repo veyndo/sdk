@@ -213,12 +213,28 @@ export interface CheckoutReceiptLookup {
   customerId: string;
 }
 
+export interface CheckoutPrepareOptions extends CheckoutBuyer {
+  /** Keep the same key when retrying preparation of the same reviewed cart. */
+  requestKey: string;
+  /** From 60 to 604800 seconds. Defaults to 900. */
+  expiresIn?: number;
+}
+
+export interface PreparedCheckout {
+  session: CheckoutSession;
+  /** Supply confirmed: true only after explicit buyer approval. */
+  confirmation: Omit<CheckoutConfirmation, 'confirmed'>;
+  receiptLookup: CheckoutReceiptLookup;
+}
+
 export interface CheckoutClient {
   /** List configured candidates. Core validates their country and cart eligibility on select. */
   options(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAvailability>;
   select(input: { revision: number; checkout: CheckoutSelection }, access: CartAccess): Promise<StoreCart>;
   cart: StoreCartClient;
   create(input: CheckoutCreate, buyer?: CheckoutBuyer): Promise<CheckoutSession>;
+  /** Prepare a draft from a reviewed signed-in buyer cart on the relay. */
+  prepare(cart: StoreCart, options: CheckoutPrepareOptions): Promise<PreparedCheckout>;
   confirm(input: CheckoutConfirmation, buyer: CartAccess): Promise<CheckoutReceipt>;
   /** Read the original order without submitting another purchase. */
   receipt(input: CheckoutReceiptLookup, buyer?: CheckoutBuyer): Promise<CheckoutReceipt & CheckoutReceiptLookup>;
