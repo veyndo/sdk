@@ -69,6 +69,12 @@ void checkCheckout;
 async function checkCart() {
   const cart = await checkoutClient.cart.create();
   const access = { cartToken: cart.token };
+  const order = await hosted.checkout.place(cart, { requestKey: 'stable-order-key', confirmed: true }, access);
+  const reviewedAmount: string = order.cart.price.totalMinor;
+  const originalOrder: string | undefined = (await hosted.checkout.cart.read(access)).order?.id;
+  void [reviewedAmount, originalOrder];
+  // @ts-expect-error Order placement requires explicit approval.
+  await hosted.checkout.place(cart, { requestKey: 'stable-order-key', confirmed: false }, access);
   const items = [{ id: 'lamp', quantity: 1 }];
   const preview = await checkoutClient.cart.preview({ items, revision: cart.revision }, access);
   const earliest: string | undefined = preview.delivery?.earliest;

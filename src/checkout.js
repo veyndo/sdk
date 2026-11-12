@@ -37,9 +37,11 @@ function nonEmpty(value) {
 }
 
 const requestKeyPattern = /^[A-Za-z0-9_.:-]{8,128}$/;
+const paymentAttemptPattern = /^[A-Za-z0-9_-]{1,128}$/;
+const exactMinorPattern = /^(0|[1-9][0-9]{0,18})$/;
 
 function paymentPath(attemptId) {
-  if (typeof attemptId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(attemptId)) {
+  if (typeof attemptId !== 'string' || !paymentAttemptPattern.test(attemptId)) {
     throw new TypeError('Use the payment attempt ID from the checkout receipt');
   }
   return `/store-api/payments/${attemptId}`;
@@ -316,6 +318,43 @@ export function createCheckoutClient(options) {
     }),
     create,
     prepare,
+    async place(reviewedCart, { requestKey, confirmed } = {}, access) {
+      if (confirmed !== true || typeof requestKey !== 'string' || !requestKeyPattern.test(requestKey)) {
+        throw new TypeError('Order placement requires buyer approval and a stable request key');
+      }
+      const buyerHeaders = cartHeaders(access);
+      const { totalMinor, currency: reviewedCurrency } = reviewedCart?.price ?? {};
+      const method = reviewedCart?.checkout?.paymentMethodId;
+      if (reviewedCart?.status !== 'open' || reviewedCart.token !== access.cartToken ||
+          !nonEmpty(reviewedCart.id) || !reviewedCart.lineItems?.length || reviewedCart.selectionNeedsConfirmation ||
+          !validMinorAmount(reviewedCart.revision) || !nonEmpty(method) || !validCurrency(reviewedCurrency) ||
+          typeof totalMinor !== 'string' || !exactMinorPattern.test(totalMinor)) {
+        throw new TypeError('Place the order with the current reviewed cart, exact total and matching cart token');
+      }
+      const order = await write('/store-api/checkout/order', {
+        method: 'POST', signal: access.signal,
+        headers: scopedHeaders({
+          ...buyerHeaders,
+          'idempotency-key': requestKey,
+          'x-commerce-cart-revision': String(reviewedCart.revision),
+          'x-commerce-total-minor': totalMinor,
+          'x-commerce-currency': reviewedCurrency,
+        }),
+      });
+      const { payment, cart: committedCart } = order ?? {};
+      if (!nonEmpty(order?.id) || !nonEmpty(order.orderNumber) || !nonEmpty(order.state) ||
+          committedCart?.id !== reviewedCart.id || committedCart.revision !== reviewedCart.revision ||
+          committedCart.price?.totalMinor !== totalMinor || committedCart.price.currency !== reviewedCurrency ||
+          payment?.method?.id !== method || !nonEmpty(payment.provider) || !nonEmpty(payment.state) ||
+          typeof payment.realMoneyCharged !== 'boolean' ||
+          (payment.attemptId !== undefined &&
+            (typeof payment.attemptId !== 'string' || !paymentAttemptPattern.test(payment.attemptId)))) {
+        throw new VeyndoError('Checkout did not return the reviewed order; recover it with the same cart and request key', {
+          kind: 'protocol', outcomeUnknown: true,
+        });
+      }
+      return order;
+    },
     async confirm(input, { signal, customerToken, cartToken }) {
       if (input.confirmed !== true || typeof cartToken !== 'string' || !cartToken.trim()) {
         throw new TypeError('Confirmation requires buyer approval and the current cart token');

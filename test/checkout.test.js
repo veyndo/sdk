@@ -62,6 +62,51 @@ test('payment status and return reconciliation preserve the original buyer and c
   await assert.rejects(payment.reconcile(status.id, input, access), { kind: 'protocol', outcomeUnknown: true });
 });
 
+test('place binds a native order to the exact reviewed cart and supports a stable replay', async () => {
+  const access = { cartToken: 'cart-token', customerToken: 'buyer-token' };
+  const cart = { id: 'cart-1', token: access.cartToken, revision: 7, status: 'open',
+    lineItems: [{ id: 'lamp', quantity: 1 }],
+    checkout: { paymentMethodId: 'shopware-payments-pui' }, price: { currency: 'EUR', totalMinor: '2490' } };
+  const order = { id: 'order-1', orderNumber: 'RAC-1', state: 'placed', cart,
+    payment: { method: { id: cart.checkout.paymentMethodId }, provider: 'shopware_payments',
+      state: 'pending', attemptId: 'attempt-1', realMoneyCharged: false } };
+  const input = { requestKey: 'stable-order-key', confirmed: true };
+  let calls = 0;
+  let response = order;
+  const { place } = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external', locale: 'de-DE',
+    fetch: async (url, request) => {
+      calls++;
+      assert.equal(url.pathname, '/store-api/checkout/order');
+      assert.equal(request.method, 'POST');
+      assert.equal(request.body, undefined);
+      for (const [name, value] of Object.entries({
+        'x-tenant': 'demo', 'sw-sales-channel-id': 'external', 'x-commerce-locale': 'de-DE',
+        'sw-context-token': access.cartToken, 'x-customer-token': access.customerToken,
+        'idempotency-key': input.requestKey, 'x-commerce-currency': 'EUR',
+        'x-commerce-cart-revision': '7', 'x-commerce-total-minor': '2490',
+      })) assert.equal(request.headers.get(name), value);
+      assert.equal(request.headers.get('authorization'), null);
+      if (calls === 1) throw new Error('Response dropped');
+      return Response.json(response);
+    },
+  });
+  await assert.rejects(place(cart, { ...input, confirmed: false }, access), TypeError);
+  await assert.rejects(place(cart, { ...input, requestKey: 'short' }, access), TypeError);
+  await assert.rejects(place(cart, input, { ...access, cartToken: 'different' }), TypeError);
+  await assert.rejects(place({ ...cart, selectionNeedsConfirmation: true }, input, access), TypeError);
+  await assert.rejects(place({ ...cart, price: { ...cart.price, totalMinor: 2490 } }, input, access), TypeError);
+  assert.equal(calls, 0);
+
+  await assert.rejects(place(cart, input, access), { kind: 'network', outcomeUnknown: true });
+  assert.equal(calls, 1);
+  assert.deepEqual(await place(cart, input, access), order);
+  response = { ...order, cart: { ...cart, revision: cart.revision + 1 } };
+  await assert.rejects(place(cart, input, access), { kind: 'protocol', outcomeUnknown: true });
+  response = { ...order, payment: { ...order.payment, method: { id: 'demo-card' } } };
+  await assert.rejects(place(cart, input, access), { kind: 'protocol', outcomeUnknown: true });
+});
+
 test('invoice instructions distinguish pending, available and unsupported without changing payment state', async () => {
   const access = { cartToken: 'original-cart', customerToken: 'buyer-token', signal: new AbortController().signal };
   const amount = { amountMinor: 2490, currency: 'EUR', currencyScale: 2, simulated: true };

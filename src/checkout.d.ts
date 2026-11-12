@@ -163,6 +163,8 @@ export interface StoreCart {
   token: string;
   revision: number;
   status: string;
+  /** The original order snapshot, when reading a completed cart. */
+  order?: NativeCheckoutOrder | null;
   locale?: string;
   customerId?: string | null;
   lineItems: CartLine[];
@@ -273,6 +275,25 @@ export interface CheckoutReceiptLookup {
   customerId: string;
 }
 
+export interface NativeCheckoutOrder {
+  id: string;
+  orderNumber: string;
+  state: string;
+  cart: {
+    id: string;
+    revision: number;
+    price: CartPrice & { totalMinor: string };
+    lineItems: CartLine[];
+  };
+  payment: {
+    method: { id: string };
+    provider: string;
+    state: string;
+    realMoneyCharged: boolean;
+    attemptId?: string;
+  };
+}
+
 export interface CheckoutPaymentStatus {
   id: string;
   provider: string;
@@ -358,6 +379,8 @@ export interface CheckoutClient {
   create(input: CheckoutCreate, buyer?: CheckoutBuyer): Promise<CheckoutSession>;
   /** Prepare a draft from a reviewed signed-in buyer cart on the relay. */
   prepare(cart: StoreCart, options: CheckoutPrepareOptions): Promise<PreparedCheckout>;
+  /** Place a reviewed native Store API order after explicit buyer approval. Reuse the same review and key after a lost response. */
+  place(cart: StoreCart, input: { requestKey: string; confirmed: true }, access: CartAccess): Promise<NativeCheckoutOrder>;
   confirm(input: CheckoutConfirmation, buyer: CartAccess): Promise<CheckoutReceipt>;
   /** Read the original order without submitting another purchase. */
   receipt(input: CheckoutReceiptLookup, buyer?: CheckoutBuyer): Promise<CheckoutReceipt & CheckoutReceiptLookup>;
