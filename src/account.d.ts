@@ -1,5 +1,5 @@
 import type { CallOptions, ClientOptions, JsonValue } from './index.js';
-import type { CheckoutAddress } from './checkout.js';
+import type { CheckoutAddress, StoreCart } from './checkout.js';
 
 export type AccountOptions = Pick<ClientOptions,
   'baseUrl' | 'shop' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'> & {
@@ -10,6 +10,28 @@ export type AccountOptions = Pick<ClientOptions,
 export interface AccountAccess extends CallOptions {
   /** A current buyer token. A same-origin browser can instead use its session cookie. */
   customerToken?: string;
+}
+
+export interface BuyerSignIn {
+  email: string;
+  password: string;
+}
+
+export interface BuyerRegistration extends BuyerSignIn {
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  phoneNumber?: string;
+  billingAddress?: CheckoutAddress;
+  shippingAddress?: CheckoutAddress;
+}
+
+export interface BuyerBrowserSession {
+  register(input: BuyerRegistration, options?: CallOptions): Promise<{ email: string }>;
+  /** Adopt the returned cart token for subsequent checkout calls. */
+  signIn(input: BuyerSignIn, options: CallOptions & { cartToken: string }): Promise<StoreCart>;
+  signOut(options?: CallOptions & { cartToken?: string }): Promise<{ loggedOut: true }>;
 }
 
 export interface CustomerAddress {
@@ -148,6 +170,8 @@ export interface CustomerDownloadFile {
 }
 
 export interface AccountClient {
+  /** Requires a browser on baseUrl, the shop ID and credentials: 'same-origin'. */
+  session: BuyerBrowserSession;
   downloads: {
     list(buyer?: AccountAccess): Promise<{ elements: CustomerDownload[] }>;
     file(orderId: string, assetId: string, buyer?: AccountAccess): Promise<CustomerDownloadFile>;

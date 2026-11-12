@@ -1,5 +1,6 @@
 /** Access the signed-in buyer's profile, addresses and orders through the Store API. */
 import { transport, VeyndoError } from './transport.js';
+import { isBuyerBrowserOrigin } from './buyer-session.js';
 
 const path = '/store-api/account/orders';
 const addresses = '/store-api/account/addresses';
@@ -10,6 +11,15 @@ function idSegment(id, resource) {
     throw new TypeError(`A ${resource} ID is required and must be a single path segment`);
   }
   return encodeURIComponent(id);
+}
+
+function sessionResult(result) {
+  if (result?.customerBrowserSession !== true || result.customerToken !== 'browser-customer-session') {
+    throw new VeyndoError('The shop did not establish a browser buyer session',
+      { kind: 'protocol', outcomeUnknown: true });
+  }
+  const { customerToken, customerBrowserSession, customerBrowserCsrf, ...payload } = result;
+  return payload;
 }
 
 export function createAccountClient({ baseUrl, shop, locale, credentials, timeoutMs, maxResponseBytes, fetch }) {
@@ -23,7 +33,47 @@ export function createAccountClient({ baseUrl, shop, locale, credentials, timeou
     return request(endpoint, { ...options, headers, signal }, responseType);
   }
 
+  function sessionAction(action, body, { signal, cartToken } = {}) {
+    if (!isBuyerBrowserOrigin(new URL(baseUrl), shop, credentials)) {
+      throw new TypeError('Buyer session actions require the same-origin shop browser');
+    }
+    if ((action === 'login' || cartToken !== undefined) &&
+        (typeof cartToken !== 'string' || !cartToken.trim())) {
+      throw new TypeError('The current cart token is required');
+    }
+    const headers = new Headers({ 'x-veyndo-customer-session': '1' });
+    if (cartToken) headers.set('sw-context-token', cartToken);
+    if (locale) headers.set('x-commerce-locale', locale);
+    return request(`/store-api/account/${action}`, { method: 'POST', headers, body, signal });
+  }
+
   return Object.freeze({
+    session: Object.freeze({
+      async register(input, { signal } = {}) {
+        const { email } = sessionResult(await sessionAction('register', input, { signal }));
+        if (typeof email !== 'string' || !email) {
+          throw new VeyndoError('Registration returned no account email',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        return { email };
+      },
+      async signIn(input, access) {
+        const cart = sessionResult(await sessionAction('login', input, access));
+        if (typeof cart.token !== 'string' || !cart.token || cart.token === access.cartToken) {
+          throw new VeyndoError('Sign-in did not return a renewed cart token',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        return cart;
+      },
+      async signOut(access) {
+        const result = await sessionAction('logout', {}, access);
+        if (result?.loggedOut !== true) {
+          throw new VeyndoError('Sign-out did not return a confirmation',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        return { loggedOut: true };
+      },
+    }),
     downloads: Object.freeze({
       list(buyer) {
         return call('/store-api/account/downloads', buyer);

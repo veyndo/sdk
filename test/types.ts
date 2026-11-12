@@ -5,6 +5,11 @@ import { createAccountClient } from '@veyndo/sdk/account';
 const accountClient = createAccountClient({ baseUrl: 'https://shop.example' });
 async function checkAccount() {
   const buyer = { customerToken: 'buyer' };
+  const credentials = { email: 'buyer@example.test', password: 'example' };
+  const signedIn = await accountClient.session.signIn(credentials, { cartToken: 'current-cart' });
+  await accountClient.session.signOut({ cartToken: signedIn.token });
+  // @ts-expect-error Sign-in requires the open cart token.
+  await accountClient.session.signIn(credentials, {});
   const [download] = (await accountClient.downloads.list(buyer)).elements;
   const file = await accountClient.downloads.file(download.orderId, download.id, buyer);
   const bytes: Uint8Array = file.bytes;
