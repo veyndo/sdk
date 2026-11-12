@@ -12,6 +12,45 @@ const order = {
   orderState: 'open', paymentState: 'paid', currency: 'EUR', totalMinor: '2490',
 };
 
+test('checkout records an explicit decision for the displayed policy in the same cart scope', async () => {
+  const policyVersion = 'a'.repeat(64);
+  const terms = { policyVersion, terms: true, digitalImmediate: false };
+  const accepted = { ...terms, locale: 'de-DE', recordedAt: '2026-11-12T15:00:00Z' };
+  const requests = [];
+  const client = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external', locale: 'de-DE',
+    fetch: async (url, request) => {
+      requests.push([url.pathname, request]);
+      if (request.method === 'GET') return Response.json({ policyVersion });
+      if (requests.length === 3) return new Response(null, { status: 409 });
+      return Response.json(requests.length === 2 ? accepted : { ...accepted, digitalImmediate: true });
+    },
+  });
+  const access = { cartToken: 'cart-token', customerToken: 'buyer-token' };
+  assert.deepEqual(await client.legalPolicy(), { policyVersion });
+  await assert.rejects(client.acceptTerms({ ...terms, terms: false }, access), TypeError);
+  await assert.rejects(client.acceptTerms({ policyVersion, terms: true }, access), TypeError);
+  assert.deepEqual(await client.acceptTerms(terms, access), accepted);
+  await assert.rejects(client.acceptTerms(terms, access), { status: 409, outcomeUnknown: false });
+  await assert.rejects(client.acceptTerms(terms, access), { kind: 'protocol', outcomeUnknown: true });
+  assert.equal(requests.length, 4);
+  assert.equal(requests[0][0], '/store-api/legal');
+  assert.equal(requests[0][1].headers.get('sw-context-token'), null);
+  for (const [path, request] of requests.slice(1)) {
+    assert.equal(path, '/store-api/legal/acceptance');
+    assert.equal(request.method, 'PUT');
+    assert.deepEqual(JSON.parse(request.body), terms);
+    assert.equal(request.headers.get('x-customer-token'), 'buyer-token');
+    assert.equal(request.headers.get('sw-context-token'), 'cart-token');
+  }
+  for (const [, { headers }] of requests) {
+    assert.equal(headers.get('x-tenant'), 'demo');
+    assert.equal(headers.get('sw-sales-channel-id'), 'external');
+    assert.equal(headers.get('x-commerce-locale'), 'de-DE');
+    assert.equal(headers.get('authorization'), null);
+  }
+});
+
 test('currency and coupons use the current cart revision and return the server quote', async () => {
   const access = { customerToken: 'buyer-token', cartToken: 'cart-token' };
   const discounted = { revision: 8, couponCodes: ['DEMO10'], price: { totalMinor: '2241' } };

@@ -118,6 +118,26 @@ export function createCheckoutClient(options) {
   }
 
   return Object.freeze({
+    legalPolicy({ signal } = {}) {
+      return read('/store-api/legal', { headers: scopeHeaders, signal });
+    },
+    async acceptTerms({ policyVersion, terms, digitalImmediate }, access) {
+      if (typeof policyVersion !== 'string' || !/^[a-f0-9]{64}$/.test(policyVersion) ||
+          terms !== true || typeof digitalImmediate !== 'boolean') {
+        throw new TypeError('Record the buyer’s explicit terms acceptance and separate digital delivery choice');
+      }
+      const result = await write('/store-api/legal/acceptance', {
+        method: 'PUT', body: { policyVersion, terms, digitalImmediate },
+        headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+      });
+      if (result?.policyVersion !== policyVersion || result.terms !== true ||
+          result.digitalImmediate !== digitalImmediate || !nonEmpty(result.locale) || !nonEmpty(result.recordedAt)) {
+        throw new VeyndoError('Checkout did not return the recorded acceptance for this policy', {
+          kind: 'protocol', outcomeUnknown: true,
+        });
+      }
+      return result;
+    },
     options(access = {}) {
       const buyerHeaders = access.cartToken === undefined ? headers(access) : cartHeaders(access);
       return read('/store-api/checkout/options', { headers: scopedHeaders(buyerHeaders), signal: access.signal });

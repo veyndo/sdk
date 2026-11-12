@@ -8,6 +8,13 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.21
+
+- Add `checkout.legalPolicy()` and `checkout.acceptTerms()` for custom checkout
+  forms. Read the channel's public documents and record the buyer's explicit
+  decision on the current cart before confirmation.
+- Type the cart flags for checkout acknowledgement and immediate digital delivery.
+
 ## 0.4.20
 
 - Add typed storefront context and localized category navigation to the

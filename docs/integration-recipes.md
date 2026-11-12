@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.20/veyndo-sdk-0.4.20.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.21/veyndo-sdk-0.4.21.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -252,6 +252,31 @@ same-origin shop frontend can use the existing browser session instead of
 passing a customer token.
 [Connected Shop example](../examples/connected-shop/README.md) ·
 [Checkout component](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
+
+### Show the terms and record the buyer's decision
+
+Load `checkout.legalPolicy()` for the checkout's sales channel and show its
+public documents in the buyer's language. Use the same SDK scope for the
+policy and cart. The cart's `legal` flags say when Core requires acknowledgement
+and whether this purchase includes immediate digital delivery.
+
+```ts
+const policy = await checkout.legalPolicy();
+// Render policy.data.documents. Read both choices from the buyer's controls.
+if (buyerAcceptedTerms) {
+  await checkout.acceptTerms({
+    policyVersion: policy.policyVersion,
+    terms: true,
+    digitalImmediate: buyerRequestedImmediateDelivery,
+  }, access);
+}
+```
+
+Record this step after the buyer actively accepts the displayed terms and
+before confirming the purchase. Keep the digital delivery choice separate.
+If either the acceptance or confirmation returns HTTP 409, reload the policy
+and the cart, then show the current documents and quote for review. Preserve
+the policy version the buyer saw until they have reviewed the new version.
 
 ### Apply coupon codes and switch currency
 

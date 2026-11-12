@@ -39,7 +39,7 @@ export function createClient(options) {
     async initialize(callOptions) {
       const requested = options.protocolVersion ?? '2025-11-25';
       const result = await rpc('initialize', { protocolVersion: requested, capabilities: options.mcpApps ? mcpApps : {},
-        clientInfo: { name: '@veyndo/sdk', version: '0.4.20' } }, callOptions);
+        clientInfo: { name: '@veyndo/sdk', version: '0.4.21' } }, callOptions);
       if (!result || result.protocolVersion !== requested)
         throw new VeyndoError('Unsupported MCP protocol version returned by service', { kind: 'protocol' });
       protocolVersion = result.protocolVersion; return result;
