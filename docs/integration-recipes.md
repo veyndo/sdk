@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.21/veyndo-sdk-0.4.21.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.22/veyndo-sdk-0.4.22.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -252,6 +252,27 @@ same-origin shop frontend can use the existing browser session instead of
 passing a customer token.
 [Connected Shop example](../examples/connected-shop/README.md) ·
 [Checkout component](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
+
+### Build the checkout address form
+
+Call `checkout.addressOptions(access)` to load the countries and regions for
+the current sales channel. It also returns the shipping and payment
+candidates from `checkout.options`. Pass the current cart and buyer context
+to keep those candidates in the cart's currency and buyer group.
+
+```ts
+const { countries, shipping, payments } = await checkout.addressOptions(access);
+// Render the country and region pickers with label as text and code as value.
+const country = countries.find(option => option.code === selectedCountry);
+const region = country?.regions.find(option => option.code === selectedRegion);
+const address = { ...buyerAddress, country: country?.code, countryStateId: region?.code };
+```
+
+Require a region selection when `requiresRegion` is true and clear the selected
+region when the country changes. Pass the selected country and address to
+`checkout.select` with the current cart revision. The SDK provides the
+choices. Veyndo validates the address and selected methods and returns a
+new quote.
 
 ### Show the terms and record the buyer's decision
 
