@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.24/veyndo-sdk-0.4.24.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.25/veyndo-sdk-0.4.25.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -358,26 +358,51 @@ Render captured and refunded amounts using `currencyScale`. If you use
 Veyndo's hosted approval flow, the provider returns to the shop's configured
 return route. An embedded payment method uses its own provider UI.
 
-### Show invoice payment instructions
+### Place an invoice order and show payment instructions
 
-For a native invoice checkout, take the attempt ID from
-`order.payment.attemptId` in the Store API order response. Check
-`payment.status()` and use `instructionsAvailable` to decide whether the
-method supports instructions. Then read the recipient details with the
-same original cart access.
+Use `@veyndo/sdk/checkout` or the checkout client from
+`@veyndo/sdk/hosted`. Start with the buyer's cart and select the eligible
+invoice method and delivery option using `checkout.select()`. Include the
+buyer's contact and billing details. Show the terms and record their
+decision, then present the current cart total for explicit purchase approval.
 
 ```ts
-const invoice = await checkout.payment.instructions(attemptId, access);
-if (invoice.status === 'available') {
-  showBankTransfer({
-    ...invoice.instructions,
-    amountMinor: invoice.amountMinor,
-    currency: invoice.currency,
-    currencyScale: invoice.currencyScale,
-    simulated: invoice.simulated,
-  });
-} else if (invoice.status === 'pending') {
-  showBankDetailsPending();
+const reviewedCart = await checkout.cart.read(access);
+// Present this cart and wait for the buyer to approve the purchase.
+// Create and retain a request key for this specific approved review.
+const order = await checkout.place(reviewedCart, { requestKey, confirmed: true }, access);
+const attemptId = order.payment.attemptId;
+```
+
+`place` sends the exact amount and currency from the reviewed cart, together
+with its revision. On a changed cart or quote, reload and ask for a fresh
+approval. If the response is lost, repeat with the original review, cart
+token and request key. The server can return the original order. You can
+also read the completed cart's `order` snapshot with `checkout.cart.read(access)`.
+
+#### Show invoice payment instructions
+
+Keep the original cart access for payment reads after purchase. If the order
+has a payment attempt, check `checkout.payment.status()`. Its
+`instructionsAvailable` flag indicates that the method supports instructions.
+
+```ts
+if (attemptId) {
+  const payment = await checkout.payment.status(attemptId, access);
+  if (payment.instructionsAvailable) {
+    const invoice = await checkout.payment.instructions(attemptId, access);
+    if (invoice.status === 'available') {
+      showBankTransfer({
+        ...invoice.instructions,
+        amountMinor: invoice.amountMinor,
+        currency: invoice.currency,
+        currencyScale: invoice.currencyScale,
+        simulated: invoice.simulated,
+      });
+    } else if (invoice.status === 'pending') {
+      showBankDetailsPending();
+    }
+  }
 }
 ```
 
