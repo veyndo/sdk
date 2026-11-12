@@ -2,7 +2,10 @@ import type { CallOptions, ClientOptions, JsonValue } from './index.js';
 import type { CheckoutAddress } from './checkout.js';
 
 export type AccountOptions = Pick<ClientOptions,
-  'baseUrl' | 'shop' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'>;
+  'baseUrl' | 'shop' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'> & {
+  /** Shop content locale used to resolve download titles. */
+  locale?: string;
+};
 
 export interface AccountAccess extends CallOptions {
   /** A current buyer token. A same-origin browser can instead use its session cookie. */
@@ -131,7 +134,24 @@ export interface CustomerOrderPage {
   nextCursor: string | null;
 }
 
+export interface CustomerDownload {
+  id: string;
+  orderId: string;
+  title: Record<string, string>;
+  name: string;
+  filename: string;
+}
+
+export interface CustomerDownloadFile {
+  bytes: Uint8Array;
+  mime: string;
+}
+
 export interface AccountClient {
+  downloads: {
+    list(buyer?: AccountAccess): Promise<{ elements: CustomerDownload[] }>;
+    file(orderId: string, assetId: string, buyer?: AccountAccess): Promise<CustomerDownloadFile>;
+  };
   profile: {
     get(buyer?: AccountAccess): Promise<CustomerProfile>;
     /** Replace the editable contact fields. Send the current values you want to keep. */

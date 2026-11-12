@@ -5,6 +5,10 @@ import { createAccountClient } from '@veyndo/sdk/account';
 const accountClient = createAccountClient({ baseUrl: 'https://shop.example' });
 async function checkAccount() {
   const buyer = { customerToken: 'buyer' };
+  const [download] = (await accountClient.downloads.list(buyer)).elements;
+  const file = await accountClient.downloads.file(download.orderId, download.id, buyer);
+  const bytes: Uint8Array = file.bytes;
+  void bytes;
   const profile = await accountClient.profile.get(buyer);
   const email: string = profile.email;
   await accountClient.profile.save({ name: 'Example Buyer', phoneNumber: '+4930123456' }, buyer);

@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.10 adds buyer profile reads and contact editing. A storefront can
-show the account, select a saved address at checkout and offer PDF receipts.
+SDK 0.4.11 adds purchased digital files to the buyer account client. A
+storefront can show localized download titles and fetch the file bytes.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -222,6 +222,11 @@ another page is available. `orders.detail` includes customer-visible receipts.
 Pass the order ID and receipt ID to `orders.receiptPdf` to download PDF bytes.
 The client applies `maxResponseBytes` to the download (1 MiB by default).
 [Order history walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#read-order-history-with-the-sdk).
+
+Use `downloads.list` for the buyer's purchased files and `downloads.file`
+with the order and asset IDs to retrieve bytes and MIME type. The account
+client defaults to a 1 MiB response limit and accepts up to 20 MiB when
+configured. [Digital downloads walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#download-purchased-files-with-the-sdk).
 
 Use `addresses.list` to get saved addresses and their default assignments.
 `addresses.create`, `addresses.update` and `addresses.remove` use the same buyer

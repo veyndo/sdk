@@ -42,7 +42,7 @@ function jsonBody(data) {
   catch (cause) { throw new VeyndoError('Server returned invalid JSON', { kind: 'protocol', cause }); }
 }
 
-export function transport(options, { readOnly = false } = {}) {
+export function transport(options, { readOnly = false, responseLimit = 16 * 1024 * 1024 } = {}) {
   const baseUrl = new URL(options.baseUrl);
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(baseUrl.hostname);
   if (!(baseUrl.protocol === 'https:' || (baseUrl.protocol === 'http:' && loopback)) ||
@@ -52,8 +52,8 @@ export function transport(options, { readOnly = false } = {}) {
   const maxResponseBytes = options.maxResponseBytes ?? 1048576;
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 300000)
     throw new TypeError('timeoutMs must be between 1 and 300000');
-  if (!Number.isSafeInteger(maxResponseBytes) || maxResponseBytes < 1 || maxResponseBytes > 16777216)
-    throw new TypeError('maxResponseBytes must be between 1 and 16777216');
+  if (!Number.isSafeInteger(maxResponseBytes) || maxResponseBytes < 1 || maxResponseBytes > responseLimit)
+    throw new TypeError(`maxResponseBytes must be between 1 and ${responseLimit}`);
   if (!['omit', 'same-origin'].includes(options.credentials ?? 'omit'))
     throw new TypeError('credentials must be omit or same-origin');
   const fetcher = options.fetch ?? globalThis.fetch;
@@ -67,7 +67,8 @@ export function transport(options, { readOnly = false } = {}) {
     if (token) headers.set('Authorization', `Bearer ${token}`);
     if (options.shop) headers.set('x-tenant', options.shop);
     const pdf = responseType === 'pdf';
-    headers.set('Accept', pdf ? 'application/pdf' : 'application/json');
+    const file = responseType === 'file';
+    headers.set('Accept', file ? '*/*' : pdf ? 'application/pdf' : 'application/json');
     if (input.body !== undefined) headers.set('Content-Type', 'application/json');
     const timer = AbortSignal.timeout(timeoutMs);
     const signal = input.signal ? AbortSignal.any([timer, input.signal]) : timer;
@@ -84,11 +85,17 @@ export function transport(options, { readOnly = false } = {}) {
         throw new VeyndoError(`Request failed with HTTP ${response.status}`, {
           kind: 'http', status: response.status, outcomeUnknown: mutating && response.status >= 500 });
       }
-      if (pdf && response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !== 'application/pdf') {
+      const mime = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+      if (pdf && mime !== 'application/pdf') {
         await response.body?.cancel();
         throw new VeyndoError('Server did not return a PDF', { kind: 'protocol' });
       }
+      if (file && (!mime || !/^attachment(?:;|$)/i.test(response.headers.get('content-disposition') ?? ''))) {
+        await response.body?.cancel();
+        throw new VeyndoError('Server did not return a file attachment', { kind: 'protocol' });
+      }
       const data = await responseBytes(response, maxResponseBytes);
+      if (file) return { bytes: data, mime };
       if (!pdf) return jsonBody(data);
       if (new TextDecoder().decode(data.subarray(0, 5)) !== '%PDF-') {
         throw new VeyndoError('Server returned an invalid PDF header', { kind: 'protocol' });

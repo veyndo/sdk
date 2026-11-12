@@ -5,6 +5,11 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.11
+
+- List localized purchased files and download bounded attachments through
+  `@veyndo/sdk/account`.
+
 ## 0.4.10
 
 - Read the buyer profile and save editable contact fields through
