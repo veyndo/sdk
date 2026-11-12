@@ -52,7 +52,7 @@ local address to search, paginate and open products in a browser.
 | A buyer account | `@veyndo/sdk/account` | [Sign in, manage addresses, read orders and download receipts](docs/integration-recipes.md#read-the-buyers-order-history) |
 | A product guide or an interactive merchant tool in chat | HTTP/MCP client and MCP App resources | [Discover a tool, read its UI resource and handle interaction](docs/mcp-apps.md) |
 | A workspace assembled from multiple services | `@veyndo/sdk/composition` and `@veyndo/sdk/a2ui` | [Combine scoped reads and render the approved layout](docs/composition.md#render-an-admitted-workspace-with-a2ui) |
-| An installable Veyndo extension | App Studio and the app manifest | [Build a package with its own data, actions, permissions and views](https://www.veyndo.ai/docs/app-tutorials/) |
+| An installable Veyndo extension | App Studio and the app manifest | [Build a package with its own data, actions, permissions and views](https://www.veyndo.ai/docs/app-tutorials/README.html) |
 | A catalog or document assistant | `@veyndo/sdk/knowledge` | [Ingest and retrieve from the standalone Knowledge service](docs/integration-recipes.md#use-standalone-knowledge) |
 | A merchant tool that previews automation | HTTP/MCP client | [Validate a Flow draft using the shop's permissions](docs/integration-recipes.md#check-a-flow-draft) |
 
