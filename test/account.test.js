@@ -53,6 +53,11 @@ test('account and checkout use the current shop cookie proof only on the same or
     const result = { customerToken: 'browser-customer-session', customerBrowserSession: true,
       customerBrowserCsrf: first };
     if (url.pathname.endsWith('/register')) return Response.json({ ...result, email: credentials.email });
+    if (url.pathname.endsWith('/password')) {
+      assert.equal(options.headers.get('x-veyndo-customer-csrf'), second);
+      assert.deepEqual(JSON.parse(options.body), { oldPassword: 'previous-example', newPassword: 'next-example' });
+      return Response.json(result);
+    }
     if (url.pathname.endsWith('/logout')) {
       assert.equal(options.headers.get('x-veyndo-customer-csrf'), second);
       return Response.json({ loggedOut: true });
@@ -64,6 +69,9 @@ test('account and checkout use the current shop cookie proof only on the same or
   await assert.rejects(auth.signIn(credentials), TypeError);
   assert.deepEqual(await auth.signIn(credentials, { cartToken: 'cart-old' }), { token: 'cart-new' });
   document.cookie = `${cookieName}=${second}`;
+  assert.deepEqual(await auth.changePassword({
+    oldPassword: 'previous-example', newPassword: 'next-example',
+  }), { changed: true });
   assert.deepEqual(await auth.signOut(), { loggedOut: true });
   await assert.rejects(createAccountClient({ ...settings, baseUrl: 'https://elsewhere.example' })
     .session.register({ ...credentials, name: 'Buyer' }), TypeError);
@@ -72,7 +80,8 @@ test('account and checkout use the current shop cookie proof only on the same or
   }) });
   await assert.rejects(oldShop.session.register({ ...credentials, name: 'Buyer' }),
     { kind: 'protocol', outcomeUnknown: true });
-  assert.deepEqual(calls, ['/store-api/account/register', '/store-api/account/login', '/store-api/account/logout']);
+  assert.deepEqual(calls, ['/store-api/account/register', '/store-api/account/login',
+    '/store-api/account/password', '/store-api/account/logout']);
 });
 
 test('purchased files use the buyer session, locale and bounded attachment transport', async () => {

@@ -65,6 +65,10 @@ export function createAccountClient({ baseUrl, shop, locale, credentials, timeou
         }
         return cart;
       },
+      async changePassword({ oldPassword, newPassword }, { signal } = {}) {
+        sessionResult(await sessionAction('password', { oldPassword, newPassword }, { signal }));
+        return { changed: true };
+      },
       async signOut(access) {
         const result = await sessionAction('logout', {}, access);
         if (result?.loggedOut !== true) {

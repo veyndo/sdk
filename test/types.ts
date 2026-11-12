@@ -8,6 +8,10 @@ async function checkAccount() {
   const credentials = { email: 'buyer@example.test', password: 'example' };
   const signedIn = await accountClient.session.signIn(credentials, { cartToken: 'current-cart' });
   await accountClient.session.signOut({ cartToken: signedIn.token });
+  const updated: true = (await accountClient.session.changePassword({
+    oldPassword: 'previous-example', newPassword: 'new-example',
+  })).changed;
+  void updated;
   // @ts-expect-error Sign-in requires the open cart token.
   await accountClient.session.signIn(credentials, {});
   const [download] = (await accountClient.downloads.list(buyer)).elements;

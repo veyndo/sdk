@@ -31,6 +31,8 @@ export interface BuyerBrowserSession {
   register(input: BuyerRegistration, options?: CallOptions): Promise<{ email: string }>;
   /** Adopt the returned cart token for subsequent checkout calls. */
   signIn(input: BuyerSignIn, options: CallOptions & { cartToken: string }): Promise<StoreCart>;
+  /** Replace the current browser session and revoke the buyer's previous sessions. */
+  changePassword(input: { oldPassword: string; newPassword: string }, options?: CallOptions): Promise<{ changed: true }>;
   signOut(options?: CallOptions & { cartToken?: string }): Promise<{ loggedOut: true }>;
 }
 
