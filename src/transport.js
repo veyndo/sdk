@@ -1,4 +1,6 @@
 /** Bounded HTTP transport. Authority is configured once; redirects and automatic retries are forbidden. */
+import { buyerSessionHeaders } from './buyer-session.js';
+
 export class VeyndoError extends Error {
   constructor(message, { kind, status, code, outcomeUnknown = false, cause } = {}) {
     super(message, { cause }); this.name = 'VeyndoError';
@@ -42,7 +44,7 @@ function jsonBody(data) {
   catch (cause) { throw new VeyndoError('Server returned invalid JSON', { kind: 'protocol', cause }); }
 }
 
-export function transport(options, { readOnly = false, responseLimit = 16 * 1024 * 1024 } = {}) {
+export function transport(options, { readOnly = false, responseLimit = 16 * 1024 * 1024, buyerSession = false } = {}) {
   const baseUrl = new URL(options.baseUrl);
   const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(baseUrl.hostname);
   if (!(baseUrl.protocol === 'https:' || (baseUrl.protocol === 'http:' && loopback)) ||
@@ -66,6 +68,7 @@ export function transport(options, { readOnly = false, responseLimit = 16 * 1024
     const token = typeof options.token === 'function' ? await options.token() : options.token;
     if (token) headers.set('Authorization', `Bearer ${token}`);
     if (options.shop) headers.set('x-tenant', options.shop);
+    if (buyerSession) buyerSessionHeaders(url, options.shop, options.credentials, headers);
     const pdf = responseType === 'pdf';
     const file = responseType === 'file';
     headers.set('Accept', file ? '*/*' : pdf ? 'application/pdf' : 'application/json');

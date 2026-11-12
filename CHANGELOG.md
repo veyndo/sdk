@@ -5,6 +5,11 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.12
+
+- Use existing same-origin HttpOnly buyer sessions in the Account and
+  Checkout SDK clients, including the current shop's CSRF proof.
+
 ## 0.4.11
 
 - List localized purchased files and download bounded attachments through

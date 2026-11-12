@@ -35,8 +35,8 @@ function checkedReceipt(receipt, sessionId, outcomeUnknown) {
 export function createCheckoutClient(options) {
   const { baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch, channel, locale, currency } = options;
   const settings = { baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch };
-  const write = transport(settings);
-  const read = transport(settings, { readOnly: true });
+  const write = transport(settings, { buyerSession: true });
+  const read = transport(settings, { readOnly: true, buyerSession: true });
   const scope = new Headers();
   for (const [key, value] of [
     ['sw-sales-channel-id', channel],

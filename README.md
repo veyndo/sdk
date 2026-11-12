@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.11 adds purchased digital files to the buyer account client. A
-storefront can show localized download titles and fetch the file bytes.
+SDK 0.4.12 connects the account and Checkout clients to the shop's existing
+HttpOnly buyer session. The account client also lists and downloads purchased files.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -179,8 +179,11 @@ The browser calls the local host and needs no shop credentials. After installing
 the release archive, run `node node_modules/@veyndo/sdk/examples/browser.mjs`
 from your project. [Browser walkthrough](https://www.veyndo.ai/docs/one-shop-components.html#run-the-browser-example).
 
-Applications using a same-origin HttpOnly customer session can set
-`credentials: 'same-origin'` on their SDK client. The default is to omit credentials.
+On the shop origin, pass the shop ID and set `credentials: 'same-origin'` on
+the account and Checkout clients. They read the shop's CSRF proof cookie
+for each call. The browser sends the HttpOnly session cookie. Server-side
+clients can pass the buyer token explicitly.
+[Browser session walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#use-the-signed-in-browser-with-the-sdk).
 
 ### Use the Checkout relay
 

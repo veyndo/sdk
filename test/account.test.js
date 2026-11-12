@@ -1,6 +1,48 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createAccountClient } from '@veyndo/sdk/account';
+import { createCheckoutClient } from '@veyndo/sdk/checkout';
+
+test('account and checkout use the current shop cookie proof only on the same origin', async t => {
+  const original = new Map(['location', 'document'].map(key =>
+    [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+  t.after(() => {
+    for (const [key, descriptor] of original) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+      else delete globalThis[key];
+    }
+  });
+  const baseUrl = 'https://shop.example';
+  const cookieName = '__Host-veyndo-customer-csrf-demo';
+  const first = 'a'.repeat(64);
+  const second = 'b'.repeat(64);
+  const document = { cookie: `${cookieName}=${first}` };
+  Object.defineProperty(globalThis, 'location', { configurable: true, value: { origin: baseUrl } });
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: document });
+  const requests = [];
+  const fetch = async (_url, options) => {
+    requests.push(['x-veyndo-customer-session', 'x-veyndo-customer-csrf', 'x-customer-token']
+      .map(key => options.headers.get(key)));
+    return Response.json({});
+  };
+  const settings = { baseUrl, shop: 'demo', credentials: 'same-origin', fetch };
+  const account = createAccountClient(settings);
+  await account.profile.get();
+  document.cookie = `${cookieName}=${second}`;
+  await createCheckoutClient(settings).options({ customerToken: 'browser-customer-session' });
+  await account.profile.get({ customerToken: 'explicit-buyer' });
+  await createAccountClient({ ...settings, baseUrl: 'https://elsewhere.example' }).profile.get();
+  await createAccountClient({ ...settings, shop: 'other' }).profile.get();
+  await createAccountClient({ ...settings, credentials: 'omit' }).profile.get();
+  document.cookie += `;${cookieName}=${first}`;
+  await account.profile.get();
+  assert.deepEqual(requests, [
+    ['1', first, null],
+    ['1', second, null],
+    [null, null, 'explicit-buyer'],
+    ...Array.from({ length: 4 }, () => [null, null, null]),
+  ]);
+});
 
 test('purchased files use the buyer session, locale and bounded attachment transport', async () => {
   const paths = [];
