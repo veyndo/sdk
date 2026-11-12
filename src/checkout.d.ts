@@ -125,6 +125,13 @@ export interface StoreCart {
   availableCountries?: string[];
   availableShippingMethods?: CheckoutShippingMethod[];
   availablePaymentMethods?: CheckoutPaymentMethod[];
+  currencyContext?: CatalogCurrencyContext;
+  availableCurrencies?: string[];
+  /** Submitted codes. Check discounts and total to see which promotions applied. */
+  couponCodes?: string[];
+  discounts?: Array<{ id: string; name: Record<string, string>; kind: string; amount: number }>;
+  /** Display amount in major units of the cart currency. */
+  discountTotal?: number;
   checkoutService?: {
     transport: 'same-origin' | 'direct';
     legalPolicyVersion: string;
@@ -155,6 +162,10 @@ export interface StoreCartClient {
   create(input?: { session?: string }, buyer?: CheckoutBuyer & { cartToken?: string }): Promise<StoreCart>;
   read(access: CartAccess): Promise<StoreCart>;
   add(input: { items: Array<{ referencedId: string; quantity: number }> }, access: CartAccess): Promise<StoreCart>;
+  /** Replace all coupon codes and return the new quote. Pass [] to clear them. */
+  setCoupons(input: { codes: string[]; revision: number }, access: CartAccess): Promise<StoreCart>;
+  /** Select an enabled currency for the current cart and return its new quote. */
+  setCurrency(input: { currency: string; revision: number }, access: CartAccess): Promise<StoreCart>;
   preview(input: CartReviewInput, access: CartAccess): Promise<CartReview>;
   apply(input: CartReviewInput & { review: string }, access: CartAccess): Promise<StoreCart>;
 }

@@ -74,11 +74,17 @@ async function checkCart() {
   const earliest: string | undefined = preview.delivery?.earliest;
   const applied = await checkoutClient.cart.apply({ items, revision: preview.revision, review: preview.review }, access);
   const amount: string | undefined = applied.price.totalMinor;
+  const discounted = await checkoutClient.cart.setCoupons({ codes: ['WELCOME'], revision: applied.revision }, access);
+  const currency = discounted.availableCurrencies?.[0] ?? discounted.price.currency;
+  const repriced = await checkoutClient.cart.setCurrency({ currency, revision: discounted.revision }, access);
+  const discount: number | undefined = repriced.discountTotal;
+  // @ts-expect-error A coupon change requires the current cart revision.
+  await checkoutClient.cart.setCoupons({ codes: [] }, access);
   // @ts-expect-error Applying a cart proposal requires its review.
   await checkoutClient.cart.apply({ items, revision: cart.revision }, access);
   // @ts-expect-error A current token is required to read an existing cart.
   await checkoutClient.cart.read({});
-  void [earliest, amount];
+  void [earliest, amount, discount];
 }
 void checkCart;
 async function checkSelection() {

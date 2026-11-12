@@ -4,7 +4,7 @@ Use Node 22+ with the SDK package and an existing Veyndo shop. The public
 Lumen demo is enough for the first catalog read.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.18/veyndo-sdk-0.4.18.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.19/veyndo-sdk-0.4.19.tgz
 node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 
@@ -57,6 +57,7 @@ key scope for a 401, 403 or 404. For an uncertain checkout write, recover the
 original result using the existing receipt flow.
 
 [Checkout and receipt recipe](integration-recipes.md#use-the-checkout-relay) ·
+[Cart coupons and currency](integration-recipes.md#apply-coupon-codes-and-switch-currency) ·
 [Buyer sign-in from your backend](integration-recipes.md#sign-in-buyers-from-your-backend) ·
 [Run an API-only Core](https://www.veyndo.ai/docs/hosted-component-api.html) ·
 [Compose separately hosted components](composition.md).
