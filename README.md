@@ -34,6 +34,14 @@ console.log((await checkout.options()).payments.map(method => method.name));
 The client uses the hosted API origin with one shop scope for catalog, checkout,
 buyer account and MCP. [Connect your own shop, use a key, or set an API origin](docs/hosted-api.md).
 
+## Where the SDK fits
+
+Your storefront or agent uses the SDK to reach Veyndo through HTTP and MCP.
+Commerce Core supplies the current prices and stock and records the order.
+Checkout manages buyer sessions and receipt recovery. An app can return an
+interactive UI through MCP while using the same shop's data and permissions.
+[Follow an illustrated purchase and explore the components](https://www.veyndo.ai/docs/one-shop-components.html).
+
 ## Read the Store API catalog
 
 With Node 22 or newer, install the published package and query the public Lumen
