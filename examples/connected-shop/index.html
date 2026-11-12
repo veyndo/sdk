@@ -12,6 +12,11 @@
     <header>
       <h1>Connected shop</h1>
       <p>Explore one product, open its interactive guide and complete a simulated purchase.</p>
+      <nav class="renderer-choice" aria-label="Layout renderer">
+        <a id="select-openui" href="/">OpenUI</a>
+        <a id="select-a2ui" href="/?renderer=a2ui">A2UI</a>
+      </nav>
+      <p id="renderer-status" role="status"></p>
     </header>
     <div id="base-workspace" class="workspace">
       <section id="purchase-panel" aria-labelledby="product">

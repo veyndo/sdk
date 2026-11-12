@@ -2,6 +2,7 @@
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { createClient } from '@veyndo/sdk';
@@ -9,7 +10,7 @@ import { createCatalogClient } from '@veyndo/sdk/catalog';
 import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from './commerce.mjs';
 import { discoverGuide } from './guide.mjs';
-import { generateLayout } from './layout.mjs';
+import { a2uiLayout, generateLayout, layoutSource } from './layout.mjs';
 
 const core = new URL(process.env.VEYNDO_URL ?? 'http://127.0.0.1:8787');
 const port = Number(process.env.PORT ?? 8812);
@@ -29,13 +30,14 @@ const commerce = checkout({
 const guide = await discoverGuide(client, productId);
 const bundle = await build({
   entryPoints: [fileURLToPath(new URL('browser.mjs', import.meta.url))],
+  outdir: 'assets', splitting: true,
   bundle: true, format: 'esm', write: false, logLevel: 'silent', minify: true,
   define: { 'process.env.NODE_ENV': '"production"' },
 });
 const assets = new Map([
   ['/', ['text/html', await readFile(new URL('index.html', import.meta.url))]],
   ['/shop.css', ['text/css', await readFile(new URL('shop.css', import.meta.url))]],
-  ['/browser.js', ['text/javascript', bundle.outputFiles[0].contents]],
+  ...bundle.outputFiles.map(file => ['/' + basename(file.path), ['text/javascript', file.contents]]),
   ['/guide-frame', ['text/html', guide.html]],
 ]);
 const sitePolicy = "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'";
@@ -71,9 +73,14 @@ async function readBody(request) {
 }
 
 const actions = new Map([
-  ['/layout', (_state, { focus }) => generateLayout(focus, {
-    key: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL,
-  })],
+  ['/layout', async (_state, { focus, renderer = 'openui' }) => {
+    const layout = await generateLayout(focus, {
+      key: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL,
+    });
+    return renderer === 'a2ui-v1'
+      ? { generator: layout.generator, messages: a2uiLayout(layout.focus) }
+      : { generator: layout.generator, source: layoutSource(layout.focus) };
+  }],
   ['/ask', async state => ({ answer: 'Here is the installed product guide for this item.',
     arguments: guide.original, definition: guide.definition, result: await guide.read(state) })],
   ['/filter', (state, body) => guide.read(state, body)],
@@ -85,10 +92,11 @@ const actions = new Map([
 createServer({ requestTimeout: 10000 }, async (request, response) => {
   if (request.headers.host !== authority) return send(response, 403, { error: 'Use the loopback host' });
   let state = browserSession(request);
-  if (request.method === 'GET' && assets.has(request.url)) {
-    const [type, data] = assets.get(request.url);
+  const assetPath = request.url === '/?renderer=a2ui' ? '/' : request.url;
+  if (request.method === 'GET' && assets.has(assetPath)) {
+    const [type, data] = assets.get(assetPath);
     const headers = request.url === '/guide-frame' ? { 'Content-Security-Policy': guidePolicy } : {};
-    if (request.url === '/' && !state) {
+    if (assetPath === '/' && !state) {
       for (const [key, value] of sessions) if (!value.busy && value.expires <= Date.now()) sessions.delete(key);
       if (sessions.size >= 100) return send(response, 503, { error: 'Example session capacity reached' });
       const key = randomBytes(24).toString('hex');
@@ -109,6 +117,9 @@ createServer({ requestTimeout: 10000 }, async (request, response) => {
     try {
       const body = await readBody(request).catch(() => null);
       if (!body) return send(response, 400, { error: 'Invalid request body' });
+      if (request.url === '/layout' && body.renderer !== undefined &&
+          !['openui', 'a2ui-v1'].includes(body.renderer))
+        return send(response, 400, { error: 'Choose OpenUI or A2UI v1.0' });
       return send(response, 200, await action(state, body));
     } finally { state.busy = false; }
   } catch (error) {

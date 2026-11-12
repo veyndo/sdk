@@ -1,7 +1,7 @@
 /** Connect a read-only MCP App to its conversation and keep checkout approval in the host. */
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 import { renderLayout } from './openui.mjs';
-import { layoutSource } from './layout.mjs';
+import { a2uiLayout, layoutSource } from './layout.mjs';
 
 const element = id => document.getElementById(id);
 const review = element('review');
@@ -113,13 +113,29 @@ ask.addEventListener('click', async () => {
 
 try {
   const focus = location.hash === '#guide' ? 'guide' : 'checkout';
+  const useA2ui = new URLSearchParams(location.search).get('renderer') === 'a2ui';
+  element(useA2ui ? 'select-a2ui' : 'select-openui').setAttribute('aria-current', 'page');
+  const renderer = useA2ui ? 'a2ui-v1' : 'openui';
   const [product, layout] = await Promise.all([
     api('/product'),
-    api('/layout', { focus }).catch(() => ({ source: layoutSource(focus), generator: 'local' })),
+    api('/layout', { focus, renderer }).catch(() => useA2ui
+      ? { messages: a2uiLayout(focus), generator: 'local' }
+      : { source: layoutSource(focus), generator: 'local' }),
   ]);
-  renderLayout(element('generated-workspace'), element('base-workspace'), {
-    Purchase: element('purchase-panel'), Guide: element('guide-panel'),
-  }, layout);
+  const controls = { Purchase: element('purchase-panel'), Guide: element('guide-panel') };
+  const target = element('generated-workspace');
+  const fallback = element('base-workspace');
+  if (useA2ui) {
+    try {
+      const { renderA2uiLayout } = await import('./a2ui.mjs');
+      await renderA2uiLayout(target, fallback, controls, layout);
+    } catch (error) {
+      console.error('A2UI layout could not render', error);
+      element('renderer-status').textContent = 'A2UI could not load. The standard shop layout is available.';
+    }
+  } else {
+    renderLayout(target, fallback, controls, layout);
+  }
   element('product').textContent = product.name;
   for (const choice of product.choices) {
     const option = new Option(choice.stock > 0 ? choice.label : choice.label + ' (out of stock)', choice.id);

@@ -1,18 +1,30 @@
 /** Generate presentation from two admitted panels. Commerce inputs never enter this contract. */
-const panels = { checkout: 'Purchase(), Guide()', guide: 'Guide(), Purchase()' };
+const panels = { checkout: ['Purchase', 'Guide'], guide: ['Guide', 'Purchase'] };
+export const shopCatalog = 'https://www.veyndo.ai/catalogs/connected-shop/v1';
 const validFocus = value => value === 'checkout' || value === 'guide';
 
 export function layoutSource(focus) {
-  return `root = Shop([${panels[focus]}])`;
+  return `root = Shop([${panels[focus].map(name => name + '()').join(', ')}])`;
 }
 
 export function isLayoutSource(source) {
   return Object.keys(panels).some(focus => layoutSource(focus) === source);
 }
 
+export function a2uiLayout(focus) {
+  const surfaceId = 'connected-shop';
+  return [
+    { version: '1.0', createSurface: { surfaceId, catalogId: shopCatalog } },
+    { version: '1.0', updateComponents: { surfaceId, components: [
+      { id: 'root', component: 'Shop', children: panels[focus] },
+      ...panels[focus].map(name => ({ id: name, component: name })),
+    ] } },
+  ];
+}
+
 export async function generateLayout(focus, { key, model = 'gpt-5.4-mini', fetcher = fetch } = {}) {
   if (!validFocus(focus)) throw new Error('Choose a valid layout focus');
-  const fallback = { source: layoutSource(focus), generator: 'local' };
+  const fallback = { focus, generator: 'local' };
   if (!key) return fallback;
   try {
     const response = await fetcher('https://api.openai.com/v1/responses', {
@@ -40,7 +52,7 @@ export async function generateLayout(focus, { key, model = 'gpt-5.4-mini', fetch
       return fallback;
     const result = JSON.parse(output[0].text);
     if (result && Object.keys(result).length === 1 && validFocus(result.first))
-      return { source: layoutSource(result.first), generator: 'openai' };
+      return { focus: result.first, generator: 'openai' };
   } catch {
     // Keep the normal storefront available when the presentation provider fails.
   }
