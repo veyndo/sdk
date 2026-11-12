@@ -6,7 +6,7 @@ import { createCatalogClient } from '@veyndo/sdk/catalog';
 import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from '../examples/connected-shop/commerce.mjs';
 import { discoverGuide } from '../examples/connected-shop/guide.mjs';
-import { generateLayout, isLayoutSource, layoutSource } from '../examples/connected-shop/layout.mjs';
+import { a2uiLayout, generateLayout, isLayoutSource, layoutSource, shopCatalog } from '../examples/connected-shop/layout.mjs';
 
 function exampleWithStoreApi(respond, productId) {
   const options = {
@@ -18,7 +18,7 @@ function exampleWithStoreApi(respond, productId) {
   }, productId);
 }
 
-test('generated OpenUI changes panel order without introducing actions or purchase data', async () => {
+test('model output only chooses the first panel for either renderer', async () => {
   const model = text => async (url, options) => {
     assert.equal(url, 'https://api.openai.com/v1/responses');
     assert.equal(options.redirect, 'error');
@@ -27,13 +27,22 @@ test('generated OpenUI changes panel order without introducing actions or purcha
     assert.equal(body.input, 'checkout');
     return Response.json({ output: [{ content: [{ type: 'output_text', text }] }] });
   };
-  const local = { source: layoutSource('checkout'), generator: 'local' };
+  const local = { focus: 'checkout', generator: 'local' };
   assert.deepEqual(await generateLayout('checkout'), local);
   assert.deepEqual(await generateLayout('checkout', { key: 'fixture', fetcher: model('{"first":"guide"}') }),
-    { source: layoutSource('guide'), generator: 'openai' });
+    { focus: 'guide', generator: 'openai' });
   for (const result of ['{"first":"buy"}', '{"first":"guide","totalMinor":"1"}', 'Shop([Pay()])']) {
     assert.deepEqual(await generateLayout('checkout', { key: 'fixture', fetcher: model(result) }), local);
   }
+  assert.equal(layoutSource('guide'), 'root = Shop([Guide(), Purchase()])');
+  assert.deepEqual(a2uiLayout('guide'), [
+    { version: '1.0', createSurface: { surfaceId: 'connected-shop', catalogId: shopCatalog } },
+    { version: '1.0', updateComponents: { surfaceId: 'connected-shop', components: [
+      { id: 'root', component: 'Shop', children: ['Guide', 'Purchase'] },
+      { id: 'Guide', component: 'Guide' },
+      { id: 'Purchase', component: 'Purchase' },
+    ] } },
+  ]);
   assert.equal(isLayoutSource('root = Shop([Guide(), Purchase("chair", 1)])'), false);
   await assert.rejects(generateLayout('constructor'), /valid layout focus/);
 });

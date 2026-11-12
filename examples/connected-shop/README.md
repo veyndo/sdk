@@ -33,17 +33,21 @@ The browser session uses a synthetic buyer account and a test cart. Opening a
 new browser session lets you place another demo order. Reloading the same
 session shows the original receipt.
 
-### Generate the layout with OpenUI
+### Compare OpenUI and A2UI
 
-The Node host assembles the Purchase and Product Guide panels as OpenUI.
+Use the renderer links at the top of the example to switch between OpenUI and
+A2UI. Both arrange the same Purchase and Product Guide panels. The A2UI link
+requests v1.0 JSON messages and loads the official Lit renderer with the
+example's registered component catalog. The OpenUI link uses OpenUI Lang.
+
 Append `#guide` to the example URL to ask for the guide first. With an
 `OPENAI_API_KEY` in the Node environment, OpenAI chooses the order of those
 two panels. Set `OPENAI_MODEL` to select a different model. The model receives
 only the requested focus. The local layout is available without a key and
 also serves as the fallback for invalid or unavailable model responses.
 
-OpenUI places the host's existing controls. It receives no price, variant ID,
-cart token or confirmation capability from the model. The MCP App continues
+Both renderers place the host's existing controls. The model receives no
+price, variant ID, cart token or confirmation capability. The MCP App continues
 to read the configured product and the host requests the current cart quote
 from Core before the shopper can confirm.
 
@@ -59,7 +63,7 @@ parent product while the checkout uses the selected variant ID.
 | --- | --- |
 | `guide.mjs` | Discover the public MCP App resource and its filter from Veyndo. All reads retain the original product and resource. |
 | `browser.mjs` | Mount the app HTML in an isolated iframe using the official AppBridge. Only the declared tool can read the chosen product. |
-| `layout.mjs` and `openui.mjs` | Admit the panel order and render it with OpenUI. |
+| `layout.mjs`, `openui.mjs` and `a2ui.mjs` | Choose the panel order and render it with the selected layout protocol. |
 | `commerce.mjs` | Read the family with the catalog client. Preview and apply the variant basket, create a Checkout session and confirm only the current offer. |
 | `server.mjs` | Hold buyer and cart credentials, limit requests to this browser origin, and serve the guide with network access disabled. |
 
@@ -75,6 +79,8 @@ IDs, which the host checks before displaying the recovered order.
 Veyndo persists the order and the receipt.
 The example host keeps its short-lived browser sessions in memory.
 
-The host supports one configured product family and the demo card. For a
+The host supports one configured product family and the demo card. The
+A2UI catalog places two known panels. Variant selection, guide filtering,
+quote updates and order recovery use the same SDK calls in both modes. For a
 full assistant that selects an installed card during an answer, see the
 [Veyndo conversation contract](https://www.veyndo.ai/docs/agentic-component-ui.html#show-the-shoppers-app-view-during-the-answer).

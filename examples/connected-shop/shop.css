@@ -40,3 +40,8 @@ footer { border-top: 1px solid var(--line); padding-block: 1rem; display: flex; 
   .workspace { grid-template-columns: minmax(0, 1fr); }
   .workspace > :not(:first-child) { border-top: 1px solid var(--line); padding-block-start: 1.5rem; }
 }
+
+.renderer-choice { display: flex; gap: .85rem; }
+.renderer-choice a { color: var(--accent); text-underline-offset: .2em; }
+.renderer-choice a[aria-current="page"] { color: var(--ink); font-weight: 650; }
+#renderer-status:empty { display: none; }
