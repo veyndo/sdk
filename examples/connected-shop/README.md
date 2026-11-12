@@ -38,7 +38,9 @@ session shows the original receipt.
 Use the renderer links at the top of the example to switch between OpenUI and
 A2UI. Both arrange the same Purchase and Product Guide panels. The A2UI link
 requests v1.0 JSON messages and loads the official Lit renderer with the
-example's registered component catalog. The OpenUI link uses OpenUI Lang.
+example's registered component catalog. The host uses the shared
+[A2UI workspace adapter](../../docs/composition.md#render-an-admitted-workspace-with-a2ui).
+The OpenUI link uses OpenUI Lang.
 
 Append `#guide` to the example URL to ask for the guide first. With an
 `OPENAI_API_KEY` in the Node environment, OpenAI chooses the order of those

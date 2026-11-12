@@ -3,6 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { createClient } from '../src/index.js';
+import { Catalog, ColumnApi, MessageProcessor } from '@a2ui/web_core/v1_0';
+import { createA2uiAdapter } from '@veyndo/sdk/a2ui';
 import { createComposition, createLayoutRegistry } from '../src/composition.js';
 const definition = { version: 1, panels: [
   { id: 'catalog', view: 'commerce.products', version: 1, input: { query: 'chair' } },
@@ -14,6 +16,12 @@ const views = [
   { id: 'knowledge.sources', title: 'Sources', version: 1, service: 'knowledge', operation: 'sources.list', effect: 'read',
     arguments: (_input, context) => ({ locale: context.locale }) },
 ];
+const catalogId = 'veyndo:workspace-test';
+const adapter = createA2uiAdapter({ catalogId, views: [
+  { view: 'commerce.products', version: 1, component: 'Products' },
+  { view: 'knowledge.sources', version: 1, component: 'Sources' },
+] });
+const renderer = { surfaceId: 'workspace', capabilities: { '1.0': { supportedCatalogIds: [catalogId] } } };
 const context = { shop: 'shop_a', environment: 'live', channel: 'web', locale: 'de-DE' };
 const tool = name => ({ name, annotations: { readOnlyHint: true, destructiveHint: false } });
 function fake(tools, call = async () => ({})) { return { tools: async () => ({ tools }), tool: call }; }
@@ -38,12 +46,58 @@ test('two actual independent MCP endpoints retain separate credentials and route
   const h = host(await Promise.all([endpoint('commerce', 'commerce-only', 'catalog.search'), endpoint('knowledge', 'knowledge-only', 'sources.list')]));
   const discovered = await h.discover(); assert.equal(discovered.views.length, 2);
   assert.deepEqual(h.admit(definition), { ...definition, panels: definition.panels.map(p => ({ ...p, input: p.input })) });
-  const result = await Promise.all(definition.panels.map(p => h.read(definition, p.id)));
+  const catalog = new Catalog(catalogId, '1.0', [ColumnApi,
+    ...['Products', 'Sources'].map(name => ({ name, schema: ColumnApi.schema.pick({}) })),
+  ]);
+  const processor = new MessageProcessor([catalog], undefined, { version: '1.0' });
+  t.after(() => processor.model.dispose());
+  const surface = adapter.project(h, definition, {
+    ...renderer, capabilities: processor.getRendererCapabilities({ versions: ['1.0'] }),
+  });
+  assert.equal(surface.kind, 'a2ui');
+  assert.deepEqual(surface.messages[1].updateComponents.components, [
+    { id: 'root', component: 'Column', children: ['panel_catalog', 'panel_sources'] },
+    { id: 'panel_catalog', component: 'Products' },
+    { id: 'panel_sources', component: 'Sources' },
+  ]);
+  processor.processMessages(surface.messages);
+  assert.ok(processor.getSurface(renderer.surfaceId));
+  const punctuated = { ...definition, panels: [
+    { ...definition.panels[0], id: 'catalog.detail' },
+    { ...definition.panels[1], id: 'catalog_2edetail' },
+  ] };
+  const encoded = adapter.project(h, punctuated, { ...renderer, surfaceId: 'punctuation' });
+  processor.processMessages(encoded.messages);
+  assert.deepEqual(encoded.messages[1].updateComponents.components[0].children,
+    ['panel_catalog_2edetail', 'panel_catalog_5f2edetail']);
+  assert.ok(!JSON.stringify(surface).includes('chair'));
+  assert.equal(seen.filter(s => s.method === 'tools/call').length, 0);
+  const result = await Promise.all(surface.panels.map(p => h.read(definition, p.id)));
   assert.equal(result[0].data.owner, 'commerce'); assert.equal(result[1].data.owner, 'knowledge');
   assert.deepEqual(result[1].data.arguments, { locale: 'de-DE' });
   assert.ok(!JSON.stringify(h.catalogue()).includes('only'));
   assert.equal(seen.filter(s => s.method === 'tools/call').length, 2);
 });
+test('A2UI negotiation falls back to admitted panel references and rejects stale layouts', async () => {
+  const h = host();
+  assert.deepEqual(adapter.project(h, definition, renderer), { kind: 'rejected' });
+  await h.discover();
+  const fallback = adapter.project(h, definition, { surfaceId: renderer.surfaceId,
+    capabilities: { 'v0.9': { supportedCatalogIds: [catalogId] } } });
+  assert.deepEqual(fallback, { kind: 'structured', reason: 'unsupported_catalog', panels: [
+    { id: 'catalog', view: 'commerce.products', version: 1 },
+    { id: 'sources', view: 'knowledge.sources', version: 1 },
+  ] });
+  const missing = createA2uiAdapter({ catalogId, views: [
+    { view: 'commerce.products', version: 2, component: 'Products' },
+  ] });
+  assert.deepEqual(missing.project(h, definition, renderer), { ...fallback, reason: 'unsupported_view' });
+  assert.deepEqual(adapter.project(h, { ...definition, component: 'Pay' }, renderer), { kind: 'rejected' });
+  h.setContext({ ...context, locale: 'es-ES' });
+  assert.deepEqual(adapter.project(h, definition, renderer), { kind: 'rejected' });
+  h.dispose();
+});
+
 test('model cannot register endpoints, operations, code, permissions, unknown views or incompatible versions', async () => {
   const h = host(); await h.discover();
   for (const change of [

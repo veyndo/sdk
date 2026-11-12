@@ -1,3 +1,4 @@
+import { createA2uiAdapter, type A2uiLayoutMessage } from '@veyndo/sdk/a2ui';
 /** Negative compile controls ensure registry arguments are not widened to arbitrary JSON. */
 import { createClient, VeyndoError } from '../src/index.js';
 import { createCatalogClient } from '@veyndo/sdk/catalog';
@@ -165,3 +166,15 @@ async function inspectEvidence() {
   await knowledge.documents.withdraw({ id: 'returns' });
 }
 void inspectEvidence;
+
+
+const workspaceAdapter = createA2uiAdapter({ catalogId: 'demo:workspace', views: [
+  { view: 'commerce.products', version: 1, component: 'Products' },
+] });
+const presentation = workspaceAdapter.project({ admit: () => null }, {}, {
+  surfaceId: 'demo', capabilities: { '1.0': { supportedCatalogIds: ['demo:workspace'] } },
+});
+if (presentation.kind === 'a2ui') {
+  const messages: A2uiLayoutMessage[] = presentation.messages;
+  void messages;
+}

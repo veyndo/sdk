@@ -1,6 +1,6 @@
 {
   "name": "@veyndo/sdk",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "JavaScript and TypeScript client for Veyndo Commerce component HTTP and MCP APIs",
   "type": "module",
   "engines": {
@@ -48,11 +48,15 @@
     "./account": {
       "types": "./src/account.d.ts",
       "import": "./src/account.js"
+    },
+    "./a2ui": {
+      "types": "./src/a2ui.d.ts",
+      "import": "./src/a2ui.js"
     }
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js && node --check src/host.js && python3 scripts/sync-host-contracts.py --check && node --check src/composition.js && node --check src/workspace.js && node --check src/knowledge.js && node --check src/catalog.js && node --check src/checkout.js && node --check src/account.js && node --check examples/browser.mjs && node --check examples/browser-catalog.mjs",
+    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js && node --check src/host.js && python3 scripts/sync-host-contracts.py --check && node --check src/composition.js && node --check src/workspace.js && node --check src/a2ui.js && node --check src/knowledge.js && node --check src/catalog.js && node --check src/checkout.js && node --check src/account.js && node --check examples/browser.mjs && node --check examples/browser-catalog.mjs",
     "test:types": "tsc --noEmit -p test/tsconfig.json"
   },
   "repository": {
@@ -61,6 +65,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
+    "@a2ui/web_core": "0.15.0",
     "typescript": "^5.9.3"
   }
 }

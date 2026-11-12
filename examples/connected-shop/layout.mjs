@@ -1,6 +1,14 @@
 /** Generate presentation from two admitted panels. Commerce inputs never enter this contract. */
+import { createA2uiAdapter } from '../../src/a2ui.js';
+import { createLayoutRegistry } from '../../src/composition.js';
+
 const panels = { checkout: ['Purchase', 'Guide'], guide: ['Guide', 'Purchase'] };
 export const shopCatalog = 'https://www.veyndo.ai/catalogs/connected-shop/v1';
+const shopViews = ['Purchase', 'Guide'].map(id => ({ id, title: id, version: 1 }));
+const registry = createLayoutRegistry(shopViews);
+const adapter = createA2uiAdapter({ catalogId: shopCatalog, rootComponent: 'Shop',
+  views: shopViews.map(({ id, version }) => ({ view: id, version, component: id })),
+});
 const validFocus = value => value === 'checkout' || value === 'guide';
 
 export function layoutSource(focus) {
@@ -12,14 +20,12 @@ export function isLayoutSource(source) {
 }
 
 export function a2uiLayout(focus) {
-  const surfaceId = 'connected-shop';
-  return [
-    { version: '1.0', createSurface: { surfaceId, catalogId: shopCatalog } },
-    { version: '1.0', updateComponents: { surfaceId, components: [
-      { id: 'root', component: 'Shop', children: panels[focus] },
-      ...panels[focus].map(name => ({ id: name, component: name })),
-    ] } },
-  ];
+  const definition = { version: 1, panels: panels[focus].map(id => ({ id, view: id, version: 1 })) };
+  const projection = adapter.project(registry, definition, {
+    surfaceId: 'connected-shop', capabilities: { '1.0': { supportedCatalogIds: [shopCatalog] } },
+  });
+  if (projection.kind !== 'a2ui') throw new Error('Connected Shop layout is unavailable');
+  return projection.messages;
 }
 
 export async function generateLayout(focus, { key, model = 'gpt-5.4-mini', fetcher = fetch } = {}) {

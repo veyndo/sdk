@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.14 adds password changes to the buyer's HttpOnly shop session.
-The Account and Checkout clients share that session.
+SDK 0.4.15 adds an [A2UI adapter for admitted workspaces](docs/composition.md#render-an-admitted-workspace-with-a2ui).
+The Account and Checkout clients share the buyer's HttpOnly shop session.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#compare-openui-and-a2ui)
 places the Product Guide and reviewed variant checkout with OpenUI or A2UI v1.0.
