@@ -1,6 +1,6 @@
 {
   "name": "@veyndo/sdk",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "description": "JavaScript and TypeScript client for Veyndo Commerce component HTTP and MCP APIs",
   "type": "module",
   "engines": {
@@ -15,7 +15,8 @@
     "HOST-PROVENANCE.json",
     "docs",
     "examples/browser*",
-    "examples/store-catalog.mjs"
+    "examples/store-catalog.mjs",
+    "examples/hosted-shop.mjs"
   ],
   "exports": {
     ".": {
@@ -52,11 +53,15 @@
     "./a2ui": {
       "types": "./src/a2ui.d.ts",
       "import": "./src/a2ui.js"
+    },
+    "./hosted": {
+      "types": "./src/hosted.d.ts",
+      "import": "./src/hosted.js"
     }
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js && node --check src/host.js && python3 scripts/sync-host-contracts.py --check && node --check src/composition.js && node --check src/workspace.js && node --check src/a2ui.js && node --check src/knowledge.js && node --check src/catalog.js && node --check src/checkout.js && node --check src/account.js && node --check examples/browser.mjs && node --check examples/browser-catalog.mjs",
+    "check": "node --check src/index.js && node --check src/transport.js && node --check src/guest.js && node --check src/host.js && python3 scripts/sync-host-contracts.py --check && node --check src/composition.js && node --check src/workspace.js && node --check src/a2ui.js && node --check src/knowledge.js && node --check src/catalog.js && node --check src/checkout.js && node --check src/account.js && node --check examples/browser.mjs && node --check examples/browser-catalog.mjs && node --check src/hosted.js && node --check examples/hosted-shop.mjs",
     "test:types": "tsc --noEmit -p test/tsconfig.json"
   },
   "repository": {

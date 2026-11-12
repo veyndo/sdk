@@ -178,3 +178,15 @@ if (presentation.kind === 'a2ui') {
   const messages: A2uiLayoutMessage[] = presentation.messages;
   void messages;
 }
+
+import { createHostedShop } from '@veyndo/sdk/hosted';
+const hosted = createHostedShop({ shop: 'demo', merchantToken: () => 'server-token' });
+async function checkHosted() {
+  const mode: 'api-only' = (await hosted.describe()).mode;
+  const id: string = (await hosted.catalog.list({ limit: 1 })).elements[0].id;
+  await hosted.mcp.tool('catalog.search', { query: 'chair' });
+  // @ts-expect-error The hosted client requires an explicit shop.
+  createHostedShop({});
+  void [mode, id];
+}
+void checkHosted;

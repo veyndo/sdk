@@ -8,6 +8,12 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.16
+
+- Add `@veyndo/sdk/hosted` with one shop context for Catalog, Checkout, Account
+  and MCP, plus API profile discovery and a runnable Node example.
+- Expose the server request ID on HTTP errors for easier support and debugging.
+
 ## 0.4.15
 
 - Project a currently admitted workspace to A2UI v1.0 with

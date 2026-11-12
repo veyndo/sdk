@@ -2,7 +2,7 @@ import type { CallOptions, ClientOptions, JsonValue } from './index.js';
 import type { CheckoutAddress, StoreCart } from './checkout.js';
 
 export type AccountOptions = Pick<ClientOptions,
-  'baseUrl' | 'shop' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'> & {
+  'baseUrl' | 'shop' | 'channel' | 'currency' | 'credentials' | 'timeoutMs' | 'maxResponseBytes' | 'fetch'> & {
   /** Shop content locale used to resolve download titles. */
   locale?: string;
 };
