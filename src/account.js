@@ -12,15 +12,28 @@ function idSegment(id, resource) {
   return encodeURIComponent(id);
 }
 
-export function createAccountClient({ baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch }) {
-  const request = transport({ baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch });
+export function createAccountClient({ baseUrl, shop, locale, credentials, timeoutMs, maxResponseBytes, fetch }) {
+  const request = transport({ baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch },
+    { responseLimit: 20 * 1024 * 1024 });
 
   function call(endpoint, { signal, customerToken } = {}, options, responseType) {
-    const headers = customerToken ? { 'x-customer-token': customerToken } : undefined;
+    const headers = new Headers();
+    if (customerToken) headers.set('x-customer-token', customerToken);
+    if (locale) headers.set('x-commerce-locale', locale);
     return request(endpoint, { ...options, headers, signal }, responseType);
   }
 
   return Object.freeze({
+    downloads: Object.freeze({
+      list(buyer) {
+        return call('/store-api/account/downloads', buyer);
+      },
+      async file(orderId, assetId, buyer) {
+        const order = idSegment(orderId, 'order');
+        const asset = idSegment(assetId, 'asset');
+        return call(`/store-api/orders/${order}/downloads/${asset}`, buyer, undefined, 'file');
+      },
+    }),
     profile: Object.freeze({
       get(buyer) {
         return call(profile, buyer);

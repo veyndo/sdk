@@ -2,6 +2,37 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createAccountClient } from '@veyndo/sdk/account';
 
+test('purchased files use the buyer session, locale and bounded attachment transport', async () => {
+  const paths = [];
+  const data = new Uint8Array([0, 1, 255]);
+  const account = createAccountClient({
+    baseUrl: 'https://shop.example', shop: 'demo', locale: 'it-IT', maxResponseBytes: 4,
+    fetch: async (url, options) => {
+      paths.push(url.pathname);
+      assert.equal(options.headers.get('x-customer-token'), 'buyer');
+      assert.equal(options.headers.get('x-commerce-locale'), 'it-IT');
+      assert.equal(options.headers.get('x-tenant'), 'demo');
+      assert.equal(options.cache, 'no-store');
+      assert.equal(options.redirect, 'error');
+      if (url.pathname === '/store-api/account/downloads') return Response.json({});
+      assert.equal(options.headers.get('accept'), '*/*');
+      if (url.pathname.endsWith('/inline')) return Response.json({});
+      if (url.pathname.endsWith('/foreign')) return new Response(null, { status: 404 });
+      return new Response(url.pathname.endsWith('/large') ? new Uint8Array(5) : data, {
+        headers: { 'Content-Disposition': 'attachment; filename="test.zip"', 'Content-Type': 'application/zip' },
+      });
+    },
+  });
+  const buyer = { customerToken: 'buyer' };
+  await account.downloads.list(buyer);
+  assert.deepEqual(await account.downloads.file('order?1', 'asset+1', buyer), { bytes: data, mime: 'application/zip' });
+  assert.deepEqual(paths, ['/store-api/account/downloads', '/store-api/orders/order%3F1/downloads/asset%2B1']);
+  await assert.rejects(account.downloads.file('order', '..', buyer), TypeError);
+  await assert.rejects(account.downloads.file('order', 'inline', buyer), { kind: 'protocol', outcomeUnknown: false });
+  await assert.rejects(account.downloads.file('order', 'large', buyer), { kind: 'protocol', outcomeUnknown: false });
+  await assert.rejects(account.downloads.file('order', 'foreign', buyer), { kind: 'http', status: 404 });
+});
+
 test('profile reads and contact replacement reuse the signed-in buyer session', async () => {
   const calls = [];
   const contact = { name: 'Example Buyer', phoneNumber: '+4930123456' };
