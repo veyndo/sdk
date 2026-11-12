@@ -13,6 +13,12 @@ export function createCatalogClient(options) {
   }
 
   return Object.freeze({
+    context({ signal } = {}) {
+      return request('/store-api/context', { headers, signal });
+    },
+    navigation({ signal } = {}) {
+      return request('/store-api/navigation', { headers, signal });
+    },
     list(criteria = {}, { signal } = {}) {
       return request('/store-api/product', { method: 'POST', body: criteria, headers, signal });
     },

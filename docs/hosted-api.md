@@ -4,7 +4,7 @@ Use Node 22+ with the SDK package and an existing Veyndo shop. The public
 Lumen demo is enough for the first catalog read.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.19/veyndo-sdk-0.4.19.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.20/veyndo-sdk-0.4.20.tgz
 node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 
@@ -25,6 +25,26 @@ The default origin is `https://api.veyndo.ai`. Use `baseUrl` to connect an
 API-only Core deployment of your own. `describe()` reads the API profile
 without credentials. You can start calling the clients immediately if you
 already know the origin.
+
+## Build your storefront navigation
+
+Use `catalog.context()` for the resolved language, enabled languages and
+currencies. Use `catalog.navigation()` for localized categories in your
+sales channel. These reads use the same shop scope as the product catalog.
+
+```js
+const { catalog } = createHostedShop({ shop: 'your-shop', locale: 'de-DE' });
+const [context, { elements }] = await Promise.all([catalog.context(), catalog.navigation()]);
+
+// After the shopper picks a category of type 'page', pass its ID to the listing.
+const products = await catalog.list({ categoryId: selectedCategoryId, limit: 20 });
+```
+
+Build the menu from `id` and `parentId` in the returned order. A channel's
+navigation root can reference a parent outside the response. Use folders and
+structuring entries as groups. For link entries, use the returned URL if
+present. Names, descriptions, slugs and URLs can be null. Use `nextCursor`
+with the same category, shop, channel, language and currency for the next page.
 
 ## Use a shop and its own key
 

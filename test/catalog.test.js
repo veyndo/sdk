@@ -39,3 +39,24 @@ test('a failed listing reports a read failure even though its HTTP verb is POST'
   });
   await assert.rejects(catalog.list(), { kind: 'http', status: 503, outcomeUnknown: false });
 });
+
+test('catalog navigation and context are cancellable reads in the current shop scope', async () => {
+  const paths = [];
+  const catalog = createCatalogClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'web', locale: 'de-DE',
+    fetch: async (url, input) => {
+      paths.push(url.pathname);
+      assert.equal(input.method, 'GET');
+      assert.equal(input.body, undefined);
+      assert.equal(input.headers.get('x-tenant'), 'demo');
+      assert.equal(input.headers.get('sw-sales-channel-id'), 'web');
+      assert.equal(input.headers.get('x-commerce-locale'), 'de-DE');
+      if (url.pathname === '/store-api/context') return Response.json({ locale: 'de-DE', currency: 'EUR' });
+      return new Response(null, { status: 403, headers: { 'x-request-id': 'navigation-1' } });
+    },
+  });
+  assert.deepEqual(await catalog.context(), { locale: 'de-DE', currency: 'EUR' });
+  await assert.rejects(catalog.navigation(), { status: 403, requestId: 'navigation-1', outcomeUnknown: false });
+  await assert.rejects(catalog.navigation({ signal: AbortSignal.abort() }), { kind: 'aborted', outcomeUnknown: false });
+  assert.deepEqual(paths, ['/store-api/context', '/store-api/navigation']);
+});
