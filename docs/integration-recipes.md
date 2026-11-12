@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.23/veyndo-sdk-0.4.23.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.24/veyndo-sdk-0.4.24.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -357,6 +357,35 @@ check is in progress, show a pending state and refresh status separately.
 Render captured and refunded amounts using `currencyScale`. If you use
 Veyndo's hosted approval flow, the provider returns to the shop's configured
 return route. An embedded payment method uses its own provider UI.
+
+### Show invoice payment instructions
+
+For a native invoice checkout, take the attempt ID from
+`order.payment.attemptId` in the Store API order response. Check
+`payment.status()` and use `instructionsAvailable` to decide whether the
+method supports instructions. Then read the recipient details with the
+same original cart access.
+
+```ts
+const invoice = await checkout.payment.instructions(attemptId, access);
+if (invoice.status === 'available') {
+  showBankTransfer({
+    ...invoice.instructions,
+    amountMinor: invoice.amountMinor,
+    currency: invoice.currency,
+    currencyScale: invoice.currencyScale,
+    simulated: invoice.simulated,
+  });
+} else if (invoice.status === 'pending') {
+  showBankDetailsPending();
+}
+```
+
+While details are pending, show a pending message and let the buyer refresh.
+If the method returns `unsupported`, omit the bank transfer section.
+Label simulated details as test data. Keep payment status separate.
+Receiving bank details leaves the order awaiting settlement until Core
+records the provider's confirmation.
 
 ### Read the buyer's order history
 

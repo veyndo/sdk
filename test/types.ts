@@ -232,6 +232,15 @@ async function checkPreparedCheckout(cart: import('@veyndo/sdk/checkout').StoreC
   await hosted.checkout.receipt(draft.receiptLookup);
   const access = { cartToken: cart.token };
   const status = await hosted.checkout.payment.status('attempt-1', access);
+  const invoice = await hosted.checkout.payment.instructions(status.id, access);
+  if (invoice.status === 'available') {
+    const reference: string = invoice.instructions.paymentReference;
+    void reference;
+  }
+  if (invoice.status === 'unsupported') {
+    // @ts-expect-error Unsupported methods have no instruction amount.
+    void invoice.amountMinor;
+  }
   const amountMinor: number = status.capturedMinor;
   const job = await hosted.checkout.payment.reconcile(status.id, { requestKey: 'stable-return-key' }, access);
   const jobId: string = job.jobId;

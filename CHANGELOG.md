@@ -8,6 +8,12 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.24
+
+- Read the buyer's bank transfer details for invoice payments with
+  `checkout.payment.instructions()`. The result distinguishes available,
+  pending and unsupported instructions.
+
 ## 0.4.23
 
 - Read the buyer's provider payment with `checkout.payment.status()`.
