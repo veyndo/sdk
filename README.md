@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.12 connects the account and Checkout clients to the shop's existing
-HttpOnly buyer session. The account client also lists and downloads purchased files.
+SDK 0.4.13 registers, signs in and signs out buyers on the shop origin.
+The Account and Checkout clients share the shop's HttpOnly buyer session.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -184,6 +184,11 @@ the account and Checkout clients. They read the shop's CSRF proof cookie
 for each call. The browser sends the HttpOnly session cookie. Server-side
 clients can pass the buyer token explicitly.
 [Browser session walkthrough](https://www.veyndo.ai/docs/merchant-operations.html#use-the-signed-in-browser-with-the-sdk).
+
+Use `account.session.register`, `account.session.signIn` and
+`account.session.signOut` to manage that session in your shop frontend.
+Sign-in takes the open cart token and returns the cart with a new token.
+Use the returned token for subsequent checkout calls.
 
 ### Use the Checkout relay
 

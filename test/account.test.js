@@ -42,6 +42,37 @@ test('account and checkout use the current shop cookie proof only on the same or
     [null, null, 'explicit-buyer'],
     ...Array.from({ length: 4 }, () => [null, null, null]),
   ]);
+
+  document.cookie = '';
+  const calls = [];
+  const credentials = { email: 'buyer@example.test', password: 'synthetic' };
+  const auth = createAccountClient({ ...settings, fetch: async (url, options) => {
+    calls.push(url.pathname);
+    assert.equal(options.headers.get('x-veyndo-customer-session'), '1');
+    assert.equal(options.headers.get('x-customer-token'), null);
+    const result = { customerToken: 'browser-customer-session', customerBrowserSession: true,
+      customerBrowserCsrf: first };
+    if (url.pathname.endsWith('/register')) return Response.json({ ...result, email: credentials.email });
+    if (url.pathname.endsWith('/logout')) {
+      assert.equal(options.headers.get('x-veyndo-customer-csrf'), second);
+      return Response.json({ loggedOut: true });
+    }
+    assert.equal(options.headers.get('sw-context-token'), 'cart-old');
+    return Response.json({ ...result, token: 'cart-new' });
+  } }).session;
+  assert.deepEqual(await auth.register({ ...credentials, name: 'Buyer' }), { email: credentials.email });
+  await assert.rejects(auth.signIn(credentials), TypeError);
+  assert.deepEqual(await auth.signIn(credentials, { cartToken: 'cart-old' }), { token: 'cart-new' });
+  document.cookie = `${cookieName}=${second}`;
+  assert.deepEqual(await auth.signOut(), { loggedOut: true });
+  await assert.rejects(createAccountClient({ ...settings, baseUrl: 'https://elsewhere.example' })
+    .session.register({ ...credentials, name: 'Buyer' }), TypeError);
+  const oldShop = createAccountClient({ ...settings, fetch: async () => Response.json({
+    email: credentials.email, customerToken: 'legacy-bearer',
+  }) });
+  await assert.rejects(oldShop.session.register({ ...credentials, name: 'Buyer' }),
+    { kind: 'protocol', outcomeUnknown: true });
+  assert.deepEqual(calls, ['/store-api/account/register', '/store-api/account/login', '/store-api/account/logout']);
 });
 
 test('purchased files use the buyer session, locale and bounded attachment transport', async () => {

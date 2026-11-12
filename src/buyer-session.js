@@ -1,7 +1,11 @@
 /** Attach the proof for an existing host-only buyer session on the current shop origin. */
+export function isBuyerBrowserOrigin(url, shop, credentials) {
+  return credentials === 'same-origin' && typeof globalThis.document !== 'undefined' &&
+    url.origin === globalThis.location?.origin && /^[a-z0-9-]{2,48}$/.test(shop ?? '');
+}
+
 export function buyerSessionHeaders(url, shop, credentials, headers) {
-  if (credentials !== 'same-origin' || url.origin !== globalThis.location?.origin ||
-      !/^[a-z0-9-]{2,48}$/.test(shop ?? '') || !url.pathname.startsWith('/store-api/')) {
+  if (!isBuyerBrowserOrigin(url, shop, credentials) || !url.pathname.startsWith('/store-api/')) {
     return;
   }
   const token = headers.get('x-customer-token');
