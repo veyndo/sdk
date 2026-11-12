@@ -62,6 +62,46 @@ test('payment status and return reconciliation preserve the original buyer and c
   await assert.rejects(payment.reconcile(status.id, input, access), { kind: 'protocol', outcomeUnknown: true });
 });
 
+test('invoice instructions distinguish pending, available and unsupported without changing payment state', async () => {
+  const access = { cartToken: 'original-cart', customerToken: 'buyer-token', signal: new AbortController().signal };
+  const amount = { amountMinor: 2490, currency: 'EUR', currencyScale: 2, simulated: true };
+  const instructions = { kind: 'bank_transfer', paymentReference: 'RAC-123',
+    iban: 'DE89370400440532013000', bic: 'DEUTDEFFXXX', bankName: 'Fixture bank', accountHolderName: 'Fixture recipient' };
+  const pending = { ...amount, status: 'pending', instructions: null };
+  const available = { ...amount, status: 'available', instructions };
+  let response = { status: 'unsupported', instructions: null };
+  let calls = 0;
+  const { payment } = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external',
+    fetch: async (url, request) => {
+      calls++;
+      assert.equal(url.pathname, '/store-api/payments/attempt-1/instructions');
+      assert.equal(request.method, 'GET');
+      assert.equal(request.headers.get('x-tenant'), 'demo');
+      assert.equal(request.headers.get('sw-sales-channel-id'), 'external');
+      assert.equal(request.headers.get('sw-context-token'), access.cartToken);
+      assert.equal(request.headers.get('x-customer-token'), access.customerToken);
+      return Response.json(response);
+    },
+  });
+  await assert.rejects(payment.instructions('../attempt-1', access), TypeError);
+  await assert.rejects(payment.instructions('attempt-1', {}), TypeError);
+  assert.equal(calls, 0);
+  assert.deepEqual(await payment.instructions('attempt-1', access), response);
+  response = pending;
+  assert.deepEqual(await payment.instructions('attempt-1', access), pending);
+  response = { ...available, instructions: { ...instructions, internal: 'omit this' } };
+  assert.deepEqual(await payment.instructions('attempt-1', access), available);
+  for (const invalid of [
+    { ...available, instructions: null }, { ...pending, instructions },
+    { ...available, amountMinor: Number.MAX_SAFE_INTEGER + 1 },
+    { ...available, instructions: { ...instructions, paymentReference: ' ' } },
+  ]) {
+    response = invalid;
+    await assert.rejects(payment.instructions('attempt-1', access), { kind: 'protocol', outcomeUnknown: false });
+  }
+});
+
 test('address choices join channel countries with localized regions and retain method candidates', async () => {
   const availability = {
     countries: ['US', 'DE'], mainLocale: 'en-GB', shipping: [{ id: 'standard' }], payments: [{ id: 'demo-card' }],

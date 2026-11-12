@@ -299,9 +299,32 @@ export interface CheckoutPaymentJob {
   queued: true;
 }
 
+export interface CheckoutBankTransferInstructions {
+  kind: 'bank_transfer';
+  paymentReference: string;
+  iban: string;
+  bic: string;
+  bankName: string;
+  accountHolderName: string;
+}
+
+interface CheckoutInstructionAmount {
+  amountMinor: number;
+  currency: string;
+  currencyScale: number;
+  simulated: boolean;
+}
+
+export type CheckoutPaymentInstructions =
+  | { status: 'unsupported'; instructions: null }
+  | (CheckoutInstructionAmount & { status: 'pending'; instructions: null })
+  | (CheckoutInstructionAmount & { status: 'available'; instructions: CheckoutBankTransferInstructions });
+
 export interface CheckoutPaymentClient {
   /** Read provider state using the attempt ID and original cart token. */
   status(attemptId: string, access: CartAccess): Promise<CheckoutPaymentStatus>;
+  /** Read recipient instructions for the original cart. This does not settle the payment. */
+  instructions(attemptId: string, access: CartAccess): Promise<CheckoutPaymentInstructions>;
   /** Queue a provider check after buyer approval. It may capture an approved payment. */
   reconcile(attemptId: string, input: { requestKey: string }, access: CartAccess): Promise<CheckoutPaymentJob>;
 }

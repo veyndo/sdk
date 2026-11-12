@@ -51,6 +51,32 @@ function validApprovalUrl(value) {
   return url?.protocol === 'https:' && !url.username && !url.password;
 }
 
+function validMinorAmount(value) {
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
+function validCurrency(value) {
+  return typeof value === 'string' && /^[A-Z]{3}$/.test(value);
+}
+
+function paymentInstructions(result) {
+  const { status, instructions } = result ?? {};
+  if (status === 'unsupported' && instructions === null) return { status, instructions };
+  const { amountMinor, currency, currencyScale, simulated } = result ?? {};
+  if (validMinorAmount(amountMinor) && validCurrency(currency) && validMinorAmount(currencyScale) &&
+      typeof simulated === 'boolean') {
+    const amount = { amountMinor, currency, currencyScale, simulated };
+    if (status === 'pending' && instructions === null) return { status, instructions, ...amount };
+    if (status === 'available' && instructions?.kind === 'bank_transfer') {
+      const { kind, paymentReference, iban, bic, bankName, accountHolderName } = instructions;
+      if ([paymentReference, iban, bic, bankName, accountHolderName].every(nonEmpty)) {
+        return { status, instructions: { kind, paymentReference, iban, bic, bankName, accountHolderName }, ...amount };
+      }
+    }
+  }
+  throw new VeyndoError('Checkout returned invalid payment instructions', { kind: 'protocol' });
+}
+
 function geographyName(names, locale, mainLocale) {
   if (!names || typeof names !== 'object') {
     throw new VeyndoError('Checkout returned an invalid country or region name', { kind: 'protocol' });
@@ -260,12 +286,18 @@ export function createCheckoutClient(options) {
         });
         if (result?.id !== attemptId || !nonEmpty(result.state) ||
             ![result.amountMinor, result.capturedMinor, result.refundedMinor, result.currencyScale]
-              .every(value => Number.isSafeInteger(value) && value >= 0) ||
-            typeof result.currency !== 'string' || !/^[A-Z]{3}$/.test(result.currency) ||
+              .every(validMinorAmount) ||
+            !validCurrency(result.currency) ||
             !validApprovalUrl(result.approvalUrl)) {
           throw new VeyndoError('Checkout returned an invalid status for this payment attempt', { kind: 'protocol' });
         }
         return result;
+      },
+      async instructions(attemptId, access) {
+        const result = await read(`${paymentPath(attemptId)}/instructions`, {
+          headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+        });
+        return paymentInstructions(result);
       },
       async reconcile(attemptId, { requestKey } = {}, access) {
         if (typeof requestKey !== 'string' || !requestKeyPattern.test(requestKey)) {
