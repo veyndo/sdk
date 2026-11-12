@@ -90,6 +90,13 @@ void checkCart;
 async function checkSelection() {
   const cart = await checkoutClient.cart.create();
   const access = { cartToken: cart.token };
+  const policy = await checkoutClient.legalPolicy();
+  const { recordedAt } = await checkoutClient.acceptTerms({
+    policyVersion: policy.policyVersion, terms: true, digitalImmediate: false,
+  }, access);
+  void recordedAt;
+  // @ts-expect-error Acknowledgement must be an explicit affirmative action.
+  await checkoutClient.acceptTerms({ policyVersion: policy.policyVersion, terms: false, digitalImmediate: false }, access);
   const options = await checkoutClient.options(access);
   const shippingPrice: number = options.shipping[0].price;
   const checkout = { country: options.countries[0], shippingMethodId: options.shipping[0].id,

@@ -82,6 +82,40 @@ export interface CheckoutAvailability {
   revision: number;
 }
 
+export type CheckoutDocument = 'privacy' | 'terms' | 'withdrawal' | 'shipping' | 'accessibility' | 'disputes';
+export type CheckoutPrivacyPurpose = 'analytics' | 'personalization' | 'externalMedia' | 'maps' | 'marketing';
+
+export interface CheckoutLegalPolicy {
+  policyVersion: string;
+  mainLocale: string;
+  locales: string[];
+  salesChannelId: string;
+  data: {
+    strictCheckout: boolean;
+    consentDays: number;
+    behaviorAnalytics: { enabled: boolean; retentionDays: number; eventsPerHour: number };
+    purposes: Partial<Record<CheckoutPrivacyPurpose, boolean>>;
+    services: Array<{ id: string; provider: string; purpose: CheckoutPrivacyPurpose;
+      description: Record<string, string>; retention: string; privacyUrl: string }>;
+    documents: Partial<Record<CheckoutDocument, Record<string, string>>>;
+    sectors: string[];
+  };
+}
+
+export interface CheckoutTermsAcceptance {
+  /** The policy version shown to the buyer. */
+  policyVersion: string;
+  /** The buyer actively accepted the displayed terms. */
+  terms: true;
+  /** The buyer separately requested immediate digital delivery, where applicable. */
+  digitalImmediate: boolean;
+}
+
+export interface CheckoutTermsReceipt extends CheckoutTermsAcceptance {
+  locale: string;
+  recordedAt: string;
+}
+
 export interface CartItem {
   id: string;
   quantity: number;
@@ -121,6 +155,8 @@ export interface StoreCart {
   lineItems: CartLine[];
   price: CartPrice;
   checkout: CheckoutSelection;
+  /** Core's acknowledgement requirements for the current cart. */
+  legal?: { strictCheckout: boolean; requiresDigital: boolean };
   selectionNeedsConfirmation?: boolean;
   availableCountries?: string[];
   availableShippingMethods?: CheckoutShippingMethod[];
@@ -239,6 +275,10 @@ export interface PreparedCheckout {
 }
 
 export interface CheckoutClient {
+  /** Read the public documents and policy version for the selected sales channel. */
+  legalPolicy(options?: CallOptions): Promise<CheckoutLegalPolicy>;
+  /** Record an explicit buyer decision on this cart. A newer policy returns HTTP 409. */
+  acceptTerms(input: CheckoutTermsAcceptance, access: CartAccess): Promise<CheckoutTermsReceipt>;
   /** List configured candidates. Core validates their country and cart eligibility on select. */
   options(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAvailability>;
   select(input: { revision: number; checkout: CheckoutSelection }, access: CartAccess): Promise<StoreCart>;
