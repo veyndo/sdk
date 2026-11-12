@@ -1,6 +1,6 @@
 {
   "name": "@veyndo/sdk",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "description": "JavaScript and TypeScript client for Veyndo Commerce component HTTP and MCP APIs",
   "type": "module",
   "engines": {

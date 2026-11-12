@@ -13,8 +13,8 @@ also have typed clients. Operations without declared results return JSON.
 
 ## Current status
 
-SDK 0.4.13 registers, signs in and signs out buyers on the shop origin.
-The Account and Checkout clients share the shop's HttpOnly buyer session.
+SDK 0.4.14 adds password changes to the buyer's HttpOnly shop session.
+The Account and Checkout clients share that session.
 The package also includes the Node and browser catalog examples.
 [Connected Shop](examples/connected-shop/README.md#generate-the-layout-with-openui)
 places a Product Guide and reviewed variant checkout in an OpenUI layout.
@@ -189,6 +189,10 @@ Use `account.session.register`, `account.session.signIn` and
 `account.session.signOut` to manage that session in your shop frontend.
 Sign-in takes the open cart token and returns the cart with a new token.
 Use the returned token for subsequent checkout calls.
+
+For signed-in buyers, `account.session.changePassword` takes the current and
+new password. The current browser receives a new session and previous sessions
+expire. [Password change](https://www.veyndo.ai/docs/merchant-operations.html#change-a-buyer-password-with-the-sdk).
 
 ### Use the Checkout relay
 

@@ -5,6 +5,10 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.14
+
+- Change a signed-in buyer's password and adopt the replacement HttpOnly session.
+
 ## 0.4.13
 
 - Register, sign in and sign out buyers with the shop's HttpOnly session.
