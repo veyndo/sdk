@@ -5,6 +5,9 @@ export type { OperationInputs, OperationName, OperationOutputs, JsonValue };
 export interface ClientOptions {
   baseUrl: string;
   shop?: string;
+  channel?: string;
+  locale?: string;
+  currency?: string;
   token?: string | (() => string | undefined | Promise<string | undefined>);
   mcpPath?: string;
   protocolVersion?: string;
@@ -53,6 +56,7 @@ export class VeyndoError extends Error {
   kind?: 'http' | 'rpc' | 'tool' | 'network' | 'timeout' | 'aborted' | 'protocol';
   status?: number;
   code?: number | string;
+  requestId?: string;
   outcomeUnknown: boolean;
 }
 export function createClient<Inputs extends object = OperationInputs, Outputs extends object = DefaultOutputs<Inputs>>(

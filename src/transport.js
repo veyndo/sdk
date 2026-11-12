@@ -2,9 +2,9 @@
 import { buyerSessionHeaders } from './buyer-session.js';
 
 export class VeyndoError extends Error {
-  constructor(message, { kind, status, code, outcomeUnknown = false, cause } = {}) {
+  constructor(message, { kind, status, code, requestId, outcomeUnknown = false, cause } = {}) {
     super(message, { cause }); this.name = 'VeyndoError';
-    Object.assign(this, { kind, status, code, outcomeUnknown });
+    Object.assign(this, { kind, status, code, requestId, outcomeUnknown });
   }
 }
 
@@ -68,6 +68,12 @@ export function transport(options, { readOnly = false, responseLimit = 16 * 1024
     const token = typeof options.token === 'function' ? await options.token() : options.token;
     if (token) headers.set('Authorization', `Bearer ${token}`);
     if (options.shop) headers.set('x-tenant', options.shop);
+    for (const [name, value] of [
+      ['sw-sales-channel-id', options.channel], ['x-commerce-locale', options.locale],
+      ['x-commerce-currency', options.currency],
+    ]) {
+      if (value !== undefined && !headers.has(name)) headers.set(name, value);
+    }
     if (buyerSession) buyerSessionHeaders(url, options.shop, options.credentials, headers);
     const pdf = responseType === 'pdf';
     const file = responseType === 'file';
@@ -85,8 +91,10 @@ export function transport(options, { readOnly = false, responseLimit = 16 * 1024
         redirect: 'error', credentials: options.credentials ?? 'omit', cache: 'no-store' });
       if (!response.ok) {
         await response.body?.cancel();
+        const id = response.headers.get('x-request-id');
+        const requestId = id && /^[A-Za-z0-9_.:-]{1,128}$/.test(id) ? id : undefined;
         throw new VeyndoError(`Request failed with HTTP ${response.status}`, {
-          kind: 'http', status: response.status, outcomeUnknown: mutating && response.status >= 500 });
+          kind: 'http', status: response.status, requestId, outcomeUnknown: mutating && response.status >= 500 });
       }
       const mime = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
       if (pdf && mime !== 'application/pdf') {

@@ -22,8 +22,8 @@ function sessionResult(result) {
   return payload;
 }
 
-export function createAccountClient({ baseUrl, shop, locale, credentials, timeoutMs, maxResponseBytes, fetch }) {
-  const request = transport({ baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch },
+export function createAccountClient({ baseUrl, shop, channel, locale, currency, credentials, timeoutMs, maxResponseBytes, fetch }) {
+  const request = transport({ baseUrl, shop, channel, locale, currency, credentials, timeoutMs, maxResponseBytes, fetch },
     { responseLimit: 20 * 1024 * 1024, buyerSession: true });
 
   function call(endpoint, { signal, customerToken } = {}, options, responseType) {

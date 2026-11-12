@@ -4,11 +4,35 @@ Build a storefront, a buyer account or a merchant tool in JavaScript or
 TypeScript. Read live catalog data, connect checkout and give your interface
 access to the same scoped operations that Veyndo exposes to apps and agents.
 
-[Install and try it](#read-the-store-api-catalog) ·
+[Install and try it](#use-veyndo-as-a-hosted-api) ·
 [Build something](#what-you-can-build) ·
 [See the interfaces](#interactive-interfaces) ·
 [Integration recipes](docs/integration-recipes.md) ·
-[Release 0.4.15](https://github.com/veyndo/sdk/releases/tag/v0.4.15)
+[Release 0.4.16](https://github.com/veyndo/sdk/releases/tag/v0.4.16)
+
+## Use Veyndo as a hosted API
+
+Install the SDK and call the public demo from Node 22 or newer.
+
+```sh
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.16/veyndo-sdk-0.4.16.tgz
+node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
+```
+
+```js
+import { createHostedShop } from '@veyndo/sdk/hosted';
+
+const { catalog, checkout } = createHostedShop({
+  shop: 'lumen-story-lab-15-o-98aa4751fa',
+  locale: 'en-GB',
+});
+const { elements } = await catalog.list({ limit: 3 });
+console.log(elements.map(product => product.name));
+console.log((await checkout.options()).payments.map(method => method.name));
+```
+
+The client uses the hosted API origin with one shop scope for catalog, checkout,
+buyer account and MCP. [Connect your own shop, use a key, or set an API origin](docs/hosted-api.md).
 
 ## Read the Store API catalog
 
@@ -17,7 +41,7 @@ demo. The example reads a product, its price and the next catalog page. It
 works without an API key.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.15/veyndo-sdk-0.4.15.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.16/veyndo-sdk-0.4.16.tgz
 node node_modules/@veyndo/sdk/examples/store-catalog.mjs
 ```
 
