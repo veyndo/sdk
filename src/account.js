@@ -14,7 +14,7 @@ function idSegment(id, resource) {
 
 export function createAccountClient({ baseUrl, shop, locale, credentials, timeoutMs, maxResponseBytes, fetch }) {
   const request = transport({ baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch },
-    { responseLimit: 20 * 1024 * 1024 });
+    { responseLimit: 20 * 1024 * 1024, buyerSession: true });
 
   function call(endpoint, { signal, customerToken } = {}, options, responseType) {
     const headers = new Headers();
