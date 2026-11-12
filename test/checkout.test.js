@@ -12,6 +12,56 @@ const order = {
   orderState: 'open', paymentState: 'paid', currency: 'EUR', totalMinor: '2490',
 };
 
+test('payment status and return reconciliation preserve the original buyer and cart scope', async () => {
+  const access = { cartToken: 'original-cart', customerToken: 'buyer-token' };
+  const status = {
+    id: 'attempt-1', state: 'ready', checkout: 'redirect', currency: 'EUR', currencyScale: 2,
+    amountMinor: 2490, capturedMinor: 0, refundedMinor: 0, approvalUrl: 'https://www.sandbox.paypal.com/checkout',
+  };
+  const job = { queued: true, jobId: 'job-1' };
+  const calls = [];
+  let result = status;
+  const { payment } = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external',
+    fetch: async (url, request) => {
+      calls.push({ path: url.pathname, method: request.method, body: request.body });
+      assert.equal(request.headers.get('x-tenant'), 'demo');
+      assert.equal(request.headers.get('sw-sales-channel-id'), 'external');
+      assert.equal(request.headers.get('sw-context-token'), access.cartToken);
+      assert.equal(request.headers.get('x-customer-token'), access.customerToken);
+      assert.equal(request.headers.get('authorization'), null);
+      return Response.json(result);
+    },
+  });
+  await assert.rejects(payment.status('../attempt-1', access), TypeError);
+  await assert.rejects(payment.status(status.id, {}), TypeError);
+  await assert.rejects(payment.reconcile(status.id, { requestKey: 'short' }, access), TypeError);
+  assert.equal(calls.length, 0);
+
+  assert.deepEqual(await payment.status(status.id, access), status);
+  assert.equal(calls[0].path, '/store-api/payments/attempt-1');
+  assert.equal(calls[0].method, 'GET');
+  for (const invalid of [
+    { id: 'other-attempt' }, { approvalUrl: 'javascript:void(0)' },
+    { approvalUrl: 'https://buyer:secret@example.test' }, { amountMinor: Number.MAX_SAFE_INTEGER + 1 },
+  ]) {
+    result = { ...status, ...invalid };
+    await assert.rejects(payment.status(status.id, access), { kind: 'protocol', outcomeUnknown: false });
+  }
+
+  const input = { requestKey: 'attempt-1:return' };
+  result = job;
+  assert.deepEqual(await payment.reconcile(status.id, input, access), job);
+  assert.deepEqual(await payment.reconcile(status.id, input, access), job);
+  for (const call of calls.slice(-2)) {
+    assert.equal(call.path, '/store-api/payments/attempt-1/reconcile');
+    assert.equal(call.method, 'POST');
+    assert.deepEqual(JSON.parse(call.body), input);
+  }
+  result = { ...job, queued: false };
+  await assert.rejects(payment.reconcile(status.id, input, access), { kind: 'protocol', outcomeUnknown: true });
+});
+
 test('address choices join channel countries with localized regions and retain method candidates', async () => {
   const availability = {
     countries: ['US', 'DE'], mainLocale: 'en-GB', shipping: [{ id: 'standard' }], payments: [{ id: 'demo-card' }],

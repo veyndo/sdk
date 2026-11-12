@@ -8,6 +8,12 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.23
+
+- Read the buyer's provider payment with `checkout.payment.status()`.
+- Use `checkout.payment.reconcile()` after provider approval with the original
+  cart scope and a stable request key.
+
 ## 0.4.22
 
 - Add `checkout.addressOptions()` for localized checkout countries and

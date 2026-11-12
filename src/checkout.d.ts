@@ -273,6 +273,39 @@ export interface CheckoutReceiptLookup {
   customerId: string;
 }
 
+export interface CheckoutPaymentStatus {
+  id: string;
+  provider: string;
+  environment: string;
+  state: string;
+  checkout: string | null;
+  intent: string | null;
+  approvalUrl: string | null;
+  amountMinor: number;
+  capturedMinor: number;
+  refundedMinor: number;
+  currency: string;
+  currencyScale: number;
+  captureClosed: boolean;
+  revision: number;
+  job: { id: string; operation: string; state: string } | null;
+  savedPaymentMethodStatus: string | null;
+  instructionsAvailable: boolean;
+  realMoneyCharged: boolean;
+}
+
+export interface CheckoutPaymentJob {
+  jobId: string;
+  queued: true;
+}
+
+export interface CheckoutPaymentClient {
+  /** Read provider state using the attempt ID and original cart token. */
+  status(attemptId: string, access: CartAccess): Promise<CheckoutPaymentStatus>;
+  /** Queue a provider check after buyer approval. It may capture an approved payment. */
+  reconcile(attemptId: string, input: { requestKey: string }, access: CartAccess): Promise<CheckoutPaymentJob>;
+}
+
 export interface CheckoutPrepareOptions extends CheckoutBuyer {
   /** Keep the same key when retrying preparation of the same reviewed cart. */
   requestKey: string;
@@ -298,6 +331,7 @@ export interface CheckoutClient {
   addressOptions(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAddressOptions>;
   select(input: { revision: number; checkout: CheckoutSelection }, access: CartAccess): Promise<StoreCart>;
   cart: StoreCartClient;
+  payment: CheckoutPaymentClient;
   create(input: CheckoutCreate, buyer?: CheckoutBuyer): Promise<CheckoutSession>;
   /** Prepare a draft from a reviewed signed-in buyer cart on the relay. */
   prepare(cart: StoreCart, options: CheckoutPrepareOptions): Promise<PreparedCheckout>;

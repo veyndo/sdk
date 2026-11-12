@@ -230,6 +230,14 @@ async function checkPreparedCheckout(cart: import('@veyndo/sdk/checkout').StoreC
   await hosted.checkout.confirm(draft.confirmation, { cartToken: cart.token });
   await hosted.checkout.confirm({ ...draft.confirmation, confirmed: true }, { cartToken: cart.token });
   await hosted.checkout.receipt(draft.receiptLookup);
+  const access = { cartToken: cart.token };
+  const status = await hosted.checkout.payment.status('attempt-1', access);
+  const amountMinor: number = status.capturedMinor;
+  const job = await hosted.checkout.payment.reconcile(status.id, { requestKey: 'stable-return-key' }, access);
+  const jobId: string = job.jobId;
+  void [amountMinor, jobId];
+  // @ts-expect-error The original cart token is required to read payment state.
+  await hosted.checkout.payment.status('attempt-1', {});
   void total;
 }
 void checkPreparedCheckout;
