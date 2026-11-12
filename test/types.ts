@@ -90,6 +90,10 @@ void checkCart;
 async function checkSelection() {
   const cart = await checkoutClient.cart.create();
   const access = { cartToken: cart.token };
+  const addressOptions = await checkoutClient.addressOptions(access);
+  const regionCode: string | undefined = addressOptions.countries[0].regions[0]?.code;
+  const shippingMethodId: string = addressOptions.shipping[0].id;
+  void [regionCode, shippingMethodId];
   const policy = await checkoutClient.legalPolicy();
   const { recordedAt } = await checkoutClient.acceptTerms({
     policyVersion: policy.policyVersion, terms: true, digitalImmediate: false,

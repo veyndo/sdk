@@ -36,6 +36,15 @@ function nonEmpty(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function geographyName(names, locale, mainLocale) {
+  if (!names || typeof names !== 'object') {
+    throw new VeyndoError('Checkout returned an invalid country or region name', { kind: 'protocol' });
+  }
+  const preferred = [locale, locale.split('-')[0], mainLocale, mainLocale.split('-')[0], 'en'];
+  const key = preferred.find(candidate => Object.hasOwn(names, candidate) && nonEmpty(names[candidate]));
+  return key === undefined ? Object.values(names).find(nonEmpty) ?? '' : names[key];
+}
+
 function validPreparedSession(session, context) {
   const result = session?.context;
   return nonEmpty(session?.id) && Number.isSafeInteger(session.revision) &&
@@ -61,6 +70,40 @@ export function createCheckoutClient(options) {
   const scopeHeaders = Object.fromEntries(scope);
   const scopedHeaders = buyerHeaders => ({ ...scopeHeaders, ...buyerHeaders });
   const cart = '/store-api/checkout/cart';
+
+  function checkoutOptions(access = {}) {
+    const buyerHeaders = access.cartToken === undefined ? headers(access) : cartHeaders(access);
+    return read('/store-api/checkout/options', { headers: scopedHeaders(buyerHeaders), signal: access.signal });
+  }
+
+  async function addressOptions(access = {}) {
+    const [available, catalogue] = await Promise.all([
+      checkoutOptions(access),
+      read('/store-api/countries', { headers: scopeHeaders, signal: access.signal }),
+    ]);
+    if (!Array.isArray(available?.countries) || !Array.isArray(catalogue?.countries) ||
+        !nonEmpty(available.mainLocale)) {
+      throw new VeyndoError('Checkout returned an invalid country catalogue', { kind: 'protocol' });
+    }
+    const mainLocale = available.mainLocale;
+    const displayLocale = locale ?? mainLocale;
+    const byCode = new Map(catalogue.countries.map(country => [country?.code, country]));
+    const countries = available.countries.map(code => {
+      const country = byCode.get(code);
+      if (!country || !country.name || !Array.isArray(country.states)) {
+        throw new VeyndoError('A checkout country is missing from the address catalogue', { kind: 'protocol' });
+      }
+      return {
+        code,
+        label: geographyName(country.name, displayLocale, mainLocale),
+        requiresRegion: country.states.length > 0,
+        regions: country.states.map(region => ({
+          code: region.code, label: geographyName(region.name, displayLocale, mainLocale),
+        })),
+      };
+    });
+    return { ...available, countries };
+  }
 
   function reprice(path, body, access) {
     if (!Number.isSafeInteger(body.revision) || body.revision < 0) {
@@ -138,10 +181,8 @@ export function createCheckoutClient(options) {
       }
       return result;
     },
-    options(access = {}) {
-      const buyerHeaders = access.cartToken === undefined ? headers(access) : cartHeaders(access);
-      return read('/store-api/checkout/options', { headers: scopedHeaders(buyerHeaders), signal: access.signal });
-    },
+    options: checkoutOptions,
+    addressOptions,
     select(input, access) {
       const selection = input?.checkout;
       if (!Number.isSafeInteger(input?.revision) || input.revision < 0 ||

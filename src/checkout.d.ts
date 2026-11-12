@@ -82,6 +82,19 @@ export interface CheckoutAvailability {
   revision: number;
 }
 
+export interface CheckoutAddressCountry {
+  /** Use as CheckoutAddress.country. */
+  code: string;
+  label: string;
+  requiresRegion: boolean;
+  /** Send the selected code as CheckoutAddress.countryStateId. */
+  regions: Array<{ code: string; label: string }>;
+}
+
+export interface CheckoutAddressOptions extends Omit<CheckoutAvailability, 'countries'> {
+  countries: CheckoutAddressCountry[];
+}
+
 export type CheckoutDocument = 'privacy' | 'terms' | 'withdrawal' | 'shipping' | 'accessibility' | 'disputes';
 export type CheckoutPrivacyPurpose = 'analytics' | 'personalization' | 'externalMedia' | 'maps' | 'marketing';
 
@@ -281,6 +294,8 @@ export interface CheckoutClient {
   acceptTerms(input: CheckoutTermsAcceptance, access: CartAccess): Promise<CheckoutTermsReceipt>;
   /** List configured candidates. Core validates their country and cart eligibility on select. */
   options(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAvailability>;
+  /** Localized country and region choices with shipping and payment candidates. */
+  addressOptions(access?: CheckoutBuyer & { cartToken?: string }): Promise<CheckoutAddressOptions>;
   select(input: { revision: number; checkout: CheckoutSelection }, access: CartAccess): Promise<StoreCart>;
   cart: StoreCartClient;
   create(input: CheckoutCreate, buyer?: CheckoutBuyer): Promise<CheckoutSession>;

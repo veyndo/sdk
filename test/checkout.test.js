@@ -12,6 +12,43 @@ const order = {
   orderState: 'open', paymentState: 'paid', currency: 'EUR', totalMinor: '2490',
 };
 
+test('address choices join channel countries with localized regions and retain method candidates', async () => {
+  const availability = {
+    countries: ['US', 'DE'], mainLocale: 'en-GB', shipping: [{ id: 'standard' }], payments: [{ id: 'demo-card' }],
+  };
+  const catalogue = { countries: [
+    { code: 'DE', name: { 'de-DE': 'Deutschland', en: 'Germany' }, states: [] },
+    { code: 'CH', name: { de: 'Schweiz' }, states: [] },
+    { code: 'US', name: { de: 'Vereinigte Staaten' }, states: [
+      { code: 'US-CA', name: { 'en-GB': 'California', en: 'Other translation' } },
+    ] },
+  ] };
+  const requests = [];
+  const { addressOptions } = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external', locale: 'de-DE',
+    fetch: async (url, request) => {
+      requests.push(url.pathname);
+      const isCheckoutOptions = url.pathname === '/store-api/checkout/options';
+      assert.equal(request.method, 'GET');
+      assert.equal(request.headers.get('x-tenant'), 'demo');
+      assert.equal(request.headers.get('sw-sales-channel-id'), 'external');
+      assert.equal(request.headers.get('x-commerce-locale'), 'de-DE');
+      assert.equal(request.headers.get('sw-context-token'), isCheckoutOptions ? 'cart-token' : null);
+      assert.equal(request.headers.get('x-customer-token'), isCheckoutOptions ? 'buyer-token' : null);
+      return Response.json(isCheckoutOptions ? availability : catalogue);
+    },
+  });
+  const access = { cartToken: 'cart-token', customerToken: 'buyer-token' };
+  assert.deepEqual(await addressOptions(access), { ...availability, countries: [
+    { code: 'US', label: 'Vereinigte Staaten', requiresRegion: true,
+      regions: [{ code: 'US-CA', label: 'California' }] },
+    { code: 'DE', label: 'Deutschland', requiresRegion: false, regions: [] },
+  ] });
+  assert.deepEqual(requests.sort(), ['/store-api/checkout/options', '/store-api/countries']);
+  availability.countries = ['ZZ'];
+  await assert.rejects(addressOptions(access), { kind: 'protocol' });
+});
+
 test('checkout records an explicit decision for the displayed policy in the same cart scope', async () => {
   const policyVersion = 'a'.repeat(64);
   const terms = { policyVersion, terms: true, digitalImmediate: false };

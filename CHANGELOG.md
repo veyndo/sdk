@@ -8,6 +8,13 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.22
+
+- Add `checkout.addressOptions()` for localized checkout countries and
+  regions, with the existing shipping and payment candidates.
+- Use the shop's own geography definitions and the sales channel's available
+  country codes. Return each region's code for `countryStateId`.
+
 ## 0.4.21
 
 - Add `checkout.legalPolicy()` and `checkout.acceptTerms()` for custom checkout
