@@ -8,14 +8,14 @@ access to the same scoped operations that Veyndo exposes to apps and agents.
 [Build something](#what-you-can-build) ·
 [See the interfaces](#interactive-interfaces) ·
 [Integration recipes](docs/integration-recipes.md) ·
-[Release 0.4.19](https://github.com/veyndo/sdk/releases/tag/v0.4.19)
+[Release 0.4.20](https://github.com/veyndo/sdk/releases/tag/v0.4.20)
 
 ## Use Veyndo as a hosted API
 
 Install the SDK and call the public demo from Node 22 or newer.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.19/veyndo-sdk-0.4.19.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.20/veyndo-sdk-0.4.20.tgz
 node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 
@@ -41,7 +41,7 @@ demo. The example reads a product, its price and the next catalog page. It
 works without an API key.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.19/veyndo-sdk-0.4.19.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.20/veyndo-sdk-0.4.20.tgz
 node node_modules/@veyndo/sdk/examples/store-catalog.mjs
 ```
 
@@ -71,7 +71,7 @@ local address to search, paginate and open products in a browser.
 
 | I want to build… | Use | Start with |
 | --- | --- | --- |
-| A custom storefront or product browser | `@veyndo/sdk/catalog` | [Read products, variants, prices and availability](examples/store-catalog.mjs) |
+| A custom storefront or product browser | `@veyndo/sdk/catalog` | [Load languages, currencies and category navigation](docs/hosted-api.md#build-your-storefront-navigation) · [Read products, variants, prices and availability](examples/store-catalog.mjs) |
 | A checkout on my own storefront | `@veyndo/sdk/checkout` | [Coupons and currency](docs/integration-recipes.md#apply-coupon-codes-and-switch-currency) · [Review, buy and recover the receipt](docs/integration-recipes.md#use-the-checkout-relay) |
 | A buyer account | `@veyndo/sdk/account` | [Sign in from your backend](docs/integration-recipes.md#sign-in-buyers-from-your-backend) · [Manage addresses, read orders and download receipts](docs/integration-recipes.md#read-the-buyers-order-history) |
 | A product guide or an interactive merchant tool in chat | HTTP/MCP client and MCP App resources | [Discover a tool, read its UI resource and handle interaction](docs/mcp-apps.md) |

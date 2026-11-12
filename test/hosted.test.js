@@ -28,6 +28,8 @@ test('hosted shop shares context while keeping the merchant key out of shopper c
   });
   assert.deepEqual(await shop.describe(), profile);
   await shop.catalog.list({ limit: 1 });
+  await shop.catalog.context();
+  await shop.catalog.navigation();
   await shop.checkout.options();
   await shop.account.orders.list(undefined, { customerToken: 'buyer' });
   await shop.mcp.tools();
@@ -42,9 +44,13 @@ test('hosted shop shares context while keeping the merchant key out of shopper c
     assert.equal(headers.get('x-commerce-currency'), 'EUR');
     if (path !== '/mcp') assert.equal(headers.get('authorization'), null);
   }
-  assert.equal(seen[3][1].get('x-customer-token'), 'buyer');
-  assert.equal(seen[4][1].get('authorization'), 'Bearer merchant-first');
-  assert.equal(seen[5][1].get('authorization'), 'Bearer merchant-second');
+  assert.deepEqual(seen.map(([path]) => path), [
+    '/.well-known/veyndo', '/store-api/product', '/store-api/context', '/store-api/navigation',
+    '/store-api/checkout/options', '/store-api/account/orders', '/mcp', '/mcp',
+  ]);
+  assert.equal(seen[5][1].get('x-customer-token'), 'buyer');
+  assert.equal(seen[6][1].get('authorization'), 'Bearer merchant-first');
+  assert.equal(seen[7][1].get('authorization'), 'Bearer merchant-second');
 });
 
 test('validates shop and profile, and reports the server request ID on failure', async () => {

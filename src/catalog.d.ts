@@ -38,6 +38,35 @@ export interface CatalogCurrencyContext {
   rateDate: string | null;
 }
 
+export interface CatalogContext {
+  locale: string;
+  mainLocale: string;
+  languageIdChain: string[];
+  availableLocales: string[];
+  currency: string;
+  currencyContext: CatalogCurrencyContext;
+  currencies: string[];
+  taxStates: Array<'gross' | 'net'>;
+}
+
+export interface CatalogCategory {
+  id: string;
+  /** The configured navigation root can have a parent outside the visible result. */
+  parentId: string | null;
+  name: string | null;
+  description: string | null;
+  slug: string | null;
+  type: 'page' | 'folder' | 'structuring' | 'link';
+  url: string | null;
+  position: number;
+}
+
+export interface CatalogNavigation {
+  locale: string;
+  /** Visible categories in server order, represented as a flat list. */
+  elements: CatalogCategory[];
+}
+
 export interface CatalogProduct {
   id: string;
   product_number: string;
@@ -91,6 +120,10 @@ export interface CatalogDetail {
 }
 
 export interface CatalogClient {
+  /** Resolve the storefront language and currencies for this shop scope. */
+  context(options?: CallOptions): Promise<CatalogContext>;
+  /** List localized categories for the configured sales channel. */
+  navigation(options?: CallOptions): Promise<CatalogNavigation>;
   list(criteria?: CatalogCriteria, options?: CallOptions): Promise<CatalogPage>;
   detail(id: string, paging?: CatalogPaging, options?: CallOptions): Promise<CatalogDetail>;
 }

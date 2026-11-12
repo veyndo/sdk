@@ -105,6 +105,12 @@ async function checkSelection() {
 void checkSelection;
 const catalog = createCatalogClient({ baseUrl: 'https://shop.example', shop: 'demo', locale: 'de-DE' });
 async function checkCatalog() {
+  const context = await catalog.context();
+  const locale: string = context.locale;
+  const navigation = await catalog.navigation({ signal: new AbortController().signal });
+  const categoryId: string = navigation.elements[0].id;
+  await catalog.list({ categoryId });
+  void locale;
   const page = await catalog.list({ limit: 1, search: 'lamp' });
   if (page.nextCursor) await catalog.list({ after: page.nextCursor });
   const item = page.elements[0];

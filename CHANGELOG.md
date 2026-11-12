@@ -8,6 +8,13 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.20
+
+- Add typed storefront context and localized category navigation to the
+  catalog client. Use category IDs from navigation to filter product listings.
+- Show the resolved locale, available currencies and category hierarchy in
+  the hosted quickstart.
+
 ## 0.4.19
 
 - Add `checkout.cart.setCoupons` and `checkout.cart.setCurrency`. Both return

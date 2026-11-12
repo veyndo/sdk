@@ -10,11 +10,16 @@ const shop = createHostedShop({
 });
 
 try {
-  const profile = await shop.describe();
-  const { elements, currencyContext, nextCursor } = await shop.catalog.list({ limit: 3 });
+  const [profile, context, navigation, page] = await Promise.all([
+    shop.describe(), shop.catalog.context(), shop.catalog.navigation(), shop.catalog.list({ limit: 3 }),
+  ]);
   console.log(`${profile.name} · ${shop.baseUrl} · ${shop.shop}`);
-  console.table(elements.map(({ id, name, price }) => ({ id, name, price, currency: currencyContext.code })));
-  if (nextCursor) console.log('Next page:', nextCursor);
+  console.log(`Storefront: ${context.locale} · ${context.currency}`);
+  console.log('Languages:', context.availableLocales.join(', '));
+  console.log('Currencies:', context.currencies.join(', '));
+  console.table(navigation.elements.map(({ id, parentId, name, type }) => ({ id, parentId, name, type })));
+  console.table(page.elements.map(({ id, name, price }) => ({ id, name, price, currency: page.currencyContext.code })));
+  if (page.nextCursor) console.log('Next page:', page.nextCursor);
   await shop.mcp.initialize();
   const { tools } = await shop.mcp.tools();
   console.log(`${tools.length} MCP tools available for this scope.`);
