@@ -79,7 +79,7 @@ test('a lost confirmation reads the original receipt and never submits a second 
   const writes = [];
   const state = {
     customerId: 'buyer-1', customerToken: 'fixture',
-    review: { id: 'session-1', cartId: 'cart-1', cartToken: 'cart-token',
+    review: { receiptLookup: { sessionId: 'session-1', cartId: 'cart-1', customerId: 'buyer-1' }, cartToken: 'cart-token',
       confirmation: { id: 'session-1', confirmed: true, totalMinor: '2490' },
       summary: { reviewKey: 'review-1', item: { id: 'graphite', label: 'Graphite' }, currency: 'EUR', totalMinor: '2490' } },
   };
@@ -119,6 +119,7 @@ test('variant reviews use current family stock and only the latest quote can be 
     if (path.endsWith('/cart')) {
       assert.deepEqual(body, { revision: 1, review, items: [{ id: selected, quantity: 1 }] });
       return { id: 'cart-' + selected, token: 'cart-token', revision: 2, locale: 'en-GB',
+        status: 'open', customerId: 'buyer', lineItems: [{ id: selected }],
         checkout: { paymentMethodId: 'demo-card', country: 'DE' },
         checkoutService: { transport: 'same-origin', legalPolicyVersion: 'demo' },
         shippingCosts: { totalPrice: 0 },
@@ -127,7 +128,8 @@ test('variant reviews use current family stock and only the latest quote can be 
     }
     if (path.endsWith('/create')) {
       assert.equal(body.context.cart.revision, 2);
-      return { id: 'session-' + selected, revision: 1 };
+      return { id: 'session-' + selected, revision: 1, context: body.context, state: 'draft',
+        commerceValidated: false, expiresAt: '2026-11-12T16:00:00Z' };
     }
     assert.ok(path.endsWith('/confirm'));
     return { sessionId: body.id, orderId: 'order', orderNumber: 'RAC-2',

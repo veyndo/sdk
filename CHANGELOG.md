@@ -8,6 +8,13 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.17
+
+- Add `checkout.prepare(cart, options)` to build a draft, confirmation input
+  and original receipt lookup from the signed-in buyer's reviewed cart.
+- Use the same helper in Connected Shop and document the explicit confirmation
+  and lost-response flow.
+
 ## 0.4.16
 
 - Add `@veyndo/sdk/hosted` with one shop context for Catalog, Checkout, Account

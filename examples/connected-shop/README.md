@@ -8,7 +8,7 @@ so it runs without a model API key.
 ## Run it
 
 Use an isolated loopback Veyndo demo shop with independent Checkout enabled
-through Core's same origin Store API. Follow the [private Checkout setup](https://www.veyndo.ai/docs/checkout-component.html#route-a-test-shop-through-private-checkout).
+through Core's same origin Store API. The example uses `checkout.prepare` for the draft and recovers the same order if the confirmation response is lost. Follow the [private Checkout setup](https://www.veyndo.ai/docs/checkout-component.html#route-a-test-shop-through-private-checkout).
 Enable the demo card and EUR for the default sales channel. Use a product with
 stock, such as `mug` from the furniture fixture. To try the variant picker,
 use a parent product with two active variants at different prices. The example
@@ -69,7 +69,7 @@ parent product while the checkout uses the selected variant ID.
 | `commerce.mjs` | Read the family with the catalog client. Preview and apply the variant basket, create a Checkout session and confirm only the current offer. |
 | `server.mjs` | Hold buyer and cart credentials, limit requests to this browser origin, and serve the guide with network access disabled. |
 
-The SDK is pinned to the [0.4.6 release archive](https://github.com/veyndo/sdk/releases/tag/v0.4.6).
+The example installs the SDK directly from this checkout. Clone the SDK repository before running it.
 The Node host uses `@veyndo/sdk/catalog` for product detail and
 `@veyndo/sdk/checkout` for cart review, confirmation and recovery. It uses
 the base client for demo buyer setup and MCP discovery. Checkout calls Core for

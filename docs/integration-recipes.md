@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.16/veyndo-sdk-0.4.16.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.17/veyndo-sdk-0.4.17.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -186,15 +186,32 @@ revision. Show the buyer the price and delivery estimate returned by Core
 before confirming the purchase.
 [Shipping and payment walkthrough](https://www.veyndo.ai/docs/checkout-component.html#choose-shipping-and-payment-from-the-sdk).
 
-Create a session from the current native cart, then call
-`confirm` with the exact reviewed amount in minor units, country, payment
-method and legal policy version. Pass the buyer's current cart token on
-confirmation. A same origin browser can use its existing session cookie.
+For a signed-in buyer on a shop using the Checkout relay, pass the current
+cart returned by Core to `checkout.prepare`. The SDK prepares the session,
+the exact confirmation payload and the lookup for the original receipt.
+Render the selected items, total, delivery estimate and terms from the cart.
+Store the request key per reviewed cart revision so an interrupted preparation
+can repeat with the same key and input.
 
-If confirmation fails with `outcomeUnknown: true`, read the original
-receipt with the same session, cart and buyer IDs. The lookup requires
-the current buyer identity and does not submit a purchase.
-[Checkout walkthrough](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
+```ts
+const access = { cartToken, customerToken };
+const cart = await checkout.cart.read(access);
+const draft = await checkout.prepare(cart, { requestKey, customerToken });
+
+// In the buyer's confirmation handler, after showing the reviewed quote:
+const order = await checkout.confirm({ ...draft.confirmation, confirmed: true }, access);
+console.log(order.orderNumber);
+```
+
+On HTTP 409, reload the cart and show the changed quote. If confirmation fails
+with `outcomeUnknown: true`, use
+`checkout.receipt(draft.receiptLookup, { customerToken })` with the original
+IDs. An HTTP 404 during this lookup can mean the receipt is still pending.
+Keep those IDs and check again without submitting another purchase. A
+same-origin shop frontend can use the existing browser session instead of
+passing a customer token.
+[Connected Shop example](../examples/connected-shop/README.md) ·
+[Checkout component](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
 
 ### Read the buyer's order history
 
@@ -224,8 +241,8 @@ Pass the selected address ID to Checkout as `shippingAddressId` or
 
 [Read and render a Veyndo MCP App in your own host](mcp-apps.md).
 The [Connected Shop example](../examples/connected-shop/README.md) runs that
-card beside the typed catalog and Checkout clients. It pins SDK 0.4.6
-and uses Core's cart preview before confirming a simulated variant purchase.
+card beside the typed catalog and Checkout clients. It uses the SDK source in this repository
+and Core's cart preview before confirming a simulated variant purchase.
 The example negotiates the extension, discovers the installed view and reads
 its HTML resource and full tool result.
 

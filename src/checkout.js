@@ -32,6 +32,19 @@ function checkedReceipt(receipt, sessionId, outcomeUnknown) {
   return receipt;
 }
 
+function nonEmpty(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function validPreparedSession(session, context) {
+  const result = session?.context;
+  return nonEmpty(session?.id) && Number.isSafeInteger(session.revision) &&
+    session.revision >= 0 && session.state === 'draft' && session.commerceValidated === false &&
+    nonEmpty(session.expiresAt) && result?.cart?.id === context.cart.id &&
+    result.cart.backend === context.cart.backend && result.cart.revision === context.cart.revision &&
+    ['salesChannel', 'environment', 'locale', 'currency', 'country'].every(key => result[key] === context[key]);
+}
+
 export function createCheckoutClient(options) {
   const { baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch, channel, locale, currency } = options;
   const settings = { baseUrl, shop, credentials, timeoutMs, maxResponseBytes, fetch };
@@ -48,6 +61,52 @@ export function createCheckoutClient(options) {
   const scopeHeaders = Object.fromEntries(scope);
   const scopedHeaders = buyerHeaders => ({ ...scopeHeaders, ...buyerHeaders });
   const cart = '/store-api/checkout/cart';
+
+  function create(input, { signal, customerToken } = {}) {
+    return write('/store-api/checkout/independent/create', {
+      method: 'POST', body: input, headers: scopedHeaders(headers({ customerToken })), signal,
+    });
+  }
+
+  async function prepare(cart, { requestKey, expiresIn = 900, signal, customerToken } = {}) {
+    if (typeof requestKey !== 'string' || !/^[A-Za-z0-9_.:-]{8,128}$/.test(requestKey) ||
+        !Number.isSafeInteger(expiresIn) || expiresIn < 60 || expiresIn > 604800) {
+      throw new TypeError('Checkout preparation requires a stable request key and a lifetime of 60–604800 seconds');
+    }
+    const country = cart?.checkout?.country;
+    const paymentMethod = cart?.checkout?.paymentMethodId;
+    const { totalMinor, currency: quotedCurrency } = cart?.price ?? {};
+    const legalPolicyVersion = cart?.checkoutService?.legalPolicyVersion;
+    if (cart?.status !== 'open' || cart.selectionNeedsConfirmation ||
+        !cart.lineItems?.length || !Number.isSafeInteger(cart.revision) || cart.revision < 0 ||
+        cart.checkoutService?.transport !== 'same-origin' ||
+        ![cart.id, cart.customerId, cart.locale, country, paymentMethod, legalPolicyVersion].every(nonEmpty) ||
+        typeof totalMinor !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(totalMinor) ||
+        typeof quotedCurrency !== 'string' || !/^[A-Z]{3}$/.test(quotedCurrency)) {
+      throw new TypeError('Prepare checkout from the current signed-in buyer cart with reviewed delivery, payment and legal terms');
+    }
+    const customerId = cart.customerId;
+    const context = {
+      cart: { backend: 'native', id: cart.id, revision: cart.revision },
+      salesChannel: channel ?? 'default', environment: 'live', locale: cart.locale,
+      currency: quotedCurrency, country,
+    };
+    const paypalSandbox = cart.checkoutService.paypalSandbox === true;
+    const session = await create({ requestKey, context, expiresIn }, { signal, customerToken });
+    if (!validPreparedSession(session, context)) {
+      throw new VeyndoError('Checkout returned a different or invalid session; recover it with the same request key', {
+        kind: 'protocol', outcomeUnknown: true,
+      });
+    }
+    return {
+      session,
+      confirmation: {
+        id: session.id, revision: session.revision, totalMinor, country, paymentMethod, legalPolicyVersion,
+        ...(paypalSandbox ? { paypalSandbox: true } : {}),
+      },
+      receiptLookup: { sessionId: session.id, cartId: context.cart.id, customerId },
+    };
+  }
 
   return Object.freeze({
     options(access = {}) {
@@ -95,11 +154,8 @@ export function createCheckoutClient(options) {
         });
       },
     }),
-    create(input, { signal, customerToken } = {}) {
-      return write('/store-api/checkout/independent/create', {
-        method: 'POST', body: input, headers: scopedHeaders(headers({ customerToken })), signal,
-      });
-    },
+    create,
+    prepare,
     async confirm(input, { signal, customerToken, cartToken }) {
       if (input.confirmed !== true || typeof cartToken !== 'string' || !cartToken.trim()) {
         throw new TypeError('Confirmation requires buyer approval and the current cart token');
