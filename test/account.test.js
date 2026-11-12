@@ -3,6 +3,65 @@ import test from 'node:test';
 import { createAccountClient } from '@veyndo/sdk/account';
 import { createCheckoutClient } from '@veyndo/sdk/checkout';
 
+test('backend buyer sessions use explicit shop, cart and buyer context without cookies', async () => {
+  const credentials = { email: 'buyer@example.test', password: 'initial' };
+  const input = { ...credentials, name: 'Buyer' };
+  const passwords = { oldPassword: 'initial', newPassword: 'replacement' };
+  const steps = [
+    ['register', input, null, null, { email: credentials.email, customerToken: 'registered' }],
+    ['login', credentials, null, 'guest-cart', { token: 'buyer-cart', customerToken: 'signed-in' }],
+    ['password', passwords, 'signed-in', null, { customerToken: 'new-token' }],
+    ['logout', {}, 'new-token', 'buyer-cart', { loggedOut: true }],
+  ];
+  const { token } = createAccountClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'headless', locale: 'de-DE',
+    credentials: 'same-origin',
+    fetch: async (url, request) => {
+      const [action, body, buyer, cart, result] = steps.shift();
+      assert.equal(url.pathname, '/store-api/account/' + action);
+      assert.equal(request.method, 'POST');
+      assert.equal(request.credentials, 'omit');
+      assert.equal(request.cache, 'no-store');
+      assert.deepEqual(JSON.parse(request.body), body);
+      for (const [header, expected] of Object.entries({
+        'x-tenant': 'demo', 'sw-sales-channel-id': 'headless', 'x-commerce-locale': 'de-DE',
+        'x-customer-token': buyer, 'sw-context-token': cart, authorization: null, cookie: null,
+        'x-veyndo-customer-session': null, 'x-veyndo-customer-csrf': null,
+      })) assert.equal(request.headers.get(header), expected);
+      return Response.json(result);
+    },
+  });
+  assert.deepEqual(await token.register(input), { email: input.email, customerToken: 'registered' });
+  const cart = await token.signIn(credentials, { cartToken: 'guest-cart' });
+  assert.deepEqual(cart, { token: 'buyer-cart', customerToken: 'signed-in' });
+  const replacement = await token.changePassword(passwords, cart);
+  assert.deepEqual(replacement, { customerToken: 'new-token' });
+  assert.deepEqual(await token.signOut({ ...replacement, cartToken: cart.token }), { loggedOut: true });
+  assert.equal(steps.length, 0);
+});
+
+test('backend buyer sessions reject browser markers, unrotated tokens and ambiguous responses', async () => {
+  let result;
+  let requests = 0;
+  const { token } = createAccountClient({
+    baseUrl: 'https://shop.example',
+    fetch: async () => { requests++; return Response.json(result); },
+  });
+  const credentials = { email: 'buyer@example.test', password: 'initial' };
+  const passwords = { oldPassword: 'initial', newPassword: 'replacement' };
+  const protocolError = { kind: 'protocol', outcomeUnknown: true };
+  await assert.rejects(token.signOut({ customerToken: 'browser-customer-session' }), TypeError);
+  await assert.rejects(token.signIn(credentials, {}), TypeError);
+  assert.equal(requests, 0);
+  result = { email: credentials.email, customerToken: 'browser-customer-session' };
+  await assert.rejects(token.register({ ...credentials, name: 'Buyer' }), protocolError);
+  result = { token: 'guest-cart', customerToken: 'valid-token' };
+  await assert.rejects(token.signIn(credentials, { cartToken: 'guest-cart' }), protocolError);
+  await assert.rejects(token.changePassword(passwords, { customerToken: 'valid-token' }), protocolError);
+  await assert.rejects(token.signOut({ customerToken: 'valid-token' }), protocolError);
+  assert.equal(requests, 4);
+});
+
 test('account and checkout use the current shop cookie proof only on the same origin', async t => {
   const original = new Map(['location', 'document'].map(key =>
     [key, Object.getOwnPropertyDescriptor(globalThis, key)]));

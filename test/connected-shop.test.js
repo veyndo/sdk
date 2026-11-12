@@ -1,7 +1,7 @@
 /** Protect the example's resource binding and its recovery path after a lost confirmation. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createClient } from '@veyndo/sdk';
+import { createAccountClient } from '@veyndo/sdk/account';
 import { createCatalogClient } from '@veyndo/sdk/catalog';
 import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from '../examples/connected-shop/commerce.mjs';
@@ -14,7 +14,7 @@ function exampleWithStoreApi(respond, productId) {
     fetch: async (url, { body }) => Response.json(await respond(url.pathname, body && JSON.parse(body))),
   };
   return checkout({
-    account: createClient(options), catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
+    account: createAccountClient(options), catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
   }, productId);
 }
 

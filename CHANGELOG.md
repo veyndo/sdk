@@ -8,6 +8,13 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.18
+
+- Add typed backend buyer registration, sign-in with cart rotation, password
+  change and sign-out under `account.token`.
+- Use the Account client in Connected Shop and document how a custom frontend
+  keeps buyer and cart tokens in its own backend session.
+
 ## 0.4.17
 
 - Add `checkout.prepare(cart, options)` to build a draft, confirmation input

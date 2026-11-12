@@ -55,11 +55,9 @@ export function checkout({ account, catalog, checkoutClient }, productId) {
       if (!item) return { kind: 'unavailable' };
       if (!state.customerToken) {
         const email = 'sdk-demo-' + randomUUID() + '@example.test';
-        const buyer = await account.request('/store-api/account/register', {
-          method: 'POST',
-          body: { email, name: address.name, password: randomUUID(), billingAddress: address, shippingAddress: address },
+        const buyer = await account.token.register({
+          email, name: address.name, password: randomUUID(), billingAddress: address, shippingAddress: address,
         });
-        if (!buyer.customerToken) throw new Error('The shop did not provide a buyer session');
         state.customerToken = buyer.customerToken;
       }
       const buyer = { customerToken: state.customerToken };

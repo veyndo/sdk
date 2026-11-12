@@ -15,6 +15,15 @@ async function checkAccount() {
   void updated;
   // @ts-expect-error Sign-in requires the open cart token.
   await accountClient.session.signIn(credentials, {});
+  const registered = await accountClient.token.register({ ...credentials, name: 'Example Buyer' });
+  await accountClient.profile.get(registered);
+  const signedInOnServer = await accountClient.token.signIn(credentials, { cartToken: 'current-cart' });
+  const replacement = await accountClient.token.changePassword({
+    oldPassword: 'previous-example', newPassword: 'new-example',
+  }, signedInOnServer);
+  await accountClient.token.signOut({ ...replacement, cartToken: signedInOnServer.token });
+  // @ts-expect-error Server-side sign-out requires a current buyer token.
+  await accountClient.token.signOut({ cartToken: signedInOnServer.token });
   const [download] = (await accountClient.downloads.list(buyer)).elements;
   const file = await accountClient.downloads.file(download.orderId, download.id, buyer);
   const bytes: Uint8Array = file.bytes;

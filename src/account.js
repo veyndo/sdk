@@ -5,6 +5,8 @@ import { isBuyerBrowserOrigin } from './buyer-session.js';
 const path = '/store-api/account/orders';
 const addresses = '/store-api/account/addresses';
 const profile = '/store-api/account/profile';
+const browserSessionMarker = 'browser-customer-session';
+const responseLimit = 20 * 1024 * 1024;
 
 function idSegment(id, resource) {
   if (typeof id !== 'string' || !id.trim() || /[/\\]/.test(id) || id === '.' || id === '..') {
@@ -14,7 +16,7 @@ function idSegment(id, resource) {
 }
 
 function sessionResult(result) {
-  if (result?.customerBrowserSession !== true || result.customerToken !== 'browser-customer-session') {
+  if (result?.customerBrowserSession !== true || result.customerToken !== browserSessionMarker) {
     throw new VeyndoError('The shop did not establish a browser buyer session',
       { kind: 'protocol', outcomeUnknown: true });
   }
@@ -22,9 +24,23 @@ function sessionResult(result) {
   return payload;
 }
 
+function isCustomerToken(value) {
+  return typeof value === 'string' && value.length > 0 && !/[^!-~]/.test(value) && value !== browserSessionMarker;
+}
+
+function issuedCustomerToken(result, previousToken) {
+  if (!isCustomerToken(result?.customerToken) || result.customerToken === previousToken ||
+      result.customerBrowserSession === true) {
+    throw new VeyndoError('The shop did not issue a new buyer token',
+      { kind: 'protocol', outcomeUnknown: true });
+  }
+  return result.customerToken;
+}
+
 export function createAccountClient({ baseUrl, shop, channel, locale, currency, credentials, timeoutMs, maxResponseBytes, fetch }) {
-  const request = transport({ baseUrl, shop, channel, locale, currency, credentials, timeoutMs, maxResponseBytes, fetch },
-    { responseLimit: 20 * 1024 * 1024, buyerSession: true });
+  const options = { baseUrl, shop, channel, locale, currency, timeoutMs, maxResponseBytes, fetch };
+  const request = transport({ ...options, credentials }, { responseLimit, buyerSession: true });
+  const tokenRequest = transport({ ...options, credentials: 'omit' }, { responseLimit });
 
   function call(endpoint, { signal, customerToken } = {}, options, responseType) {
     const headers = new Headers();
@@ -47,7 +63,55 @@ export function createAccountClient({ baseUrl, shop, channel, locale, currency, 
     return request(`/store-api/account/${action}`, { method: 'POST', headers, body, signal });
   }
 
+  function tokenAction(action, body, { signal, cartToken, customerToken } = {}) {
+    const headers = new Headers();
+    if (action === 'password' || action === 'logout') {
+      if (!isCustomerToken(customerToken)) throw new TypeError('A server-side buyer token is required');
+      headers.set('x-customer-token', customerToken);
+    }
+    if (action === 'login' || cartToken !== undefined) {
+      if (typeof cartToken !== 'string' || !cartToken.trim()) {
+        throw new TypeError('The current cart token is required');
+      }
+      headers.set('sw-context-token', cartToken);
+    }
+    return tokenRequest(`/store-api/account/${action}`, { method: 'POST', headers, body, signal });
+  }
+
   return Object.freeze({
+    token: Object.freeze({
+      async register(input, { signal } = {}) {
+        const result = await tokenAction('register', input, { signal });
+        const customerToken = issuedCustomerToken(result);
+        if (typeof result.email !== 'string' || !result.email) {
+          throw new VeyndoError('Registration returned no account email',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        return { email: result.email, customerToken };
+      },
+      async signIn(input, access) {
+        const result = await tokenAction('login', input, access);
+        const customerToken = issuedCustomerToken(result);
+        if (typeof result.token !== 'string' || !result.token || result.token === access.cartToken) {
+          throw new VeyndoError('Sign-in did not return a renewed cart token',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        const { customerBrowserSession, customerBrowserCsrf, ...cart } = result;
+        return { ...cart, customerToken };
+      },
+      async changePassword({ oldPassword, newPassword }, access) {
+        const result = await tokenAction('password', { oldPassword, newPassword }, access);
+        return { customerToken: issuedCustomerToken(result, access.customerToken) };
+      },
+      async signOut(access) {
+        const result = await tokenAction('logout', {}, access);
+        if (result?.loggedOut !== true) {
+          throw new VeyndoError('Sign-out did not return a confirmation',
+            { kind: 'protocol', outcomeUnknown: true });
+        }
+        return { loggedOut: true };
+      },
+    }),
     session: Object.freeze({
       async register(input, { signal } = {}) {
         const { email } = sessionResult(await sessionAction('register', input, { signal }));
