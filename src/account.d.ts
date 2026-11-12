@@ -36,6 +36,17 @@ export interface BuyerBrowserSession {
   signOut(options?: CallOptions & { cartToken?: string }): Promise<{ loggedOut: true }>;
 }
 
+export interface BuyerTokenSession {
+  register(input: BuyerRegistration, options?: CallOptions): Promise<{ email: string; customerToken: string }>;
+  /** Replace the guest cart token with token from the returned cart and keep customerToken on the server. */
+  signIn(input: BuyerSignIn, options: CallOptions & { cartToken: string }): Promise<StoreCart & { customerToken: string }>;
+  /** Revoke prior sessions and return the replacement buyer token. */
+  changePassword(input: { oldPassword: string; newPassword: string },
+    options: CallOptions & { customerToken: string }): Promise<{ customerToken: string }>;
+  /** Discard the buyer token and, if supplied, the cart token after logout. */
+  signOut(options: CallOptions & { customerToken: string; cartToken?: string }): Promise<{ loggedOut: true }>;
+}
+
 export interface CustomerAddress {
   id: string;
   revision: number;
@@ -174,6 +185,8 @@ export interface CustomerDownloadFile {
 export interface AccountClient {
   /** Requires a browser on baseUrl, the shop ID and credentials: 'same-origin'. */
   session: BuyerBrowserSession;
+  /** For your backend. Returns buyer credentials to store in your server-side session. */
+  token: BuyerTokenSession;
   downloads: {
     list(buyer?: AccountAccess): Promise<{ elements: CustomerDownload[] }>;
     file(orderId: string, assetId: string, buyer?: AccountAccess): Promise<CustomerDownloadFile>;

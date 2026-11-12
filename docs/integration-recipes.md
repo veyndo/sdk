@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.17/veyndo-sdk-0.4.17.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.18/veyndo-sdk-0.4.18.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -169,6 +169,46 @@ Use the returned token for subsequent checkout calls.
 For signed-in buyers, `account.session.changePassword` takes the current and
 new password. The current browser receives a new session and previous sessions
 expire. [Password change](https://www.veyndo.ai/docs/merchant-operations.html#change-a-buyer-password-with-the-sdk).
+
+### Sign in buyers from your backend
+
+Use `shop.account.token` if you host your own frontend and keep buyer sessions
+on your backend. Use the same shop, channel and locale for the cart and account.
+The backend needs the buyer's credentials and the current guest cart token.
+
+```ts
+import { createHostedShop } from '@veyndo/sdk/hosted';
+
+const { account, checkout } = createHostedShop({
+  shop: process.env.VEYNDO_SHOP,
+  locale: 'de-DE',
+});
+
+// In your backend's sign-in handler, with the credentials and cart from that session:
+const { token: cartToken, customerToken } = await account.token.signIn(
+  { email, password }, { cartToken: guestCartToken },
+);
+const buyer = await account.profile.get({ customerToken });
+const cart = await checkout.cart.read({ cartToken, customerToken });
+```
+
+Replace the guest cart token with the returned cart token as soon as sign-in
+succeeds. Store both tokens in your backend session and give your browser only
+your own secure, HttpOnly session cookie. Return the account and cart fields
+the page needs. Keep tokens and passwords out of browser responses and logs.
+
+- `account.token.register({ name, email, password })` returns a buyer token.
+  If there is already a guest cart, call `signIn` to attach it to the buyer.
+- `account.token.changePassword({ oldPassword, newPassword }, { customerToken })`
+  revokes previous buyer sessions and returns the replacement token.
+- `account.token.signOut({ customerToken, cartToken })` revokes the session.
+  When you supply the cart token, the shop also detaches the buyer and rotates
+  that cart token. Discard both values and open a fresh guest cart as needed.
+
+If an authentication write returns `outcomeUnknown: true`, resolve the session
+state before retrying. For example, after a lost sign-in response, start a new
+guest cart and sign in again. The previous cart token may already have rotated.
+On the shop origin, use the HttpOnly browser flow described above.
 
 ### Use the Checkout relay
 

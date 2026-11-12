@@ -6,6 +6,7 @@ import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { createClient } from '@veyndo/sdk';
+import { createAccountClient } from '@veyndo/sdk/account';
 import { createCatalogClient } from '@veyndo/sdk/catalog';
 import { createCheckoutClient } from '@veyndo/sdk/checkout';
 import { checkout } from './commerce.mjs';
@@ -25,7 +26,7 @@ if (core.hostname !== '127.0.0.1' || core.protocol !== 'http:' || core.origin ==
 const options = { baseUrl: core, shop, timeoutMs: 8000 };
 const client = createClient({ ...options, mcpApps: true });
 const commerce = checkout({
-  account: client, catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
+  account: createAccountClient(options), catalog: createCatalogClient(options), checkoutClient: createCheckoutClient(options),
 }, productId);
 const guide = await discoverGuide(client, productId);
 const bundle = await build({

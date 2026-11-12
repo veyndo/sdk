@@ -4,7 +4,7 @@ Use Node 22+ with the SDK package and an existing Veyndo shop. The public
 Lumen demo is enough for the first catalog read.
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.17/veyndo-sdk-0.4.17.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.18/veyndo-sdk-0.4.18.tgz
 node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 
@@ -33,8 +33,9 @@ go to **Developer → API & integrations** and create a key with the permissions
 your backend needs. For example, use catalog read for merchant product tools.
 Set the key in your backend's environment. The catalog, checkout and account
 clients share the shop scope. The merchant key is used only by `mcp` and
-`mcp.request()`. Checkout and account methods accept a current buyer token
-where required.
+`mcp.request()`. Use `shop.account.token` on your backend to register buyers
+and sign them in. Pass their current buyer token to account and checkout
+methods that require it. These buyer calls use the Store API.
 
 ```js
 const shop = createHostedShop({
@@ -56,6 +57,6 @@ key scope for a 401, 403 or 404. For an uncertain checkout write, recover the
 original result using the existing receipt flow.
 
 [Checkout and receipt recipe](integration-recipes.md#use-the-checkout-relay) ·
-[Buyer accounts](integration-recipes.md#read-the-buyers-order-history) ·
+[Buyer sign-in from your backend](integration-recipes.md#sign-in-buyers-from-your-backend) ·
 [Run an API-only Core](https://www.veyndo.ai/docs/hosted-component-api.html) ·
 [Compose separately hosted components](composition.md).
