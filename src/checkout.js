@@ -62,6 +62,15 @@ export function createCheckoutClient(options) {
   const scopedHeaders = buyerHeaders => ({ ...scopeHeaders, ...buyerHeaders });
   const cart = '/store-api/checkout/cart';
 
+  function reprice(path, body, access) {
+    if (!Number.isSafeInteger(body.revision) || body.revision < 0) {
+      throw new TypeError('A current cart revision is required');
+    }
+    return write(path, {
+      method: 'PUT', body, headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+    });
+  }
+
   function create(input, { signal, customerToken } = {}) {
     return write('/store-api/checkout/independent/create', {
       method: 'POST', body: input, headers: scopedHeaders(headers({ customerToken })), signal,
@@ -137,6 +146,20 @@ export function createCheckoutClient(options) {
         return write(`${cart}/line-item`, {
           method: 'POST', body: input, headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
         });
+      },
+      setCoupons({ codes, revision }, access) {
+        if (!Array.isArray(codes) || codes.length > 5 ||
+            Array.from(codes).some(code => typeof code !== 'string' ||
+              code.length === 0 || code.length > 64 || /[^\x00-\x7F]/.test(code))) {
+          throw new TypeError('Supply up to five ASCII coupon codes of 1–64 characters');
+        }
+        return reprice('/store-api/checkout/coupons', { codes, revision }, access);
+      },
+      setCurrency({ currency, revision }, access) {
+        if (typeof currency !== 'string' || currency.length !== 3 || /[^A-Z]/.test(currency)) {
+          throw new TypeError('Supply a three-letter uppercase currency code');
+        }
+        return reprice('/store-api/checkout/currency', { currency, revision }, access);
       },
       preview(input, access) {
         return read(`${cart}/preview`, {

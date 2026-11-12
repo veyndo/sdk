@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.18/veyndo-sdk-0.4.18.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.19/veyndo-sdk-0.4.19.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -252,6 +252,29 @@ same-origin shop frontend can use the existing browser session instead of
 passing a customer token.
 [Connected Shop example](../examples/connected-shop/README.md) ·
 [Checkout component](https://www.veyndo.ai/docs/checkout-component.html#use-the-checkout-relay-from-the-sdk).
+
+### Apply coupon codes and switch currency
+
+Use `checkout.cart` to change how an existing cart is priced. Each change
+returns the full cart with a new revision. Use the returned total, discounts
+and payment options when you show the updated quote.
+
+```ts
+let cart = await checkout.cart.read(access);
+cart = await checkout.cart.setCoupons({ codes: [enteredCode], revision: cart.revision }, access);
+
+if (cart.availableCurrencies?.includes(selectedCurrency)) {
+  cart = await checkout.cart.setCurrency({ currency: selectedCurrency, revision: cart.revision }, access);
+}
+
+console.log(cart.price.totalMinor, cart.price.currency, cart.discounts);
+```
+
+The codes array replaces the current list. Pass `[]` to clear it. A submitted
+code appears in `couponCodes`. Show a discount as applied only when the quote
+includes it in `discounts`. On HTTP 409, reload the cart and use its new
+revision. If the buyer was reviewing checkout, show the new quote and prepare
+checkout again from the latest revision before asking for confirmation.
 
 ### Read the buyer's order history
 

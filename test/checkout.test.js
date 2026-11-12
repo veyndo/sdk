@@ -12,6 +12,46 @@ const order = {
   orderState: 'open', paymentState: 'paid', currency: 'EUR', totalMinor: '2490',
 };
 
+test('currency and coupons use the current cart revision and return the server quote', async () => {
+  const access = { customerToken: 'buyer-token', cartToken: 'cart-token' };
+  const discounted = { revision: 8, couponCodes: ['DEMO10'], price: { totalMinor: '2241' } };
+  const converted = { revision: 9, price: { currency: 'USD', totalMinor: '2801' } };
+  const undiscounted = { revision: 10, couponCodes: [], price: { totalMinor: '3113' } };
+  const steps = [
+    ['coupons', { codes: ['DEMO10'], revision: 7 }, discounted],
+    ['currency', { currency: 'USD', revision: 8 }, converted],
+    ['coupons', { codes: [], revision: 9 }, undiscounted],
+    ['currency', { currency: 'EUR', revision: 7 }, null],
+  ];
+  const { cart } = createCheckoutClient({
+    baseUrl: 'https://shop.example', shop: 'demo', channel: 'external', locale: 'de-DE',
+    fetch: async (url, request) => {
+      const [path, body, quote] = steps.shift();
+      assert.equal(url.pathname, '/store-api/checkout/' + path);
+      assert.equal(request.method, 'PUT');
+      assert.deepEqual(JSON.parse(request.body), body);
+      assert.equal(request.headers.get('x-tenant'), 'demo');
+      assert.equal(request.headers.get('sw-sales-channel-id'), 'external');
+      assert.equal(request.headers.get('x-commerce-locale'), 'de-DE');
+      assert.equal(request.headers.get('sw-context-token'), access.cartToken);
+      assert.equal(request.headers.get('x-customer-token'), access.customerToken);
+      assert.equal(request.headers.get('authorization'), null);
+      return quote ? Response.json(quote) : new Response(null, { status: 409 });
+    },
+  });
+  assert.throws(() => cart.setCoupons({ codes: [''], revision: 7 }, access), TypeError);
+  assert.throws(() => cart.setCoupons({ codes: ['Frühling'], revision: 7 }, access), TypeError);
+  assert.throws(() => cart.setCoupons({ codes: [], revision: -1 }, access), TypeError);
+  assert.throws(() => cart.setCurrency({ currency: 'usd', revision: 7 }, access), TypeError);
+  assert.throws(() => cart.setCurrency({ currency: 'USD', revision: 7 }, {}), TypeError);
+  assert.deepEqual(await cart.setCoupons({ codes: ['DEMO10'], revision: 7 }, access), discounted);
+  assert.deepEqual(await cart.setCurrency({ currency: 'USD', revision: 8 }, access), converted);
+  assert.deepEqual(await cart.setCoupons({ codes: [], revision: 9 }, access), undiscounted);
+  await assert.rejects(cart.setCurrency({ currency: 'EUR', revision: 7 }, access),
+    { status: 409, outcomeUnknown: false });
+  assert.equal(steps.length, 0);
+});
+
 test('checkout uses the buyer relay and supplies the cart token only for confirmation', async () => {
   const create = { requestKey: 'request-1', expiresIn: 3600, context: {
     cart: { backend: 'native', id: lookup.cartId, revision: 4 },
