@@ -8,6 +8,12 @@
 - Run Connected Shop with the published 0.4.6 catalog and Checkout clients.
   The browser host now uses the cart preview and apply path for variant review.
 
+## 0.4.15
+
+- Project a currently admitted workspace to A2UI v1.0 with
+  `@veyndo/sdk/a2ui`. Clients can advertise their supported catalog or
+  receive structured panel references. Connected Shop uses the same adapter.
+
 ## 0.4.14
 
 - Change a signed-in buyer's password and adopt the replacement HttpOnly session.

@@ -38,9 +38,9 @@ test('model output only chooses the first panel for either renderer', async () =
   assert.deepEqual(a2uiLayout('guide'), [
     { version: '1.0', createSurface: { surfaceId: 'connected-shop', catalogId: shopCatalog } },
     { version: '1.0', updateComponents: { surfaceId: 'connected-shop', components: [
-      { id: 'root', component: 'Shop', children: ['Guide', 'Purchase'] },
-      { id: 'Guide', component: 'Guide' },
-      { id: 'Purchase', component: 'Purchase' },
+      { id: 'root', component: 'Shop', children: ['panel_Guide', 'panel_Purchase'] },
+      { id: 'panel_Guide', component: 'Guide' },
+      { id: 'panel_Purchase', component: 'Purchase' },
     ] } },
   ]);
   assert.equal(isLayoutSource('root = Shop([Guide(), Purchase("chair", 1)])'), false);
