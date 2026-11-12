@@ -47,7 +47,7 @@ current actor's permissions; the shop option only selects a namespace.
 Install a pinned GitHub prerelease in your application:
 
 ```sh
-npm install https://github.com/veyndo/sdk/releases/download/v0.4.22/veyndo-sdk-0.4.22.tgz
+npm install https://github.com/veyndo/sdk/releases/download/v0.4.23/veyndo-sdk-0.4.23.tgz
 ```
 
 The package includes MCP App resources, the Knowledge client, typed Flow draft
@@ -321,6 +321,42 @@ code appears in `couponCodes`. Show a discount as applied only when the quote
 includes it in `discounts`. On HTTP 409, reload the cart and use its new
 revision. If the buyer was reviewing checkout, show the new quote and prepare
 checkout again from the latest revision before asking for confirmation.
+
+### Check the payment after buyer approval
+
+When confirmation or receipt recovery returns a `paymentAttemptId`, keep
+that ID and the original cart token in the buyer's session across the
+provider return. Carry the customer token as well if your backend uses one.
+A payment attempt belongs to the original cart even after an order exists.
+
+```ts
+const attemptId = receipt.paymentAttemptId;
+if (attemptId) {
+  const status = await checkout.payment.status(attemptId, access);
+  if (status.state === 'ready' && status.checkout !== 'embedded' && status.approvalUrl) {
+    // Offer this provider link for the buyer to open.
+    showApprovalLink(status.approvalUrl);
+  }
+}
+```
+
+On the provider's approval return, queue a check using the attempt ID and
+access from your session. Core verifies approval with the provider and may
+capture the approved payment. Use the same request key if the response is
+lost, so that a retry returns the original job. A cancellation return can
+read the current status directly.
+
+```ts
+await checkout.payment.reconcile(attemptId, { requestKey: `${attemptId}:provider-return` }, access);
+const payment = await checkout.payment.status(attemptId, access);
+showPaymentStatus(payment);
+```
+
+The job acknowledgement only means the check was queued. While the provider
+check is in progress, show a pending state and refresh status separately.
+Render captured and refunded amounts using `currencyScale`. If you use
+Veyndo's hosted approval flow, the provider returns to the shop's configured
+return route. An embedded payment method uses its own provider UI.
 
 ### Read the buyer's order history
 

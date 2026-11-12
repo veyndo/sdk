@@ -36,6 +36,21 @@ function nonEmpty(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+const requestKeyPattern = /^[A-Za-z0-9_.:-]{8,128}$/;
+
+function paymentPath(attemptId) {
+  if (typeof attemptId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(attemptId)) {
+    throw new TypeError('Use the payment attempt ID from the checkout receipt');
+  }
+  return `/store-api/payments/${attemptId}`;
+}
+
+function validApprovalUrl(value) {
+  if (value === null) return true;
+  const url = typeof value === 'string' ? URL.parse(value) : null;
+  return url?.protocol === 'https:' && !url.username && !url.password;
+}
+
 function geographyName(names, locale, mainLocale) {
   if (!names || typeof names !== 'object') {
     throw new VeyndoError('Checkout returned an invalid country or region name', { kind: 'protocol' });
@@ -121,7 +136,7 @@ export function createCheckoutClient(options) {
   }
 
   async function prepare(cart, { requestKey, expiresIn = 900, signal, customerToken } = {}) {
-    if (typeof requestKey !== 'string' || !/^[A-Za-z0-9_.:-]{8,128}$/.test(requestKey) ||
+    if (typeof requestKey !== 'string' || !requestKeyPattern.test(requestKey) ||
         !Number.isSafeInteger(expiresIn) || expiresIn < 60 || expiresIn > 604800) {
       throw new TypeError('Checkout preparation requires a stable request key and a lifetime of 60–604800 seconds');
     }
@@ -236,6 +251,35 @@ export function createCheckoutClient(options) {
           method: 'PUT', body: { ...body, review: input.review },
           headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
         });
+      },
+    }),
+    payment: Object.freeze({
+      async status(attemptId, access) {
+        const result = await read(paymentPath(attemptId), {
+          headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+        });
+        if (result?.id !== attemptId || !nonEmpty(result.state) ||
+            ![result.amountMinor, result.capturedMinor, result.refundedMinor, result.currencyScale]
+              .every(value => Number.isSafeInteger(value) && value >= 0) ||
+            typeof result.currency !== 'string' || !/^[A-Z]{3}$/.test(result.currency) ||
+            !validApprovalUrl(result.approvalUrl)) {
+          throw new VeyndoError('Checkout returned an invalid status for this payment attempt', { kind: 'protocol' });
+        }
+        return result;
+      },
+      async reconcile(attemptId, { requestKey } = {}, access) {
+        if (typeof requestKey !== 'string' || !requestKeyPattern.test(requestKey)) {
+          throw new TypeError('Payment reconciliation requires a stable request key');
+        }
+        const result = await write(`${paymentPath(attemptId)}/reconcile`, {
+          method: 'POST', body: { requestKey }, headers: scopedHeaders(cartHeaders(access)), signal: access.signal,
+        });
+        if (result?.queued !== true || !nonEmpty(result.jobId)) {
+          throw new VeyndoError('Checkout did not acknowledge the payment check; recover it with the same request key', {
+            kind: 'protocol', outcomeUnknown: true,
+          });
+        }
+        return result;
       },
     }),
     create,
