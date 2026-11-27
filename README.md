@@ -1,8 +1,17 @@
-# Veyndo Commerce SDK
+<p align="center">
+  <img src="https://github.com/veyndo/veyndo/raw/main/docs/brand/veyndo-readme.svg" alt="Veyndo Commerce: commerce that thinks and acts." width="100%">
+</p>
 
-Build a storefront, a buyer account or a merchant tool in JavaScript or
-TypeScript. Read live catalog data, connect checkout and give your interface
-access to the same scoped operations that Veyndo exposes to apps and agents.
+# Veyndo Commerce SDK for JavaScript and TypeScript
+
+**Build your own storefront, checkout, buyer account or agent tool on Veyndo, the
+AI-native commerce platform built in Rust.** Your interface gets the same scoped
+operations that Veyndo gives its own shop, Studio, apps and agents: live catalog,
+exact prices, stock, checkout and 200+ MCP tools.
+
+- **Zero runtime dependencies**, ESM, typed operations, OpenAPI and WIT contracts included.
+- **HTTP and MCP in one client**: call tools, render MCP App UIs, compose A2UI/OpenUI workspaces.
+- **Server-side permissions**: the shop, actor and rights are checked by Veyndo on every call.
 
 [Install and try it](#use-veyndo-as-a-hosted-api) ·
 [Build something](#what-you-can-build) ·
@@ -10,20 +19,24 @@ access to the same scoped operations that Veyndo exposes to apps and agents.
 [Integration recipes](docs/integration-recipes.md) ·
 [Release 0.4.25](https://github.com/veyndo/sdk/releases/tag/v0.4.25)
 
+> Veyndo also generates typed clients for **TypeScript, Python and Rust** from its
+> per-component OpenAPI contracts: see [the SDK guide](https://github.com/veyndo/veyndo/blob/main/docs/sdks.md).
+
 ## Use Veyndo as a hosted API
 
-Install the SDK and call the public demo from Node 22 or newer.
+Install the SDK and read a shop from Node 22 or newer. Use your shop's ID, the
+subdomain of your storefront (`your-shop` for `your-shop.veyndo.ai`);
+[create a shop](https://start.veyndo.ai/start) if you don't have one yet.
 
 ```sh
 npm install https://github.com/veyndo/sdk/releases/download/v0.4.25/veyndo-sdk-0.4.25.tgz
-node node_modules/@veyndo/sdk/examples/hosted-shop.mjs
 ```
 
 ```js
 import { createHostedShop } from '@veyndo/sdk/hosted';
 
 const { catalog, checkout } = createHostedShop({
-  shop: 'lumen-story-lab-15-o-98aa4751fa',
+  shop: 'your-shop',
   locale: 'en-GB',
 });
 const { elements } = await catalog.list({ limit: 3 });
@@ -44,13 +57,13 @@ interactive UI through MCP while using the same shop's data and permissions.
 
 ## Read the Store API catalog
 
-With Node 22 or newer, install the published package and query the public Lumen
-demo. The example reads a product, its price and the next catalog page. It
-works without an API key.
+With Node 22 or newer, install the published package and query your shop's
+public catalog. The example reads a product, its price and the next catalog page.
+It works without an API key.
 
 ```sh
 npm install https://github.com/veyndo/sdk/releases/download/v0.4.25/veyndo-sdk-0.4.25.tgz
-node node_modules/@veyndo/sdk/examples/store-catalog.mjs
+VEYNDO_SHOP=your-shop node node_modules/@veyndo/sdk/examples/store-catalog.mjs
 ```
 
 Use the same client in your application:
@@ -60,7 +73,7 @@ import { createCatalogClient } from '@veyndo/sdk/catalog';
 
 const catalog = createCatalogClient({
   baseUrl: 'https://app.veyndo.ai',
-  shop: 'lumen-story-lab-15-o-98aa4751fa',
+  shop: 'your-shop',
   locale: 'en-GB',
 });
 const { elements: [first] } = await catalog.list({ limit: 1 });
@@ -70,7 +83,7 @@ if (first) {
 }
 ```
 
-Run `node node_modules/@veyndo/sdk/examples/browser.mjs` and open the printed
+Run `VEYNDO_SHOP=your-shop node node_modules/@veyndo/sdk/examples/browser.mjs` and open the printed
 local address to search, paginate and open products in a browser.
 [Catalog recipe](docs/integration-recipes.md#read-the-store-api-catalog) ·
 [Browser example](examples/browser.mjs)
